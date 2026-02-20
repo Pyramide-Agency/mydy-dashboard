@@ -1,0 +1,23 @@
+.git
+.gitignore
+*.md
+
+# Frontend — deps and build artifacts (re-installed inside Docker)
+front/node_modules
+front/.nuxt
+front/.output
+
+# Backend — deps and local env (re-installed inside Docker)
+back/vendor
+back/.env
+back/storage/logs/*
+back/storage/framework/cache/data/*
+back/storage/framework/sessions/*
+back/storage/framework/views/*
+
+# Dev-only files
+back/tests
+back/*.test.php
+back/.phpunit*
+docker-compose*.yml
+Dockerfile
