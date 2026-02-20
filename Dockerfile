@@ -41,7 +41,7 @@ RUN composer dump-autoload --optimize --no-dev
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 3 — Runtime: PHP-FPM + Nginx (served by Supervisor)
 # ─────────────────────────────────────────────────────────────────────────────
-FROM php:8.3-fpm-alpine
+FROM php:8.4-fpm-alpine
 
 # System packages
 RUN apk add --no-cache \
