@@ -12,6 +12,9 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TelegramController;
 use Illuminate\Support\Facades\Route;
 
+// Health check (used by Docker HEALTHCHECK and Dokploy)
+Route::get('/health', fn () => response()->json(['ok' => true]));
+
 // Public routes
 Route::post('/auth/login', [AuthController::class, 'login']);
 

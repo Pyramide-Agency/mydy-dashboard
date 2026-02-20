@@ -52,6 +52,8 @@ RUN apk add --no-cache \
         libzip-dev \
         zip \
         unzip \
+        curl \
+        openssl \
     && docker-php-ext-install \
         pdo \
         pdo_pgsql \
@@ -95,5 +97,10 @@ COPY docker/entrypoint.sh    /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 80
+
+# Dokploy waits for the container to become healthy before routing traffic.
+# start-period covers Nuxt build time + migrations on first boot.
+HEALTHCHECK --interval=15s --timeout=5s --start-period=90s --retries=3 \
+  CMD curl -fsS http://localhost/api/health || exit 1
 
 ENTRYPOINT ["/entrypoint.sh"]
