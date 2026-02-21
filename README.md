@@ -31,7 +31,7 @@
 ---
 
 ## Деплой в Dokploy
-
+[Посмотрите гайд](https://www.youtube.com/watch?v=EaMZUBrVKag)
 [![Смотреть видео-гайд](https://img.youtube.com/vi/EaMZUBrVKag/maxresdefault.jpg)](https://www.youtube.com/watch?v=EaMZUBrVKag)
 
 ### Шаг 1 — Создать PostgreSQL
