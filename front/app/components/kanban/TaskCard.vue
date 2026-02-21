@@ -1,5 +1,6 @@
 <template>
   <div
+    :data-id="task.id"
     class="bg-card border border-border rounded-lg p-3 cursor-pointer hover:shadow-md transition-all hover:border-primary/30 group"
     @click="$emit('click', task)"
   >

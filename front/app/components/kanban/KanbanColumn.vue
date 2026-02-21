@@ -67,17 +67,15 @@ const statusColors: Record<string, string> = {
 const statusColor = computed(() => statusColors[props.column.status_key] || '#6b7280')
 
 const onDragEnd = async (event: any) => {
-  const taskEl  = event.item
-  const taskId  = parseInt(taskEl.dataset.id || '0')
-  const newCol  = parseInt(taskEl.closest('[data-column-id]')?.dataset?.columnId || String(props.column.id))
-  const newPos  = event.newIndex ?? 0
+  const taskEl = event.item
+  const taskId = parseInt(taskEl.dataset.id || '0')
+  if (!taskId) return
 
-  // Get actual task from local list
-  const movedTask = localTasks.value[newPos]
-  if (!movedTask) return
+  const newCol = parseInt(event.to.closest('[data-column-id]')?.dataset?.columnId || String(props.column.id))
+  const newPos = event.newIndex ?? 0
 
   try {
-    await api.moveTask(movedTask.id, {
+    await api.moveTask(taskId, {
       column_id: newCol || props.column.id,
       position:  newPos,
     })
