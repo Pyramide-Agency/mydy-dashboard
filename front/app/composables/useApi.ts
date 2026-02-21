@@ -114,7 +114,10 @@ export const useApi = () => {
     // Finance summary & AI
     getSummary: (period: string) => get('/finance/summary', { period }),
     getAiFeedback: () => post('/finance/ai-feedback'),
-    getConversation: () => get('/finance/ai-conversation'),
+    listConversations: () => get('/finance/conversations'),
+    createConversation: () => post('/finance/conversations'),
+    deleteConversation: (id: number) => del(`/finance/conversations/${id}`),
+    getConversation: (id?: number) => get('/finance/ai-conversation', id ? { id } : undefined),
 
     // Settings
     getSettings: () => get('/settings'),

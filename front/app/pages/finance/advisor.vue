@@ -1,20 +1,64 @@
 <template>
-  <div class="flex flex-col h-full max-w-3xl mx-auto">
-    <Card class="flex-1 flex flex-col overflow-hidden">
-      <CardHeader class="border-b border-border pb-4">
+  <!-- h-[calc(100vh-6.5rem)] = 100vh - header(3.5rem) - main padding(3rem) -->
+  <div class="flex gap-4 h-[calc(100vh-6.5rem)]">
+
+    <!-- Sidebar: conversation list -->
+    <div class="w-60 shrink-0 flex flex-col gap-2">
+      <Button class="w-full" size="sm" @click="newChat">
+        <Plus class="w-4 h-4 mr-1" />
+        Новый чат
+      </Button>
+
+      <Card class="flex-1 overflow-hidden flex flex-col min-h-0">
+        <div class="flex-1 overflow-y-auto p-2 space-y-1">
+          <div
+            v-if="conversations.length === 0"
+            class="text-xs text-muted-foreground text-center py-4"
+          >
+            Нет чатов
+          </div>
+          <div
+            v-for="conv in conversations"
+            :key="conv.id"
+            class="group flex items-start gap-1 rounded-lg px-2 py-2 cursor-pointer transition-colors"
+            :class="conv.id === currentId
+              ? 'bg-primary/10 text-primary'
+              : 'hover:bg-muted/50 text-foreground'"
+            @click="selectConversation(conv.id)"
+          >
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-medium truncate leading-tight">{{ conv.title }}</p>
+              <p class="text-[10px] text-muted-foreground truncate mt-0.5 leading-tight">
+                {{ conv.preview || 'Пустой чат' }}
+              </p>
+            </div>
+            <button
+              class="opacity-0 group-hover:opacity-100 shrink-0 mt-0.5 text-muted-foreground hover:text-destructive transition-all"
+              @click.stop="removeConversation(conv.id)"
+            >
+              <Trash2 class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </Card>
+    </div>
+
+    <!-- Chat area -->
+    <Card class="flex-1 flex flex-col overflow-hidden min-w-0">
+      <CardHeader class="border-b border-border pb-3 shrink-0">
         <div class="flex items-center gap-3">
-          <div class="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center">
+          <div class="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
             <Bot class="w-5 h-5 text-primary" />
           </div>
-          <div>
-            <CardTitle class="text-base">AI Финансовый советник</CardTitle>
+          <div class="min-w-0">
+            <CardTitle class="text-base truncate">{{ currentTitle }}</CardTitle>
             <CardDescription>Задайте любой вопрос о ваших финансах</CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <!-- Messages -->
-      <div ref="messagesRef" class="flex-1 overflow-y-auto p-4 space-y-4">
+      <!-- Messages — flex-1 + min-h-0 is the key for scroll to work in flex -->
+      <div ref="messagesRef" class="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         <div v-if="messages.length === 0" class="text-center py-12 text-muted-foreground">
           <Bot class="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p class="text-sm">Начните разговор с AI советником</p>
@@ -55,7 +99,7 @@
       </div>
 
       <!-- Input -->
-      <div class="border-t border-border p-4">
+      <div class="border-t border-border p-4 shrink-0">
         <form @submit.prevent="sendMessage" class="flex gap-2">
           <Input
             v-model="input"
@@ -71,31 +115,86 @@
         </form>
       </div>
     </Card>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { Bot, User, Send, Loader2 } from 'lucide-vue-next'
+import { Bot, User, Send, Loader2, Plus, Trash2 } from 'lucide-vue-next'
 import { marked } from 'marked'
 
 const renderMd = (text: string) => marked(text, { breaks: true }) as string
 
 definePageMeta({ middleware: 'auth' })
 
-const api          = useApi()
-const config       = useRuntimeConfig()
-const messages     = ref<{ role: string; content: string; streaming?: boolean }[]>([])
-const input        = ref('')
-const streaming    = ref(false)
-const messagesRef  = ref<HTMLElement | null>(null)
+const api         = useApi()
+const config      = useRuntimeConfig()
+const messages    = ref<{ role: string; content: string; streaming?: boolean }[]>([])
+const input       = ref('')
+const streaming   = ref(false)
+const messagesRef = ref<HTMLElement | null>(null)
+
+type ConvSummary = { id: number; title: string; preview: string; updated_at: string }
+const conversations = ref<ConvSummary[]>([])
+const currentId     = ref<number | null>(null)
+const currentTitle  = computed(() =>
+  conversations.value.find(c => c.id === currentId.value)?.title ?? 'AI Финансовый советник'
+)
 
 onMounted(async () => {
+  await loadConversations()
+  if (currentId.value) {
+    await loadMessages(currentId.value)
+  }
+})
+
+const loadConversations = async () => {
   try {
-    const res: any = await api.getConversation()
-    messages.value = res.messages || []
+    const list = (await api.listConversations()) as ConvSummary[]
+    conversations.value = list
+    if (!currentId.value && list.length > 0) {
+      currentId.value = list[0]!.id
+    }
+  } catch {}
+}
+
+const loadMessages = async (id: number) => {
+  try {
+    const res: any = await api.getConversation(id)
+    messages.value  = res.messages || []
+    currentId.value = res.id
     scrollToBottom()
   } catch {}
-})
+}
+
+const selectConversation = async (id: number) => {
+  if (id === currentId.value || streaming.value) return
+  messages.value = []
+  await loadMessages(id)
+}
+
+const newChat = async () => {
+  if (streaming.value) return
+  try {
+    const res: any = await api.createConversation()
+    conversations.value.unshift({ id: res.id, title: res.title, preview: '', updated_at: new Date().toISOString() })
+    currentId.value = res.id
+    messages.value  = []
+  } catch {}
+}
+
+const removeConversation = async (id: number) => {
+  if (!confirm('Удалить этот чат?')) return
+  try {
+    await api.deleteConversation(id)
+    conversations.value = conversations.value.filter(c => c.id !== id)
+    if (currentId.value === id) {
+      currentId.value = conversations.value[0]?.id ?? null
+      messages.value  = []
+      if (currentId.value) await loadMessages(currentId.value)
+    }
+  } catch {}
+}
 
 const scrollToBottom = () => {
   nextTick(() => {
@@ -109,7 +208,13 @@ const sendMessage = async () => {
   const text = input.value.trim()
   if (!text || streaming.value) return
 
-  input.value    = ''
+  // Ensure there's an active conversation
+  if (!currentId.value) {
+    await newChat()
+    if (!currentId.value) return
+  }
+
+  input.value     = ''
   streaming.value = true
 
   messages.value.push({ role: 'user', content: text })
@@ -119,7 +224,7 @@ const sendMessage = async () => {
   scrollToBottom()
 
   try {
-    const token   = import.meta.client ? localStorage.getItem('auth_token') : ''
+    const token    = import.meta.client ? localStorage.getItem('auth_token') : ''
     const response = await fetch(`${config.public.apiBase}/finance/ai-conversation`, {
       method:  'POST',
       headers: {
@@ -127,7 +232,7 @@ const sendMessage = async () => {
         'Accept':        'text/event-stream',
         'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({ message: text }),
+      body: JSON.stringify({ message: text, conversation_id: currentId.value }),
     })
 
     const reader  = response.body!.getReader()
@@ -139,10 +244,8 @@ const sendMessage = async () => {
       const { done, value } = await reader.read()
       if (done) break
 
-      // {stream: true} handles multi-byte chars (Cyrillic) split across chunks
       sseBuffer += decoder.decode(value, { stream: true })
 
-      // Process only complete SSE events (separated by \n\n)
       let sep: number
       while ((sep = sseBuffer.indexOf('\n\n')) !== -1) {
         const event = sseBuffer.slice(0, sep)
@@ -161,11 +264,19 @@ const sendMessage = async () => {
         if (finished) break
       }
     }
-  } catch (e) {
+
+    // Refresh sidebar to update title/preview after response
+    await loadConversations()
+    // Keep current conversation selected after refresh
+    if (currentId.value) {
+      const fresh = conversations.value.find(c => c.id === currentId.value)
+      if (fresh) currentId.value = fresh.id
+    }
+  } catch {
     assistantMsg.content = 'Ошибка соединения. Попробуйте ещё раз.'
   } finally {
     assistantMsg.streaming = false
-    streaming.value = false
+    streaming.value        = false
     scrollToBottom()
   }
 }

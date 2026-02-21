@@ -62,10 +62,13 @@ Route::middleware('auth.api')->group(function () {
     Route::delete('/finance/categories/{category}', [FinanceCategoryController::class, 'destroy']);
 
     // Finance summary & AI
-    Route::get('/finance/summary',          [FinanceSummaryController::class, 'index']);
-    Route::post('/finance/ai-feedback',     [AiController::class, 'feedback']);
-    Route::get('/finance/ai-conversation',  [AiController::class, 'getConversation']);
-    Route::post('/finance/ai-conversation', [AiController::class, 'sendMessage']);
+    Route::get('/finance/summary',               [FinanceSummaryController::class, 'index']);
+    Route::post('/finance/ai-feedback',          [AiController::class, 'feedback']);
+    Route::get('/finance/conversations',         [AiController::class, 'listConversations']);
+    Route::post('/finance/conversations',        [AiController::class, 'createConversation']);
+    Route::delete('/finance/conversations/{id}', [AiController::class, 'deleteConversation']);
+    Route::get('/finance/ai-conversation',       [AiController::class, 'getConversation']);
+    Route::post('/finance/ai-conversation',      [AiController::class, 'sendMessage']);
 
     // Settings
     Route::get('/settings', [SettingsController::class, 'index']);

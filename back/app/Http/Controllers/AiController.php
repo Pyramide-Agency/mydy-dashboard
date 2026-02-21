@@ -37,24 +37,79 @@ class AiController extends Controller
         return response()->json(['analysis' => $text]);
     }
 
-    public function getConversation(): JsonResponse
-    {
-        $conversation = AiConversation::firstOrCreate(
-            ['context_type' => 'finance_advisor'],
-            ['messages'     => []]
-        );
+    // ─── Conversation CRUD ────────────────────────────────────────────────────
 
-        return response()->json(['messages' => $conversation->messages]);
+    public function listConversations(): JsonResponse
+    {
+        $conversations = AiConversation::orderByDesc('updated_at')
+            ->get()
+            ->map(fn ($c) => [
+                'id'         => $c->id,
+                'title'      => $c->title,
+                'updated_at' => $c->updated_at,
+                'preview'    => $this->preview($c->messages),
+            ]);
+
+        return response()->json($conversations);
     }
+
+    public function createConversation(): JsonResponse
+    {
+        $conv = AiConversation::create([
+            'context_type' => 'finance_advisor',
+            'title'        => 'Новый чат',
+            'messages'     => [],
+        ]);
+
+        return response()->json([
+            'id'       => $conv->id,
+            'title'    => $conv->title,
+            'messages' => [],
+        ]);
+    }
+
+    public function deleteConversation(int $id): JsonResponse
+    {
+        AiConversation::findOrFail($id)->delete();
+
+        return response()->json(['message' => 'Чат удалён']);
+    }
+
+    public function getConversation(Request $request): JsonResponse
+    {
+        $conv = $request->query('id')
+            ? AiConversation::findOrFail($request->query('id'))
+            : AiConversation::orderByDesc('updated_at')->first()
+              ?? AiConversation::create([
+                    'context_type' => 'finance_advisor',
+                    'title'        => 'Новый чат',
+                    'messages'     => [],
+                 ]);
+
+        return response()->json([
+            'id'       => $conv->id,
+            'title'    => $conv->title,
+            'messages' => $conv->messages,
+        ]);
+    }
+
+    // ─── Streaming ────────────────────────────────────────────────────────────
 
     public function sendMessage(Request $request): StreamedResponse
     {
-        $request->validate(['message' => 'required|string|max:2000']);
+        $request->validate([
+            'message'         => 'required|string|max:2000',
+            'conversation_id' => 'sometimes|integer|exists:ai_conversations,id',
+        ]);
 
-        $conversation = AiConversation::firstOrCreate(
-            ['context_type' => 'finance_advisor'],
-            ['messages'     => []]
-        );
+        $conversation = $request->filled('conversation_id')
+            ? AiConversation::findOrFail($request->input('conversation_id'))
+            : AiConversation::orderByDesc('updated_at')->first()
+              ?? AiConversation::create([
+                    'context_type' => 'finance_advisor',
+                    'title'        => 'Новый чат',
+                    'messages'     => [],
+                 ]);
 
         $ctx          = (new FinanceContextBuilder())->buildForMessage($request->message);
         $systemPrompt = "Ты персональный финансовый советник. Русский язык. Будь кратким и конкретным.\n"
@@ -71,7 +126,6 @@ class AiController extends Controller
         $ai          = new AiService();
 
         return response()->stream(function () use ($messages, $systemPrompt, $conversation, $userMessage, $ai) {
-            // Flush all existing output buffers so each echo reaches the client immediately
             while (ob_get_level() > 0) {
                 ob_end_clean();
             }
@@ -95,7 +149,13 @@ class AiController extends Controller
                     $updatedMessages = array_slice($updatedMessages, -100);
                 }
 
-                $conversation->update(['messages' => $updatedMessages]);
+                // Auto-title: set to first user message if still default
+                $newTitle = $conversation->fresh()->title ?? 'Новый чат';
+                if ($newTitle === 'Новый чат') {
+                    $newTitle = mb_substr($userMessage, 0, 50);
+                }
+
+                $conversation->update(['messages' => $updatedMessages, 'title' => $newTitle]);
             } catch (\Throwable) {}
 
             echo "data: [DONE]\n\n";
@@ -105,5 +165,13 @@ class AiController extends Controller
             'X-Accel-Buffering' => 'no',
             'Connection'        => 'keep-alive',
         ]);
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    private function preview(array $messages): string
+    {
+        $last = collect($messages)->last();
+        return $last ? mb_substr($last['content'], 0, 80) : '';
     }
 }
