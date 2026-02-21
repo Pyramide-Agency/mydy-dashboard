@@ -4,7 +4,7 @@
     <!-- Brand -->
     <div class="px-4 py-4 border-b border-slate-800">
       <NuxtLink to="/" class="flex items-center gap-2.5 group">
-        <NuxtImg
+        <img
           src="/mydy-logo-dark.svg"
           alt="Logo"
           width="80"
