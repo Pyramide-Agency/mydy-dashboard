@@ -22,12 +22,13 @@ class TelegramController extends Controller
             return $this->error('Неверный токен бота. Проверьте токен от @BotFather.', 422);
         }
 
-        // Step 2: save the valid token
-        Setting::set('telegram_bot_token', $token);
-
-        // Step 3: try to register webhook (may fail if app URL is not HTTPS/public)
-        $webhook  = url('/api/telegram/webhook');
-        $whResult = Http::get("https://api.telegram.org/bot{$token}/setWebhook", [
+        // Step 2: try to register webhook (may fail if app URL is not HTTPS/public)
+        $baseUrl = config('app.url') ?: $request->getSchemeAndHttpHost();
+        if (!str_starts_with($baseUrl, 'https://')) {
+            $baseUrl = preg_replace('#^http://#', 'https://', $baseUrl);
+        }
+        $webhook  = rtrim($baseUrl, '/') . '/api/telegram/webhook';
+        $whResult = Http::asJson()->post("https://api.telegram.org/bot{$token}/setWebhook", [
             'url'             => $webhook,
             'allowed_updates' => ['message'],
         ]);
@@ -37,12 +38,12 @@ class TelegramController extends Controller
         $botName = $me->json('result.username', 'бот');
 
         if (!$whResult->ok() || !$whResult->json('ok')) {
-            // Token saved but webhook failed (e.g. app not publicly accessible)
-            return $this->success(
-                ['message' => "Токен @{$botName} сохранён, но не удалось зарегистрировать webhook. Убедитесь, что приложение доступно по HTTPS."],
-                "Токен сохранён, webhook не зарегистрирован"
-            );
+            $description = $whResult->json('description') ?: 'Неизвестная ошибка регистрации webhook';
+            return $this->error("Не удалось зарегистрировать webhook: {$description}. Убедитесь, что приложение доступно по HTTPS и публично.", 422);
         }
+
+        // Step 3: save token only after successful webhook registration
+        Setting::set('telegram_bot_token', $token);
 
         return $this->success(
             ['message' => "Telegram бот @{$botName} подключён"],
