@@ -72,6 +72,22 @@ RUN { \
     echo 'opcache.save_comments=1'; \
 } > /usr/local/etc/php/conf.d/opcache.ini
 
+# PHP error logging — send all errors to stderr (visible in docker logs / Dokploy)
+RUN { \
+    echo 'error_reporting = E_ALL'; \
+    echo 'display_errors = Off'; \
+    echo 'log_errors = On'; \
+    echo 'error_log = /proc/self/fd/2'; \
+} > /usr/local/etc/php/conf.d/errors.ini
+
+# PHP-FPM pool — catch worker output and forward errors to stderr
+RUN { \
+    echo '[www]'; \
+    echo 'catch_workers_output = yes'; \
+    echo 'php_admin_flag[log_errors] = on'; \
+    echo 'php_admin_value[error_log] = /proc/self/fd/2'; \
+} > /usr/local/etc/php-fpm.d/errors.conf
+
 # ── Laravel ──────────────────────────────────────────────────────────────────
 WORKDIR /var/www/html
 
