@@ -24,7 +24,7 @@ class FinanceEntryController extends Controller
             $query->whereDate('date', '<=', $request->to);
         }
 
-        return response()->json($query->paginate(50));
+        return $this->success($query->paginate(50)->toArray());
     }
 
     public function store(Request $request): JsonResponse
@@ -39,7 +39,7 @@ class FinanceEntryController extends Controller
         ]);
 
         $entry = FinanceEntry::create($data);
-        return response()->json($entry->load('category'), 201);
+        return $this->success($entry->load('category')->toArray(), 'Запись добавлена', 201);
     }
 
     public function update(Request $request, FinanceEntry $entry): JsonResponse
@@ -53,12 +53,12 @@ class FinanceEntryController extends Controller
         ]);
 
         $entry->update($data);
-        return response()->json($entry->load('category'));
+        return $this->success($entry->load('category')->toArray(), 'Запись обновлена');
     }
 
     public function destroy(FinanceEntry $entry): JsonResponse
     {
         $entry->delete();
-        return response()->json(null, 204);
+        return $this->success(message: 'Запись удалена');
     }
 }

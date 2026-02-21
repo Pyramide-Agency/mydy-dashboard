@@ -31,20 +31,29 @@ export const useApi = () => {
     return fallback
   }
 
+  // Unwrap standard {statusCode, status, timestamp, message, data} envelope
+  const unwrap = (raw: any) => {
+    if (raw && typeof raw === 'object' && !Array.isArray(raw) && 'statusCode' in raw) {
+      return raw.data ?? null
+    }
+    return raw
+  }
+
   const request = async <T>(
     path: string,
     options: Record<string, any> = {},
     toastOptions?: { success?: boolean | string; error?: boolean | string },
   ) => {
     try {
-      const data = await $fetch<T>(path, { baseURL: base, headers: headers(), ...options })
+      const raw = await $fetch<any>(path, { baseURL: base, headers: headers(), ...options })
       if (toastOptions?.success) {
+        // Use raw (pre-unwrap) to read top-level message for toast
         const message = typeof toastOptions.success === 'string'
           ? toastOptions.success
-          : pickSuccessMessage(data)
+          : pickSuccessMessage(raw)
         if (message) toast.success(message)
       }
-      return data
+      return unwrap(raw) as T
     } catch (err: any) {
       if (toastOptions?.error) {
         const message = typeof toastOptions.error === 'string'

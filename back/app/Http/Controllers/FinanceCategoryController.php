@@ -10,7 +10,7 @@ class FinanceCategoryController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json(FinanceCategory::withCount('entries')->get());
+        return $this->success(FinanceCategory::withCount('entries')->get()->toArray());
     }
 
     public function store(Request $request): JsonResponse
@@ -21,7 +21,7 @@ class FinanceCategoryController extends Controller
             'icon'  => 'nullable|string|max:100',
         ]);
 
-        return response()->json(FinanceCategory::create($data), 201);
+        return $this->success(FinanceCategory::create($data)->toArray(), 'Категория создана', 201);
     }
 
     public function update(Request $request, FinanceCategory $category): JsonResponse
@@ -33,12 +33,12 @@ class FinanceCategoryController extends Controller
         ]);
 
         $category->update($data);
-        return response()->json($category);
+        return $this->success($category->toArray(), 'Категория обновлена');
     }
 
     public function destroy(FinanceCategory $category): JsonResponse
     {
         $category->delete();
-        return response()->json(null, 204);
+        return $this->success(message: 'Категория удалена');
     }
 }

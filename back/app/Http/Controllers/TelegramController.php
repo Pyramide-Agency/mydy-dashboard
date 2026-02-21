@@ -13,24 +13,41 @@ class TelegramController extends Controller
 {
     public function register(Request $request): JsonResponse
     {
-        $data = $request->validate(['token' => 'required|string']);
+        $data  = $request->validate(['token' => 'required|string']);
+        $token = $data['token'];
 
-        $token   = $data['token'];
-        $webhook = url('/api/telegram/webhook');
-        $response = Http::get("https://api.telegram.org/bot{$token}/setWebhook", [
+        // Step 1: validate token independently of webhook URL
+        $me = Http::get("https://api.telegram.org/bot{$token}/getMe");
+        if (!$me->ok() || !$me->json('ok')) {
+            return $this->error('Неверный токен бота. Проверьте токен от @BotFather.', 422);
+        }
+
+        // Step 2: save the valid token
+        Setting::set('telegram_bot_token', $token);
+
+        // Step 3: try to register webhook (may fail if app URL is not HTTPS/public)
+        $webhook  = url('/api/telegram/webhook');
+        $whResult = Http::get("https://api.telegram.org/bot{$token}/setWebhook", [
             'url'             => $webhook,
             'allowed_updates' => ['message'],
         ]);
 
-        Log::info('Telegram webhook response', ['response' => $response->json()]);
+        Log::info('Telegram webhook response', ['response' => $whResult->json()]);
 
-        if (!$response->ok() || !$response->json('ok')) {
-            return response()->json(['message' => 'Неверный токен или ошибка Telegram'], 422);
+        $botName = $me->json('result.username', 'бот');
+
+        if (!$whResult->ok() || !$whResult->json('ok')) {
+            // Token saved but webhook failed (e.g. app not publicly accessible)
+            return $this->success(
+                ['message' => "Токен @{$botName} сохранён, но не удалось зарегистрировать webhook. Убедитесь, что приложение доступно по HTTPS."],
+                "Токен сохранён, webhook не зарегистрирован"
+            );
         }
 
-        Setting::set('telegram_bot_token', $token);
-
-        return response()->json(['message' => 'Telegram бот подключён', 'webhook' => $webhook]);
+        return $this->success(
+            ['message' => "Telegram бот @{$botName} подключён"],
+            "Telegram бот подключён"
+        );
     }
 
     public function webhook(Request $request): JsonResponse

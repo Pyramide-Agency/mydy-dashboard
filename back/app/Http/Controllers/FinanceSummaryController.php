@@ -46,8 +46,8 @@ class FinanceSummaryController extends Controller
         $allExpense     = (float) FinanceEntry::where('type', 'expense')->sum('amount');
         $overallBalance = round($initialBalance + $allIncome - $allExpense, 2);
 
-        return response()->json([
-            'total'           => round($expenses->sum('amount'), 2),   // backwards compat
+        return $this->success([
+            'total'           => round($expenses->sum('amount'), 2),
             'total_expense'   => round($expenses->sum('amount'), 2),
             'total_income'    => round($incomes->sum('amount'), 2),
             'net'             => round($incomes->sum('amount') - $expenses->sum('amount'), 2),

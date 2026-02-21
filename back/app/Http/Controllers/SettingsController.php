@@ -18,7 +18,7 @@ class SettingsController extends Controller
         // Indicate whether an AI key is stored without exposing it
         $settings['ai_api_key_set'] = (bool) Setting::get('ai_api_key');
 
-        return response()->json($settings);
+        return $this->success($settings->toArray());
     }
 
     public function update(Request $request): JsonResponse
@@ -44,6 +44,6 @@ class SettingsController extends Controller
             Setting::set('api_token', null);
         }
 
-        return response()->json(['message' => 'Настройки сохранены']);
+        return $this->success(message: 'Настройки сохранены');
     }
 }

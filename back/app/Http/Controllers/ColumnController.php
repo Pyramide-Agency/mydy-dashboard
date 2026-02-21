@@ -11,7 +11,7 @@ class ColumnController extends Controller
 {
     public function index(Board $board): JsonResponse
     {
-        return response()->json($board->columns()->with(['tasks' => fn($q) => $q->orderBy('position')])->get());
+        return $this->success($board->columns()->with(['tasks' => fn($q) => $q->orderBy('position')])->get()->toArray());
     }
 
     public function store(Board $board, Request $request): JsonResponse
@@ -24,7 +24,7 @@ class ColumnController extends Controller
         $position = $board->columns()->max('position') + 1;
         $column = $board->columns()->create([...$data, 'position' => $position]);
 
-        return response()->json($column, 201);
+        return $this->success($column->toArray(), 'Колонка создана', 201);
     }
 
     public function update(Request $request, Column $column): JsonResponse
@@ -34,12 +34,12 @@ class ColumnController extends Controller
         ]);
 
         $column->update($data);
-        return response()->json($column);
+        return $this->success($column->toArray(), 'Колонка обновлена');
     }
 
     public function destroy(Column $column): JsonResponse
     {
         $column->delete();
-        return response()->json(null, 204);
+        return $this->success(message: 'Колонка удалена');
     }
 }

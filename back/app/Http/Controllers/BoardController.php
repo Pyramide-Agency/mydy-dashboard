@@ -12,7 +12,7 @@ class BoardController extends Controller
     public function index(): JsonResponse
     {
         $boards = Board::withCount(['tasks' => fn($q) => $q->where('archived', false)])->get();
-        return response()->json($boards);
+        return $this->success($boards->toArray());
     }
 
     public function store(Request $request): JsonResponse
@@ -31,13 +31,13 @@ class BoardController extends Controller
             ['board_id' => $board->id, 'name' => 'Готово',   'status_key' => 'done',          'position' => 2, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        return response()->json($board->load('columns'), 201);
+        return $this->success($board->load('columns')->toArray(), 'Доска создана', 201);
     }
 
     public function show(Board $board): JsonResponse
     {
         $board->load(['columns.tasks' => fn($q) => $q->orderBy('position')]);
-        return response()->json($board);
+        return $this->success($board->toArray());
     }
 
     public function update(Request $request, Board $board): JsonResponse
@@ -48,16 +48,16 @@ class BoardController extends Controller
         ]);
 
         $board->update($data);
-        return response()->json($board);
+        return $this->success($board->toArray(), 'Доска обновлена');
     }
 
     public function destroy(Board $board): JsonResponse
     {
         if ($board->is_default) {
-            return response()->json(['message' => 'Нельзя удалить основную доску'], 422);
+            return $this->error('Нельзя удалить основную доску', 422);
         }
 
         $board->delete();
-        return response()->json(null, 204);
+        return $this->success(message: 'Доска удалена');
     }
 }

@@ -20,7 +20,7 @@ class AuthController extends Controller
             Log::info('[auth.login] app_password found: ' . ($storedHash ? 'yes' : 'NO'));
 
             if (!$storedHash || !Hash::check($request->password, $storedHash)) {
-                return response()->json(['message' => 'Неверный пароль'], 401);
+                return $this->error('Неверный пароль', 401);
             }
 
             // Generate or return existing token
@@ -30,25 +30,25 @@ class AuthController extends Controller
                 Setting::set('api_token', $token);
             }
 
-            return response()->json(['token' => $token]);
+            return $this->success(['token' => $token], 'Вход выполнен');
         } catch (\Throwable $e) {
             Log::error('[auth.login] Exception: ' . $e->getMessage(), [
                 'file'  => $e->getFile() . ':' . $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json(['message' => 'Server error: ' . $e->getMessage()], 500);
+            return $this->error('Server error: ' . $e->getMessage(), 500);
         }
     }
 
     public function logout(): JsonResponse
     {
         Setting::set('api_token', null);
-        return response()->json(['message' => 'Logged out']);
+        return $this->success(message: 'Выход выполнен');
     }
 
     public function check(): JsonResponse
     {
-        return response()->json(['authenticated' => true]);
+        return $this->success(['authenticated' => true]);
     }
 }

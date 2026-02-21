@@ -16,7 +16,7 @@ class AiController extends Controller
         $ctx = (new FinanceContextBuilder())->buildForFeedback();
 
         if (empty($ctx['entries'])) {
-            return response()->json(['analysis' => 'Сегодня расходов ещё нет. Начните добавлять расходы, чтобы получить анализ.']);
+            return $this->success(['analysis' => 'Сегодня расходов ещё нет. Начните добавлять расходы, чтобы получить анализ.']);
         }
 
         $c      = $ctx['currency'];
@@ -31,10 +31,10 @@ class AiController extends Controller
         try {
             $text = (new AiService())->complete($system, [['role' => 'user', 'content' => $prompt]]);
         } catch (\Throwable $e) {
-            return response()->json(['error' => $e->getMessage()], 502);
+            return $this->error($e->getMessage(), 502);
         }
 
-        return response()->json(['analysis' => $text]);
+        return $this->success(['analysis' => $text]);
     }
 
     // ─── Conversation CRUD ────────────────────────────────────────────────────
@@ -50,7 +50,7 @@ class AiController extends Controller
                 'preview'    => $this->preview($c->messages),
             ]);
 
-        return response()->json($conversations);
+        return $this->success($conversations->toArray());
     }
 
     public function createConversation(): JsonResponse
@@ -61,18 +61,18 @@ class AiController extends Controller
             'messages'     => [],
         ]);
 
-        return response()->json([
+        return $this->success([
             'id'       => $conv->id,
             'title'    => $conv->title,
             'messages' => [],
-        ]);
+        ], 'Чат создан', 201);
     }
 
     public function deleteConversation(int $id): JsonResponse
     {
         AiConversation::findOrFail($id)->delete();
 
-        return response()->json(['message' => 'Чат удалён']);
+        return $this->success(message: 'Чат удалён');
     }
 
     public function getConversation(Request $request): JsonResponse
@@ -86,7 +86,7 @@ class AiController extends Controller
                     'messages'     => [],
                  ]);
 
-        return response()->json([
+        return $this->success([
             'id'       => $conv->id,
             'title'    => $conv->title,
             'messages' => $conv->messages,

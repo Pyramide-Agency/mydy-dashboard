@@ -21,5 +21,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $fmt = fn (int $code, string $message, mixed $data = null) => [
+            'statusCode' => $code,
+            'status'     => 'error',
+            'timestamp'  => now()->toIso8601String(),
+            'message'    => $message,
+            'data'       => $data,
+        ];
+
+        $exceptions->render(function (\Illuminate\Validation\ValidationException $e) use ($fmt) {
+            return response()->json($fmt(422, $e->getMessage(), $e->errors()), 422);
+        });
+
+        $exceptions->render(function (\Illuminate\Database\Eloquent\ModelNotFoundException $e) use ($fmt) {
+            return response()->json($fmt(404, 'Не найдено'), 404);
+        });
+
+        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e) use ($fmt) {
+            return response()->json($fmt($e->getStatusCode(), $e->getMessage() ?: 'Ошибка'), $e->getStatusCode());
+        });
     })->create();

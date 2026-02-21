@@ -23,7 +23,7 @@ class TaskController extends Controller
             ])
             ->values();
 
-        return response()->json($tasks);
+        return $this->success($tasks->toArray());
     }
 
     public function archiveDone(Request $request): JsonResponse
@@ -40,7 +40,7 @@ class TaskController extends Controller
         $count = $query->count();
         $query->update(['archived' => true, 'archived_at' => now()]);
 
-        return response()->json(['archived_count' => $count]);
+        return $this->success(['archived_count' => $count], 'Задачи архивированы');
     }
 
     public function store(Request $request): JsonResponse
@@ -59,7 +59,7 @@ class TaskController extends Controller
 
         $task = Task::create([...$data, 'position' => $position]);
 
-        return response()->json($task->load('column'), 201);
+        return $this->success($task->load('column')->toArray(), 'Задача создана', 201);
     }
 
     public function update(Request $request, Task $task): JsonResponse
@@ -71,13 +71,13 @@ class TaskController extends Controller
         ]);
 
         $task->update($data);
-        return response()->json($task);
+        return $this->success($task->toArray(), 'Задача обновлена');
     }
 
     public function destroy(Task $task): JsonResponse
     {
         $task->delete();
-        return response()->json(null, 204);
+        return $this->success(message: 'Задача удалена');
     }
 
     public function move(Request $request, Task $task): JsonResponse
@@ -106,6 +106,6 @@ class TaskController extends Controller
             $task->update(['column_id' => $newColumnId, 'position' => $newPosition]);
         });
 
-        return response()->json($task->fresh()->load('column'));
+        return $this->success($task->fresh()->load('column')->toArray(), 'Задача перемещена');
     }
 }
