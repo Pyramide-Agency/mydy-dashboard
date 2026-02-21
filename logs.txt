@@ -1,0 +1,39 @@
+2026-02-21T05:15:14.684Z [entrypoint] Waiting for PostgreSQL at personal-dashboard-ynnrrm:5432...
+2026-02-21T05:15:14.693Z [entrypoint] PostgreSQL is ready.
+2026-02-21T05:15:14.919Z INFO  Configuration cached successfully.
+2026-02-21T05:15:15.082Z INFO  Routes cached successfully.
+2026-02-21T05:15:15.263Z INFO  Blade templates cached successfully.
+2026-02-21T05:15:15.437Z INFO  Preparing database.
+2026-02-21T05:15:15.453Z Creating migration table ....................................... 9.77ms DONE
+2026-02-21T05:15:15.462Z INFO  Running migrations.
+2026-02-21T05:15:15.510Z 0001_01_01_000000_create_users_table .......................... 45.12ms DONE
+2026-02-21T05:15:15.538Z 0001_01_01_000001_create_cache_table .......................... 15.79ms DONE
+2026-02-21T05:15:15.588Z 0001_01_01_000002_create_jobs_table ........................... 38.44ms DONE
+2026-02-21T05:15:15.607Z 2026_02_19_174648_create_boards_table .......................... 7.38ms DONE
+2026-02-21T05:15:15.632Z 2026_02_19_174648_create_columns_table ........................ 13.55ms DONE
+2026-02-21T05:15:15.648Z 2026_02_19_174648_create_finance_categories_table .............. 6.66ms DONE
+2026-02-21T05:15:15.665Z 2026_02_19_174648_create_finance_entries_table ................. 8.29ms DONE
+2026-02-21T05:15:15.685Z 2026_02_19_174648_create_tasks_table ........................... 8.83ms DONE
+2026-02-21T05:15:15.703Z 2026_02_19_174649_create_ai_conversations_table ................ 7.38ms DONE
+2026-02-21T05:15:15.733Z 2026_02_19_174649_create_settings_table ....................... 16.95ms DONE
+2026-02-21T05:15:15.747Z 2026_02_20_000001_add_type_to_finance_entries_table ............ 6.86ms DONE
+2026-02-21T05:15:15.905Z INFO  Seeding database.
+2026-02-21T05:15:16.286Z [entrypoint] Starting Supervisor (php-fpm + nginx)...
+2026-02-21T05:15:16.488Z 2026-02-21 05:15:16,487 CRIT Supervisor is running as root.  Privileges were not dropped because no user is specified in the config file.  If you intend to run as root, you can set user=root in the config file to avoid this message.
+2026-02-21T05:15:16.498Z 2026-02-21 05:15:16,498 INFO RPC interface 'supervisor' initialized
+2026-02-21T05:15:16.498Z 2026-02-21 05:15:16,498 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-02-21T05:15:16.499Z 2026-02-21 05:15:16,499 INFO supervisord started with pid 1
+2026-02-21T05:15:17.504Z 2026-02-21 05:15:17,502 INFO spawned: 'php-fpm' with pid 23
+2026-02-21T05:15:17.505Z 2026-02-21 05:15:17,505 INFO spawned: 'nginx' with pid 24
+2026-02-21T05:15:17.587Z [21-Feb-2026 05:15:17] NOTICE: fpm is running, pid 23
+2026-02-21T05:15:17.589Z [21-Feb-2026 05:15:17] NOTICE: ready to handle connections
+2026-02-21T05:15:18.591Z 2026-02-21 05:15:18,590 INFO success: php-fpm entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-02-21T05:15:18.591Z 2026-02-21 05:15:18,590 INFO success: nginx entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-02-21T05:15:20.068Z 127.0.0.1 "GET /api/health HTTP/1.1" 200 21 "-"
+2026-02-21T05:15:20.071Z 127.0.0.1 -  21/Feb/2026:05:15:19 +0000 "GET /api/health" 200
+2026-02-21T05:15:35.151Z 127.0.0.1 -  21/Feb/2026:05:15:35 +0000 "GET /api/health" 200
+2026-02-21T05:15:35.151Z 127.0.0.1 "GET /api/health HTTP/1.1" 200 21 "-"
+2026-02-21T05:15:50.248Z 127.0.0.1 -  21/Feb/2026:05:15:50 +0000 "GET /api/health" 200
+2026-02-21T05:15:50.248Z 127.0.0.1 "GET /api/health HTTP/1.1" 200 21 "-"
+2026-02-21T05:16:05.321Z 127.0.0.1 -  21/Feb/2026:05:16:05 +0000 "GET /api/health" 200
+2026-02-21T05:16:05.321Z 127.0.0.1 "GET /api/health HTTP/1.1" 200 21 "-"

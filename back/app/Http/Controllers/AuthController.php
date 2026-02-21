@@ -6,6 +6,7 @@ use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -14,20 +15,30 @@ class AuthController extends Controller
     {
         $request->validate(['password' => 'required|string']);
 
-        $storedHash = Setting::get('app_password');
+        try {
+            $storedHash = Setting::get('app_password');
+            Log::info('[auth.login] app_password found: ' . ($storedHash ? 'yes' : 'NO'));
 
-        if (!$storedHash || !Hash::check($request->password, $storedHash)) {
-            return response()->json(['message' => 'Неверный пароль'], 401);
+            if (!$storedHash || !Hash::check($request->password, $storedHash)) {
+                return response()->json(['message' => 'Неверный пароль'], 401);
+            }
+
+            // Generate or return existing token
+            $token = Setting::get('api_token');
+            if (!$token) {
+                $token = Str::random(64);
+                Setting::set('api_token', $token);
+            }
+
+            return response()->json(['token' => $token]);
+        } catch (\Throwable $e) {
+            Log::error('[auth.login] Exception: ' . $e->getMessage(), [
+                'file'  => $e->getFile() . ':' . $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json(['message' => 'Server error: ' . $e->getMessage()], 500);
         }
-
-        // Generate or return existing token
-        $token = Setting::get('api_token');
-        if (!$token) {
-            $token = Str::random(64);
-            Setting::set('api_token', $token);
-        }
-
-        return response()->json(['token' => $token]);
     }
 
     public function logout(): JsonResponse
