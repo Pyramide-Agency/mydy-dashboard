@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./front/public/mydy-logo-dark.svg" height="72" alt="MYDY Dashboard" />
+  <img src="./front/public/favicon.ico" height="72" alt="MYDY Dashboard" />
 </p>
 
 <h1 align="center">MYDY DASHBOARD</h1>
