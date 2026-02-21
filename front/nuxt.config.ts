@@ -15,10 +15,7 @@ export default defineNuxtConfig({
     },
   ],
 
-  modules: [
-    '@nuxtjs/tailwindcss',
-    'shadcn-nuxt',
-  ],
+  modules: ['@nuxtjs/tailwindcss', 'shadcn-nuxt', '@nuxt/image'],
 
   shadcn: {
     prefix: '',

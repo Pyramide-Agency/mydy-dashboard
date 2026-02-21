@@ -40,7 +40,8 @@
               ? 'bg-primary text-primary-foreground rounded-tr-sm'
               : 'bg-muted text-foreground rounded-tl-sm'"
           >
-            <span class="whitespace-pre-wrap">{{ msg.content }}</span>
+            <span v-if="msg.role === 'user'" class="whitespace-pre-wrap">{{ msg.content }}</span>
+            <span v-else class="prose prose-sm dark:prose-invert max-w-none" v-html="renderMd(msg.content)" />
             <span v-if="msg.streaming" class="animate-pulse">▋</span>
           </div>
 
@@ -75,6 +76,9 @@
 
 <script setup lang="ts">
 import { Bot, User, Send, Loader2 } from 'lucide-vue-next'
+import { marked } from 'marked'
+
+const renderMd = (text: string) => marked(text, { breaks: true }) as string
 
 definePageMeta({ middleware: 'auth' })
 
@@ -128,25 +132,37 @@ const sendMessage = async () => {
 
     const reader  = response.body!.getReader()
     const decoder = new TextDecoder()
+    let sseBuffer = ''
+    let finished  = false
 
-    while (true) {
+    while (!finished) {
       const { done, value } = await reader.read()
       if (done) break
 
-      const lines = decoder.decode(value).split('\n')
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue
-        const data = line.slice(6)
-        if (data === '[DONE]') break
-        try {
-          const { chunk } = JSON.parse(data)
-          assistantMsg.content += chunk
-          scrollToBottom()
-        } catch {}
+      // {stream: true} handles multi-byte chars (Cyrillic) split across chunks
+      sseBuffer += decoder.decode(value, { stream: true })
+
+      // Process only complete SSE events (separated by \n\n)
+      let sep: number
+      while ((sep = sseBuffer.indexOf('\n\n')) !== -1) {
+        const event = sseBuffer.slice(0, sep)
+        sseBuffer   = sseBuffer.slice(sep + 2)
+
+        for (const line of event.split('\n')) {
+          if (!line.startsWith('data: ')) continue
+          const data = line.slice(6)
+          if (data === '[DONE]') { finished = true; break }
+          try {
+            const parsed = JSON.parse(data)
+            if (parsed.chunk) { assistantMsg.content += parsed.chunk; scrollToBottom() }
+            if (parsed.error) { assistantMsg.content = `Ошибка: ${parsed.error}` }
+          } catch {}
+        }
+        if (finished) break
       }
     }
   } catch (e) {
-    assistantMsg.content = 'Ошибка при получении ответа. Проверьте ANTHROPIC_API_KEY.'
+    assistantMsg.content = 'Ошибка соединения. Попробуйте ещё раз.'
   } finally {
     assistantMsg.streaming = false
     streaming.value = false

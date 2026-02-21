@@ -38,6 +38,7 @@
             <SelectContent>
               <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
               <SelectItem value="openai">OpenAI (GPT)</SelectItem>
+              <SelectItem value="groq">Groq (бесплатно)</SelectItem>
             </SelectContent>
           </Select>
           <p v-if="errors.aiProvider" class="text-xs text-destructive mt-1">{{ errors.aiProvider }}</p>
@@ -52,13 +53,20 @@
         </div>
         <div>
           <label class="text-sm font-medium mb-1.5 block">Модель</label>
-          <Input
-            v-model="aiForm.model"
-            :placeholder="defaultModels[aiForm.provider]"
-          />
-          <p class="text-xs text-muted-foreground mt-1">
-            По умолчанию: {{ defaultModels[aiForm.provider] }}
-          </p>
+          <Select v-model="aiForm.model">
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="m in providerModels[aiForm.provider]"
+                :key="m.value"
+                :value="m.value"
+              >
+                {{ m.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <Button @click="saveAi" :disabled="savingAi">
           <Loader2 v-if="savingAi" class="w-4 h-4 mr-2 animate-spin" />
@@ -224,21 +232,33 @@ const newPassword  = ref('')
 const telegramToken = ref('')
 const newCat = reactive({ name: '', color: '#6366f1' })
 
-const defaultModels: Record<string, string> = {
-  anthropic: 'claude-sonnet-4-6',
-  openai: 'gpt-4o-mini',
+const providerModels: Record<string, { label: string; value: string }[]> = {
+  anthropic: [
+    { label: 'Claude Sonnet 4.6 (рек.)',  value: 'claude-sonnet-4-6'         },
+    { label: 'Claude Haiku 4.5',           value: 'claude-haiku-4-5-20251001' },
+    { label: 'Claude Opus 4.6',            value: 'claude-opus-4-6'           },
+  ],
+  openai: [
+    { label: 'GPT-4o Mini (рек.)', value: 'gpt-4o-mini'    },
+    { label: 'GPT-4o',             value: 'gpt-4o'         },
+    { label: 'GPT-3.5 Turbo',      value: 'gpt-3.5-turbo'  },
+  ],
+  groq: [
+    { label: 'Llama 3.3 70B (рек.)',  value: 'llama-3.3-70b-versatile' },
+    { label: 'Llama 3.1 8B (быстрый)', value: 'llama-3.1-8b-instant'   },
+    { label: 'Mixtral 8x7B',           value: 'mixtral-8x7b-32768'     },
+    { label: 'Gemma 2 9B',             value: 'gemma2-9b-it'           },
+  ],
 }
 
 const aiForm = reactive({
   provider: 'anthropic',
   apiKey: '',
-  model: '',
+  model: providerModels['anthropic']![0]!.value,
 })
 
-const onProviderChange = (_value: any) => {
-  if (!aiForm.model || Object.values(defaultModels).includes(aiForm.model)) {
-    aiForm.model = ''
-  }
+const onProviderChange = (value: any) => {
+  aiForm.model = providerModels[value as string]?.[0]?.value ?? ''
 }
 
 onMounted(async () => {
@@ -246,8 +266,8 @@ onMounted(async () => {
   const s = settings as any
   currencyForm.value.currency = s.currency        || 'USD'
   currencyForm.value.symbol   = s.currency_symbol || '$'
-  aiForm.provider       = s.ai_provider     || 'anthropic'
-  aiForm.model          = s.ai_model        || ''
+  aiForm.provider = s.ai_provider || 'anthropic'
+  aiForm.model    = s.ai_model   || providerModels[aiForm.provider]?.[0]?.value || ''
   aiApiKeySet.value     = s.ai_api_key_set  || false
   categories.value      = cats as any[]
   telegramToken.value   = s.telegram_bot_token || ''

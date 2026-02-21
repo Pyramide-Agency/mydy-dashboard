@@ -28,7 +28,7 @@ class SettingsController extends Controller
             'currency_symbol' => 'sometimes|string|max:5',
             'new_password'    => 'sometimes|string|min:4',
             'initial_balance' => 'sometimes|numeric|min:0',
-            'ai_provider'     => 'sometimes|string|in:anthropic,openai',
+            'ai_provider'     => 'sometimes|string|in:anthropic,openai,groq',
             'ai_api_key'      => 'sometimes|string|max:500',
             'ai_model'        => 'sometimes|string|max:100',
         ]);

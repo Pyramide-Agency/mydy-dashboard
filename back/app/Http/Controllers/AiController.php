@@ -28,7 +28,11 @@ class AiController extends Controller
             . "По категориям: " . json_encode($ctx['by_cat'], JSON_UNESCAPED_UNICODE) . "\n\n"
             . "Дай краткий анализ (4-6 пунктов).";
 
-        $text = (new AiService())->complete($system, [['role' => 'user', 'content' => $prompt]]);
+        try {
+            $text = (new AiService())->complete($system, [['role' => 'user', 'content' => $prompt]]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 502);
+        }
 
         return response()->json(['analysis' => $text]);
     }
@@ -67,25 +71,34 @@ class AiController extends Controller
         $ai          = new AiService();
 
         return response()->stream(function () use ($messages, $systemPrompt, $conversation, $userMessage, $ai) {
-            $fullResponse = $ai->stream($systemPrompt, $messages, 2048, function ($chunk) {
-                echo 'data: ' . json_encode(['chunk' => $chunk], JSON_UNESCAPED_UNICODE) . "\n\n";
-                ob_flush();
-                flush();
-            });
+            // Flush all existing output buffers so each echo reaches the client immediately
+            while (ob_get_level() > 0) {
+                ob_end_clean();
+            }
+            ob_implicit_flush(true);
 
-            $updatedMessages   = $conversation->fresh()->messages ?? [];
-            $updatedMessages[] = ['role' => 'user',      'content' => $userMessage];
-            $updatedMessages[] = ['role' => 'assistant', 'content' => $fullResponse];
-
-            if (count($updatedMessages) > 100) {
-                $updatedMessages = array_slice($updatedMessages, -100);
+            $fullResponse = '';
+            try {
+                $fullResponse = $ai->stream($systemPrompt, $messages, 2048, function ($chunk) {
+                    echo 'data: ' . json_encode(['chunk' => $chunk], JSON_UNESCAPED_UNICODE) . "\n\n";
+                });
+            } catch (\Throwable $e) {
+                echo 'data: ' . json_encode(['error' => $e->getMessage()], JSON_UNESCAPED_UNICODE) . "\n\n";
             }
 
-            $conversation->update(['messages' => $updatedMessages]);
+            try {
+                $updatedMessages   = $conversation->fresh()->messages ?? [];
+                $updatedMessages[] = ['role' => 'user',      'content' => $userMessage];
+                $updatedMessages[] = ['role' => 'assistant', 'content' => $fullResponse];
+
+                if (count($updatedMessages) > 100) {
+                    $updatedMessages = array_slice($updatedMessages, -100);
+                }
+
+                $conversation->update(['messages' => $updatedMessages]);
+            } catch (\Throwable) {}
 
             echo "data: [DONE]\n\n";
-            ob_flush();
-            flush();
         }, 200, [
             'Content-Type'      => 'text/event-stream',
             'Cache-Control'     => 'no-cache',

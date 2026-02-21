@@ -19,13 +19,16 @@
         <Bot class="w-4 h-4" />
         AI Анализ
       </div>
-      {{ analysis }}
+      <span class="prose prose-sm dark:prose-invert max-w-none" v-html="renderMd(analysis)" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Bot, Loader2 } from 'lucide-vue-next'
+import { marked } from 'marked'
+
+const renderMd = (text: string) => marked(text, { breaks: true }) as string
 
 const api      = useApi()
 const loading  = ref(false)
@@ -37,8 +40,9 @@ const getFeedback = async () => {
   try {
     const res: any = await api.getAiFeedback()
     analysis.value  = res.analysis
-  } catch (e) {
-    analysis.value = 'Ошибка при получении анализа. Проверьте ANTHROPIC_API_KEY.'
+  } catch (e: any) {
+    const msg = e?.data?.error ?? e?.message ?? 'Неизвестная ошибка'
+    analysis.value = `Ошибка: ${msg}`
   } finally {
     loading.value = false
   }

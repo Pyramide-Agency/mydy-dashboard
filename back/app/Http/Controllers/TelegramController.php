@@ -17,7 +17,7 @@ class TelegramController extends Controller
 
         $token   = $data['token'];
         // $webhook = url('/api/telegram/webhook');
-        $webhook = 'https://0347-93-188-81-104.ngrok-free.app/api/telegram/webhook';
+        $webhook = 'https://4171-84-54-76-217.ngrok-free.app/api/telegram/webhook';
         $response = Http::get("https://api.telegram.org/bot{$token}/setWebhook", [
             'url'             => $webhook,
             'allowed_updates' => ['message'],

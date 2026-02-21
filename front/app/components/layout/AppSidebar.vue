@@ -4,16 +4,13 @@
     <!-- Brand -->
     <div class="px-4 py-4 border-b border-slate-800">
       <NuxtLink to="/" class="flex items-center gap-2.5 group">
-        <div
-          class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-indigo-500/20 transition-transform duration-200 group-hover:scale-105"
-          style="background: linear-gradient(135deg, #6366f1, #9333ea);"
-        >
-          <Zap class="w-4 h-4 text-white" />
-        </div>
-        <div>
-          <p class="text-sm font-bold text-slate-100 leading-tight">Dashboard</p>
-          <p class="text-xs text-slate-500">личный</p>
-        </div>
+        <NuxtImg
+          src="/mydy-logo-dark.svg"
+          alt="Logo"
+          width="80"
+          height="80"
+          class="transition-transform duration-150"
+        />
       </NuxtLink>
     </div>
 

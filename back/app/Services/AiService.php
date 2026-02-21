@@ -26,8 +26,8 @@ class AiService
     public function complete(string $system, array $messages, int $maxTokens = 1024): string
     {
         return match ($this->provider) {
-            'openai' => $this->openAiComplete($system, $messages, $maxTokens),
-            default  => $this->anthropicComplete($system, $messages, $maxTokens),
+            'anthropic' => $this->anthropicComplete($system, $messages, $maxTokens),
+            default     => $this->openAiComplete($system, $messages, $maxTokens),
         };
     }
 
@@ -38,8 +38,16 @@ class AiService
     public function stream(string $system, array $messages, int $maxTokens, callable $onChunk): string
     {
         return match ($this->provider) {
-            'openai' => $this->openAiStream($system, $messages, $maxTokens, $onChunk),
-            default  => $this->anthropicStream($system, $messages, $maxTokens, $onChunk),
+            'anthropic' => $this->anthropicStream($system, $messages, $maxTokens, $onChunk),
+            default     => $this->openAiStream($system, $messages, $maxTokens, $onChunk),
+        };
+    }
+
+    private function openAiEndpoint(): string
+    {
+        return match ($this->provider) {
+            'groq'  => 'https://api.groq.com/openai/v1/chat/completions',
+            default => 'https://api.openai.com/v1/chat/completions',
         };
     }
 
@@ -89,11 +97,16 @@ class AiService
     private function openAiComplete(string $system, array $messages, int $maxTokens): string
     {
         $response = Http::withToken($this->apiKey)
-            ->post('https://api.openai.com/v1/chat/completions', [
+            ->post($this->openAiEndpoint(), [
                 'model'      => $this->model,
                 'messages'   => $this->withSystemMessage($system, $messages),
                 'max_tokens' => $maxTokens,
             ]);
+
+        if ($response->failed()) {
+            $error = $response->json('error.message') ?? $response->body();
+            throw new \RuntimeException('OpenAI API error: ' . $error);
+        }
 
         return $response->json('choices.0.message.content', '');
     }
@@ -101,7 +114,7 @@ class AiService
     private function openAiStream(string $system, array $messages, int $maxTokens, callable $onChunk): string
     {
         $guzzle   = new GuzzleClient();
-        $response = $guzzle->post('https://api.openai.com/v1/chat/completions', [
+        $response = $guzzle->post($this->openAiEndpoint(), [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type'  => 'application/json',
