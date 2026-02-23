@@ -52,43 +52,67 @@ const emit = defineEmits<{
   'task-moved': [event: any]
   'drag-start': []
   'drag-end': []
+  'drop-on-zone': [payload: { taskId: number; direction: 'left' | 'right' }]
 }>()
 
-const api = useApi()
+const api    = useApi()
+const ZONE_W = 0.22
 
 const localTasks = ref<any[]>([...(props.column.tasks || [])])
 watch(() => props.column.tasks, (t) => { localTasks.value = [...(t || [])] }, { deep: true })
 
 const onDragEnd = async (event: any) => {
+  emit('drag-end')
+
   const taskEl = event.item
   const taskId = parseInt(taskEl.dataset.id || '0')
   if (!taskId) return
 
-  const newCol = parseInt(event.to.closest('[data-column-id]')?.dataset?.columnId || String(props.column.id))
-  const newPos = event.newIndex ?? 0
+  // Get final touch X from the native event
+  const orig   = event.originalEvent
+  const finalX = orig?.changedTouches?.[0]?.clientX ?? orig?.clientX ?? -1
+  const w      = window.innerWidth
 
+  // Dropped on left zone → move to previous column
+  if (finalX >= 0 && finalX < w * ZONE_W) {
+    localTasks.value = [...(props.column.tasks || [])]
+    emit('drop-on-zone', { taskId, direction: 'left' })
+    return
+  }
+
+  // Dropped on right zone → move to next column
+  if (finalX >= 0 && finalX > w * (1 - ZONE_W)) {
+    localTasks.value = [...(props.column.tasks || [])]
+    emit('drop-on-zone', { taskId, direction: 'right' })
+    return
+  }
+
+  // Normal within-column reorder
+  const newPos = event.newIndex ?? 0
   try {
-    await api.moveTask(taskId, {
-      column_id: newCol || props.column.id,
-      position:  newPos,
-    })
+    await api.moveTask(taskId, { column_id: props.column.id, position: newPos })
   } catch (e) {
     console.error('Move failed', e)
   }
-
   emit('task-moved', event)
-  emit('drag-end')
 }
 </script>
 
 <style>
+/* The card being dragged (SortableJS fallback clone) */
 .dragging-ghost {
-  opacity: 0.8;
-  transform: rotate(2deg) scale(1.02);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  opacity: 0.9;
+  transform: scale(1.03) rotate(1deg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
 }
 
-/* Prevent iOS long-press callout and text selection on drag handle */
+/* The placeholder left in the original position */
+.sortable-ghost {
+  opacity: 0 !important;
+}
+
+/* Prevent iOS callout and text selection on handle */
 .drag-handle {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
