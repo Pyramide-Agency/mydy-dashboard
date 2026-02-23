@@ -231,7 +231,12 @@ onMounted(() => {
         @update:model-value="val => updateField(field.key, val)"
         @blur="handleBlur(field.key)"
         type="date"
-        :class="errors[field.key] ? 'border-destructive focus-visible:ring-destructive' : ''"
+        lang="en-GB"
+        inputmode="numeric"
+        :class="[
+          'tabular-nums',
+          errors[field.key] ? 'border-destructive focus-visible:ring-destructive' : '',
+        ]"
       />
 
       <!-- Textarea -->
