@@ -63,7 +63,9 @@ class TelegramController extends Controller
         $chatId  = $message['chat']['id'];
         $text    = trim($message['text'] ?? '');
 
-        if (str_starts_with($text, '/add')) {
+        if (str_starts_with($text, '/start')) {
+            $this->handleStart($chatId);
+        } elseif (str_starts_with($text, '/add')) {
             $this->handleAdd($chatId, $text);
         } elseif (str_starts_with($text, '/today')) {
             $this->handleToday($chatId);
@@ -127,14 +129,79 @@ class TelegramController extends Controller
         );
     }
 
-    private function sendMessage(int $chatId, string $text): void
+    private function handleStart(int $chatId): void
+    {
+        $webAppUrl = $this->getWebAppUrl();
+        if (!$webAppUrl) {
+            $this->sendMessage($chatId, "⚠️ Не задан URL веб-приложения.");
+            return;
+        }
+
+        // Button before input (menu button)
+        $this->setChatMenuButton($chatId, $webAppUrl);
+
+        // Button inside the /start message
+        $replyMarkup = [
+            'inline_keyboard' => [[
+                [
+                    'text'    => 'Открыть Web App',
+                    'web_app' => ['url' => $webAppUrl],
+                ],
+            ]],
+        ];
+
+        $this->sendMessage(
+            $chatId,
+            "🚀 Добро пожаловать в Telegram Bot - MYDY!
+            
+Нажмите кнопку ниже, чтобы открыть наше веб-приложение для управления финансами.
+Вы сможете легко добавлять расходы, просматривать статистику и многое другое прямо из Telegram!
+            
+Команды:
+/add [сумма] [описание] — добавить расход
+/today — расходы за сегодня
+/help — список команд",
+            $replyMarkup
+        );
+    }
+
+    private function setChatMenuButton(int $chatId, string $webAppUrl): void
     {
         $token = Setting::get('telegram_bot_token');
         if (!$token) return;
 
-        Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+        Http::asJson()->post("https://api.telegram.org/bot{$token}/setChatMenuButton", [
+            'chat_id'     => $chatId,
+            'menu_button' => [
+                'type'    => 'web_app',
+                'text'    => 'Открыть Web App',
+                'web_app' => ['url' => $webAppUrl],
+            ],
+        ]);
+    }
+
+    private function getWebAppUrl(): ?string
+    {
+        $base = config('app.url') ?: env('APP_URL');
+        if (!$base) return null;
+
+        $base = rtrim($base, '/');
+        return "{$base}/tma";
+    }
+
+    private function sendMessage(int $chatId, string $text, ?array $replyMarkup = null): void
+    {
+        $token = Setting::get('telegram_bot_token');
+        if (!$token) return;
+
+        $payload = [
             'chat_id' => $chatId,
             'text'    => $text,
-        ]);
+        ];
+        if ($replyMarkup) {
+            $payload['reply_markup'] = $replyMarkup;
+        }
+
+        Http::asJson()->post("https://api.telegram.org/bot{$token}/sendMessage", $payload);
     }
 }
