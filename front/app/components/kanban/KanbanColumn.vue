@@ -9,8 +9,6 @@
         class="space-y-2 min-h-[200px]"
         handle=".drag-handle"
         :force-fallback="true"
-        :delay="150"
-        :delay-on-touch-only="true"
         :touch-start-threshold="3"
         fallback-class="dragging-ghost"
         @start="emit('drag-start')"
@@ -88,5 +86,12 @@ const onDragEnd = async (event: any) => {
   opacity: 0.8;
   transform: rotate(2deg) scale(1.02);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* Prevent iOS long-press callout and text selection on drag handle */
+.drag-handle {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 </style>

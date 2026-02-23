@@ -1,7 +1,7 @@
 <template>
   <div
     :data-id="task.id"
-    class="bg-card border border-border rounded-lg p-3 hover:shadow-md transition-all hover:border-primary/30 group flex gap-2"
+    class="bg-card border border-border rounded-lg p-3 hover:shadow-md transition-all hover:border-primary/30 group flex gap-2 select-none"
   >
     <!-- Drag handle -->
     <div
