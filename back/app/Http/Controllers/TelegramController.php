@@ -6,6 +6,7 @@ use App\Models\FinanceCategory;
 use App\Models\FinanceEntry;
 use App\Models\Setting;
 use App\Services\AiService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -86,6 +87,11 @@ class TelegramController extends Controller
 
         $category = $this->resolveCategory($parsed['category'] ?? '');
 
+        // Parse date from AI response (may be null → today)
+        $date = !empty($parsed['date'])
+            ? $this->parseDate($parsed['date'])
+            : today()->toDateString();
+
         $pending = [
             'chat_id'     => $chatId,
             'type'        => $parsed['type'] ?? 'expense',
@@ -93,6 +99,7 @@ class TelegramController extends Controller
             'description' => $parsed['description'] ?? '',
             'category'    => $category?->name ?? 'Без категории',
             'category_id' => $category?->id,
+            'date'        => $date,
             'editing'     => null,
             'message_id'  => null,
         ];
@@ -109,9 +116,11 @@ class TelegramController extends Controller
     {
         $categories = FinanceCategory::pluck('name')->join(', ');
         $symbol     = Setting::get('currency_symbol', '$');
+        $today      = today()->toDateString();
 
         $system = 'Ты парсер финансовых записей. Из текста извлеки данные и верни ТОЛЬКО валидный JSON без пояснений.';
-        $prompt = "Доступные категории: {$categories}\n"
+        $prompt = "Сегодня: {$today}\n"
+            . "Доступные категории: {$categories}\n"
             . "Валюта: {$symbol}\n\n"
             . "Текст пользователя: \"{$text}\"\n\n"
             . "Верни JSON строго в формате:\n"
@@ -119,7 +128,8 @@ class TelegramController extends Controller
             . "  \"type\": \"expense\" или \"income\",\n"
             . "  \"amount\": число (без символов валюты),\n"
             . "  \"description\": \"краткое описание на русском\",\n"
-            . "  \"category\": \"одна категория из списка выше\"\n"
+            . "  \"category\": \"одна категория из списка выше\",\n"
+            . "  \"date\": \"YYYY-MM-DD или null если дата не указана\"\n"
             . "}";
 
         $response = (new AiService())->complete($system, [['role' => 'user', 'content' => $prompt]], 256);
@@ -146,12 +156,13 @@ class TelegramController extends Controller
         $messageId = $cbq['message']['message_id'];
         $data      = $cbq['data'] ?? '';
 
+        // Always answer callback to remove loading spinner
         $this->answerCallback($cbqId);
 
         $pending = $this->getPending();
 
         if (!$pending || (int) $pending['chat_id'] !== $chatId) {
-            $this->editMessage($chatId, $messageId, '❌ Действие устарело.');
+            $this->editMessage($chatId, $messageId, '❌ Действие устарело. Отправьте запись заново.');
             return;
         }
 
@@ -171,9 +182,11 @@ class TelegramController extends Controller
 
             case 'edit_type':
             case 'edit_amount':
+            case 'edit_date':
             case 'edit_category':
             case 'edit_desc':
-                $field                 = substr($data, 5); // 'type','amount','category','desc'
+                // 'edit_type' → 'type', 'edit_amount' → 'amount', etc.
+                $field                 = substr($data, 5);
                 $pending['editing']    = $field;
                 $pending['message_id'] = $messageId;
                 $this->savePending($pending);
@@ -199,20 +212,21 @@ class TelegramController extends Controller
             'amount'      => $pending['amount'],
             'description' => $pending['description'],
             'category_id' => $pending['category_id'],
-            'date'        => today(),
+            'date'        => $pending['date'] ?? today()->toDateString(),
             'source'      => 'telegram',
             'type'        => $pending['type'],
         ]);
 
-        $symbol = Setting::get('currency_symbol', '$');
-        $icon   = $pending['type'] === 'income' ? '💚' : '💸';
-        $amount = number_format((float) $pending['amount'], 0, '.', ' ');
+        $symbol   = Setting::get('currency_symbol', '$');
+        $icon     = $pending['type'] === 'income' ? '💚' : '💸';
+        $amount   = number_format((float) $pending['amount'], 0, '.', ' ');
+        $dateStr  = $this->formatDateLabel($pending['date'] ?? today()->toDateString());
 
         $this->clearPending();
         $this->editMessage(
             $chatId,
             $messageId,
-            "{$icon} Сохранено!\n\n{$amount} {$symbol} — {$pending['description']}\n📁 {$pending['category']}"
+            "{$icon} Сохранено!\n\n{$amount} {$symbol} — {$pending['description']}\n📁 {$pending['category']}\n📅 {$dateStr}"
         );
     }
 
@@ -229,10 +243,11 @@ class TelegramController extends Controller
                         ['text' => '💰 Сумма',     'callback_data' => 'edit_amount'],
                     ],
                     [
+                        ['text' => '📅 Дата',      'callback_data' => 'edit_date'],
                         ['text' => '📁 Категория', 'callback_data' => 'edit_category'],
-                        ['text' => '📝 Описание',  'callback_data' => 'edit_desc'],
                     ],
                     [
+                        ['text' => '📝 Описание',  'callback_data' => 'edit_desc'],
                         ['text' => '← Назад',      'callback_data' => 'edit_cancel'],
                     ],
                 ],
@@ -249,12 +264,14 @@ class TelegramController extends Controller
 
         switch ($field) {
             case 'amount':
-                // Accept: 60000 / 60 000 / 60,000 / 60к / 60k
+                // Accept: 60000 / 60 000 / 60,000 / 60к / 60k / 2млн / 2.5m
                 $clean  = preg_replace('/[\s,]/', '', $text);
-                $clean  = preg_replace('/[кk]$/iu', '000', $clean);
+                $clean  = preg_replace('/млн$/iu', '000000', $clean);
+                $clean  = preg_replace('/[мm]$/iu',  '000000', $clean);
+                $clean  = preg_replace('/[кk]$/iu',  '000', $clean);
                 $amount = (float) $clean;
                 if ($amount <= 0) {
-                    $this->sendMessage($chatId, '⚠️ Введите корректную сумму (например: 60000 или 60к)');
+                    $this->sendMessage($chatId, '⚠️ Введите корректную сумму (например: 60000, 60к или 2млн)');
                     return;
                 }
                 $pending['amount'] = $amount;
@@ -265,6 +282,10 @@ class TelegramController extends Controller
                 $pending['type'] = (str_contains($lower, 'доход') || str_contains($lower, 'income') || $lower === '+')
                     ? 'income'
                     : 'expense';
+                break;
+
+            case 'date':
+                $pending['date'] = $this->parseDate($text);
                 break;
 
             case 'category':
@@ -286,17 +307,92 @@ class TelegramController extends Controller
         }
     }
 
+    // ── Date helpers ──────────────────────────────────────────────────────────
+
+    /**
+     * Parse a user-supplied date string into YYYY-MM-DD.
+     * Accepts: сегодня / вчера / позавчера / 23 / 23.02 / 23.02.2026 / 3 марта
+     */
+    private function parseDate(string $text): string
+    {
+        $text = mb_strtolower(trim($text));
+
+        if (in_array($text, ['сегодня', 'today', ''])) {
+            return today()->toDateString();
+        }
+        if (in_array($text, ['вчера', 'yesterday'])) {
+            return today()->subDay()->toDateString();
+        }
+        if (in_array($text, ['позавчера', 'два дня назад'])) {
+            return today()->subDays(2)->toDateString();
+        }
+
+        // DD.MM.YYYY or DD/MM/YYYY
+        if (preg_match('/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})$/', $text, $m)) {
+            try { return Carbon::createFromDate((int)$m[3], (int)$m[2], (int)$m[1])->toDateString(); } catch (\Throwable) {}
+        }
+
+        // DD.MM or DD/MM (current year)
+        if (preg_match('/^(\d{1,2})[.\/-](\d{1,2})$/', $text, $m)) {
+            try { return Carbon::createFromDate(now()->year, (int)$m[2], (int)$m[1])->toDateString(); } catch (\Throwable) {}
+        }
+
+        // Just day number (current month)
+        if (preg_match('/^(\d{1,2})$/', $text, $m)) {
+            $day = (int) $m[1];
+            if ($day >= 1 && $day <= 31) {
+                try { return Carbon::createFromDate(now()->year, now()->month, $day)->toDateString(); } catch (\Throwable) {}
+            }
+        }
+
+        // "3 марта", "15 февр", etc.
+        $months = [
+            'янв' => 1, 'фев' => 2, 'мар' => 3, 'апр' => 4,
+            'май' => 5, 'мая' => 5, 'июн' => 6, 'июл' => 7,
+            'авг' => 8, 'сен' => 9, 'окт' => 10, 'ноя' => 11, 'дек' => 12,
+        ];
+        foreach ($months as $abbr => $month) {
+            if (preg_match('/(\d{1,2})\s+' . $abbr . '/', $text, $m)) {
+                try { return Carbon::createFromDate(now()->year, $month, (int)$m[1])->toDateString(); } catch (\Throwable) {}
+            }
+        }
+
+        // YYYY-MM-DD (from AI)
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $text)) {
+            try { return Carbon::parse($text)->toDateString(); } catch (\Throwable) {}
+        }
+
+        return today()->toDateString();
+    }
+
+    /** Human-readable date label in Russian */
+    private function formatDateLabel(string $dateStr): string
+    {
+        try {
+            $date = Carbon::parse($dateStr);
+        } catch (\Throwable) {
+            return $dateStr;
+        }
+
+        if ($date->isToday())     return 'Сегодня';
+        if ($date->isYesterday()) return 'Вчера';
+
+        return $date->locale('ru')->isoFormat('D MMM YYYY');
+    }
+
     // ── Formatting ────────────────────────────────────────────────────────────
 
     private function formatConfirmText(array $pending): string
     {
-        $symbol  = Setting::get('currency_symbol', '$');
-        $typeStr = $pending['type'] === 'income' ? '📈 Доход' : '📉 Расход';
-        $amount  = number_format((float) $pending['amount'], 0, '.', ' ');
+        $symbol   = Setting::get('currency_symbol', '$');
+        $typeStr  = $pending['type'] === 'income' ? '📈 Доход' : '📉 Расход';
+        $amount   = number_format((float) $pending['amount'], 0, '.', ' ');
+        $dateStr  = $this->formatDateLabel($pending['date'] ?? today()->toDateString());
 
         return "🤖 Добавить запись?\n\n"
             . "{$typeStr}\n"
             . "💰 {$amount} {$symbol}\n"
+            . "📅 {$dateStr}\n"
             . "📁 {$pending['category']}\n"
             . "📝 {$pending['description']}";
     }
@@ -320,8 +416,9 @@ class TelegramController extends Controller
         }
 
         return match ($field) {
-            'amount' => "💰 Введите новую сумму:\n(например: 60000 или 60к)",
+            'amount' => "💰 Введите новую сумму:\n(например: 60000, 60к, 2млн)",
             'type'   => "↕️ Введите тип:\nрасход или доход",
+            'date'   => "📅 Введите дату:\nсегодня / вчера / 23 / 23.02 / 23.02.2026",
             'desc'   => '📝 Введите новое описание:',
             default  => 'Введите новое значение:',
         };
@@ -409,7 +506,8 @@ class TelegramController extends Controller
             . "/help — список команд\n\n"
             . "💡 Или просто пишите:\n"
             . "«купил еду на 60к сумов»\n"
-            . "«получил зарплату 2 млн»"
+            . "«получил зарплату 2 млн»\n"
+            . "«вчера потратил 15000 на транспорт»"
         );
     }
 
@@ -568,11 +666,9 @@ class TelegramController extends Controller
     {
         if (!$name = trim($name)) return null;
 
-        // Exact match (case-insensitive)
         $cat = FinanceCategory::whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first();
         if ($cat) return $cat;
 
-        // Partial match
         return FinanceCategory::whereRaw('LOWER(name) LIKE ?', ['%' . mb_strtolower($name) . '%'])->first();
     }
 }
