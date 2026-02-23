@@ -39,7 +39,7 @@ class TelegramController extends Controller
         }
 
         // If we're waiting for the user to type an edited field value
-        $pending = $this->getPending();
+        $pending = $this->getPending($chatId);
         if ($pending && !empty($pending['editing'])) {
             $this->handleEditResponse($chatId, $text, $pending);
             return response()->json(['ok' => true]);
@@ -104,12 +104,12 @@ class TelegramController extends Controller
             'message_id'  => null,
         ];
 
-        $this->savePending($pending);
+        $this->savePending($chatId, $pending);
 
         $msgId = $this->sendConfirmationMessage($chatId, $pending);
 
         $pending['message_id'] = $msgId;
-        $this->savePending($pending);
+        $this->savePending($chatId, $pending);
     }
 
     private function parseTxWithAi(string $text): ?array
@@ -159,7 +159,7 @@ class TelegramController extends Controller
         // Always answer callback to remove loading spinner
         $this->answerCallback($cbqId);
 
-        $pending = $this->getPending();
+        $pending = $this->getPending($chatId);
 
         if (!$pending || (int) $pending['chat_id'] !== $chatId) {
             $this->editMessage($chatId, $messageId, '❌ Действие устарело. Отправьте запись заново.');
@@ -172,7 +172,7 @@ class TelegramController extends Controller
                 break;
 
             case 'tx_cancel':
-                $this->clearPending();
+                $this->clearPending($chatId);
                 $this->editMessage($chatId, $messageId, '❌ Отменено.');
                 break;
 
@@ -189,7 +189,7 @@ class TelegramController extends Controller
                 $field                 = substr($data, 5);
                 $pending['editing']    = $field;
                 $pending['message_id'] = $messageId;
-                $this->savePending($pending);
+                $this->savePending($chatId, $pending);
                 $this->editMessage(
                     $chatId,
                     $messageId,
@@ -200,7 +200,7 @@ class TelegramController extends Controller
 
             case 'edit_cancel':
                 $pending['editing'] = null;
-                $this->savePending($pending);
+                $this->savePending($chatId, $pending);
                 $this->editMessage($chatId, $messageId, $this->formatConfirmText($pending), $this->confirmKeyboard());
                 break;
         }
@@ -222,7 +222,7 @@ class TelegramController extends Controller
         $amount   = number_format((float) $pending['amount'], 0, '.', ' ');
         $dateStr  = $this->formatDateLabel($pending['date'] ?? today()->toDateString());
 
-        $this->clearPending();
+        $this->clearPending($chatId);
         $this->editMessage(
             $chatId,
             $messageId,
@@ -300,7 +300,7 @@ class TelegramController extends Controller
         }
 
         $pending['editing'] = null;
-        $this->savePending($pending);
+        $this->savePending($chatId, $pending);
 
         if ($messageId) {
             $this->editMessage($chatId, $messageId, $this->formatConfirmText($pending), $this->confirmKeyboard());
@@ -426,21 +426,26 @@ class TelegramController extends Controller
 
     // ── Pending state (stored in settings) ───────────────────────────────────
 
-    private function getPending(): ?array
+    private function getPending(int $chatId): ?array
     {
-        $raw = Setting::get('telegram_pending_tx');
+        $raw = Setting::get($this->pendingKey($chatId));
         if (!$raw) return null;
         return json_decode($raw, true) ?: null;
     }
 
-    private function savePending(array $pending): void
+    private function savePending(int $chatId, array $pending): void
     {
-        Setting::set('telegram_pending_tx', json_encode($pending, JSON_UNESCAPED_UNICODE));
+        Setting::set($this->pendingKey($chatId), json_encode($pending, JSON_UNESCAPED_UNICODE));
     }
 
-    private function clearPending(): void
+    private function clearPending(int $chatId): void
     {
-        Setting::set('telegram_pending_tx', null);
+        Setting::set($this->pendingKey($chatId), null);
+    }
+
+    private function pendingKey(int $chatId): string
+    {
+        return 'telegram_pending_tx_' . $chatId;
     }
 
     // ── Existing handlers ─────────────────────────────────────────────────────
