@@ -1,138 +1,192 @@
 <p align="center">
-  <img src="./front/public/favicon.ico" height="72" alt="MYDY Dashboard" />
+  <img src="./assets/readme/banner.png" alt="MYDY Dashboard Banner" width="100%" />
+</p>
+
+<p align="center">
+  <img src="./front/public/favicon.ico" height="64" alt="MYDY Dashboard Logo" />
 </p>
 
 <h1 align="center">MYDY DASHBOARD</h1>
 
 <p align="center">
-  Личный дашборд с канбан-доской, трекером расходов и AI-советником.
+  A personal dashboard with Kanban board, expense tracker, AI financial advisor, and Telegram Mini App.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-11-FF2D20?style=flat-square&logo=laravel&logoColor=white" />
   <img src="https://img.shields.io/badge/Nuxt-4-00DC82?style=flat-square&logo=nuxt.js&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Claude_API-Anthropic-6B46C1?style=flat-square" />
-  <img src="https://img.shields.io/badge/Telegram_Bot-2CA5E0?style=flat-square&logo=telegram&logoColor=white" />
+  <img src="https://img.shields.io/badge/Claude_API-Anthropic-6B46C1?style=flat-square&logo=anthropic&logoColor=white" />
+  <img src="https://img.shields.io/badge/pgvector-AI_Memory-FF6B35?style=flat-square" />
+  <img src="https://img.shields.io/badge/Telegram_Bot_+_TMA-2CA5E0?style=flat-square&logo=telegram&logoColor=white" />
 </p>
 
 ---
 
-## Возможности
+## Features
 
-| Модуль | Описание |
+### Dashboard
+The home page gives you a bird's-eye view of everything at once — active tasks, completed tasks, today's and monthly spending — plus a quick expense form and a recent transactions panel.
+
+### Kanban Board
+Full-featured task management with multiple boards, custom columns, and drag-and-drop. Completed tasks can be archived in bulk and restored at any time.
+
+### Finance Tracker
+Track both **expenses and income** with custom color-coded categories. Built-in charts cover daily, weekly, and monthly breakdowns. Supports setting an initial balance for accurate running totals. History view with period filters (day / week / month / year / all).
+
+### AI Financial Advisor
+Powered by **Claude, OpenAI, or Groq** — your choice. Analyzes today's expenses on demand and holds a full chat with streaming responses. Maintains **multiple conversations** with persistent history.
+
+**AI Memory** stores personal facts as vector embeddings (Jina AI + pgvector). The advisor automatically extracts facts from conversations using Groq, so it remembers your habits and context across sessions.
+
+Supported models:
+- **Anthropic** — Claude Sonnet 4.6, Haiku 4.5, Opus 4.6
+- **OpenAI** — GPT-4o, GPT-4o Mini, GPT-3.5 Turbo
+- **Groq** — Llama 3.3 70B, Llama 3.1 8B, Mixtral 8x7B, Gemma 2 9B
+
+### Telegram Bot
+Add expenses in seconds by texting the bot. Natural language input is parsed by AI — it extracts amount, category, and date automatically. Inline keyboard buttons let you confirm or edit before saving.
+
+| Command | Description |
 |---|---|
-| **Канбан** | Доски, колонки, перетаскивание задач, архив |
-| **Финансы** | Расходы по категориям, графики (день / неделя / месяц), история |
-| **AI** | Анализ расходов за день и чат-советник на базе Claude |
-| **Telegram** | Быстрое добавление расходов через бота (`/add 500 кофе`) |
-| **Авторизация** | Один пользователь, вход по паролю, смена пароля в настройках |
+| `/add 500 coffee` | Add an expense |
+| `/today` | Today's expenses |
+| `/help` | List of commands |
+
+### Telegram Mini App (TMA)
+A full mobile-optimized interface embedded directly inside Telegram. Five sections accessible via bottom navigation:
+
+| Section | Description |
+|---|---|
+| **Home** | Stats summary, quick expense form, recent transactions |
+| **Tasks** | Kanban boards with horizontal column scrolling |
+| **Finance** | Expense list, period summary |
+| **AI Chat** | Streaming AI advisor with conversation switcher |
+| **Settings** | Currency, AI provider, categories, bot connection |
+
+Includes haptic feedback, Telegram safe area support, and a dedicated `tma-auth` middleware.
+
+### Settings
+- Currency code and symbol
+- AI provider and model selection
+- API keys: Anthropic, OpenAI, Groq, Jina
+- Finance categories (CRUD with custom colors)
+- Telegram bot token and webhook registration
+- Password change
 
 ---
 
-## Деплой в Dokploy
-[Посмотрите гайд](https://www.youtube.com/watch?v=EaMZUBrVKag)
-[![Смотреть видео-гайд](https://img.youtube.com/vi/EaMZUBrVKag/maxresdefault.jpg)](https://www.youtube.com/watch?v=EaMZUBrVKag)
+## Deploy to Dokploy
 
-### Шаг 1 — Создать PostgreSQL
+[Watch the video guide](https://www.youtube.com/watch?v=EaMZUBrVKag)
+
+[![Watch video guide](https://img.youtube.com/vi/EaMZUBrVKag/maxresdefault.jpg)](https://www.youtube.com/watch?v=EaMZUBrVKag)
+
+### Step 1 — Create PostgreSQL
 
 Dokploy → **New Service → Database → PostgreSQL**
 
-Запомни **имя сервиса** (будет `DB_HOST`), `Database`, `Username`, `Password`.
+Note down the **service name** (will be `DB_HOST`), `Database`, `Username`, and `Password`.
 
-### Шаг 2 — Создать сервис приложения
+### Step 2 — Create Application Service
 
-Dokploy → **New Service → Application** → источник **GitHub** → выбери репо и ветку `main`.
+Dokploy → **New Service → Application** → source **GitHub** → select repo and branch `main`.
 
-Dokploy автоматически найдёт `Dockerfile` в корне репозитория.
+Dokploy will automatically find the `Dockerfile` in the root of the repository.
 
-### Шаг 3 — Задать переменные окружения
+### Step 3 — Set Environment Variables
 
-В настройках сервиса → **Environment Variables**:
+In service settings → **Environment Variables**:
 
 ```env
-# Обязательные
+# Required
 APP_URL=https://your-domain.com
 
 DB_CONNECTION=pgsql
-DB_HOST=postgres           # имя сервиса из Шага 1
+DB_HOST=postgres           # service name from Step 1
 DB_DATABASE=your_db_name
 DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
 
-# Опциональные
-ANTHROPIC_API_KEY=sk-ant-...   # для AI-функций
-TELEGRAM_BOT_TOKEN=...         # для Telegram-бота
-APP_KEY=base64:...             # можно добавить из логов после первого деплоя
+# Optional
+ANTHROPIC_API_KEY=sk-ant-...   # for Claude AI
+OPENAI_API_KEY=sk-...          # for OpenAI models
+GROQ_API_KEY=...               # for Groq models
+JINA_API_KEY=...               # for AI memory embeddings
+TELEGRAM_BOT_TOKEN=...         # for Telegram bot & Mini App
+APP_KEY=base64:...             # auto-generated on first start
 ```
 
-> `APP_KEY` генерируется автоматически при первом старте — рекомендуется вынести в переменные для стабильности.
+> `APP_KEY` is auto-generated on first start — recommended to move it to environment variables for stability.
 
-### Шаг 4 — Deploy
+### Step 4 — Deploy
 
-Нажми **Deploy**. Сборка займёт 2–4 минуты.
+Click **Deploy**. Build takes 2–4 minutes.
 
-После старта контейнер сам дождётся PostgreSQL, применит миграции и заполнит базу данными по умолчанию.
+After startup, the container will wait for PostgreSQL, apply migrations, and seed default data automatically.
 
-> **Пароль по умолчанию: `secret`** — смени сразу в Настройках.
+> **Default password: `secret`** — change it immediately in Settings.
 
 ---
 
-## Локальная разработка
+## Local Development
 
-**Требования:** PHP 8.4, Composer, Node 20, PostgreSQL
+**Requirements:** PHP 8.4, Composer, Node 20, PostgreSQL
 
 ```bash
-# 1. Клонировать
+# 1. Clone
 git clone <repo> && cd personal-dashboard
 
-# 2. Настроить бэкенд
+# 2. Set up backend
 cd back
 cp .env.example .env
-# Отредактировать .env: DB_*, APP_KEY
+# Edit .env: DB_*, APP_KEY
 php artisan key:generate
 php artisan migrate:fresh --seed
 cd ..
 
-# 3. Настроить фронтенд
+# 3. Set up frontend
 cd front && npm install && cd ..
 
-# 4. Запустить оба сервера
+# 4. Start both servers
 ./start.sh
 ```
 
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000/api
 
-**Через Docker Compose:**
+**Via Docker Compose:**
 
 ```bash
 cp .env.example .env
-# Задать: DB_PASSWORD, APP_KEY (php artisan key:generate --show)
+# Set: DB_PASSWORD, APP_KEY (php artisan key:generate --show)
 
 docker compose up --build
 ```
 
 ---
 
-## Переменные окружения
+## Environment Variables
 
-| Переменная | Обязательна | Описание |
+| Variable | Required | Description |
 |---|---|---|
-| `APP_URL` | Да | Публичный URL (`https://your-domain.com`) |
-| `DB_HOST` | Да | Хост PostgreSQL (имя сервиса в Dokploy) |
-| `DB_DATABASE` | Да | Имя базы данных |
-| `DB_USERNAME` | Да | Пользователь БД |
-| `DB_PASSWORD` | Да | Пароль БД |
-| `APP_KEY` | Нет* | Ключ шифрования. Автогенерируется при первом старте |
-| `ANTHROPIC_API_KEY` | Нет | Claude API ключ для AI-функций |
-| `TELEGRAM_BOT_TOKEN` | Нет | Токен Telegram-бота |
+| `APP_URL` | Yes | Public URL (`https://your-domain.com`) |
+| `DB_HOST` | Yes | PostgreSQL host (service name in Dokploy) |
+| `DB_DATABASE` | Yes | Database name |
+| `DB_USERNAME` | Yes | Database user |
+| `DB_PASSWORD` | Yes | Database password |
+| `APP_KEY` | No* | Encryption key. Auto-generated on first start |
+| `ANTHROPIC_API_KEY` | No | Claude API key |
+| `OPENAI_API_KEY` | No | OpenAI API key |
+| `GROQ_API_KEY` | No | Groq API key (also used for memory fact extraction) |
+| `JINA_API_KEY` | No | Jina AI key for vector embeddings |
+| `TELEGRAM_BOT_TOKEN` | No | Telegram bot token |
 
-*Рекомендуется задать вручную после первого запуска (ключ будет в логах).
+*Recommended to set manually after first run (key will be in logs).
 
 ---
 
-## Структура проекта
+## Project Structure
 
 ```
 ├── back/               Laravel 11 API
@@ -142,22 +196,6 @@ docker compose up --build
 │   ├── nginx.conf
 │   └── supervisord.conf
 ├── Dockerfile          Multi-stage: Nuxt build → Composer → PHP-FPM + Nginx
-├── docker-compose.yml  Для локальной разработки
-└── start.sh            Запуск dev-серверов
+├── docker-compose.yml  For local development
+└── start.sh            Dev server launcher
 ```
-
----
-
-## Telegram Bot
-
-1. Создай бота через [@BotFather](https://t.me/BotFather), получи токен
-2. В настройках дашборда → **Telegram** — вставь токен и нажми «Подключить»
-3. Webhook зарегистрируется автоматически
-
-**Команды:**
-
-| Команда | Описание |
-|---|---|
-| `/add 500 кофе` | Добавить расход |
-| `/today` | Расходы за сегодня |
-| `/help` | Список команд |
