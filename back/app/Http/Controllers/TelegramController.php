@@ -11,6 +11,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Telegram\Bot\Api;
+use Telegram\Bot\Keyboard\Keyboard;
 
 class TelegramController extends Controller
 {
@@ -60,6 +62,16 @@ class TelegramController extends Controller
         }
 
         return response()->json(['ok' => true]);
+    }
+
+    // ── Telegram API instance ─────────────────────────────────────────────────
+
+    private function telegram(): ?Api
+    {
+        $token = Setting::get('telegram_bot_token');
+        if (!$token) return null;
+
+        return new Api($token);
     }
 
     // ── Smart AI parsing ──────────────────────────────────────────────────────
@@ -152,16 +164,20 @@ class TelegramController extends Controller
     private function handleCallback(array $cbq): void
     {
         $cbqId     = $cbq['id'];
-        $chatId    = $cbq['message']['chat']['id'];
+        $chatId    = (int) $cbq['message']['chat']['id'];
         $messageId = $cbq['message']['message_id'];
         $data      = $cbq['data'] ?? '';
+
+        Log::info('Telegram callback', ['chat_id' => $chatId, 'data' => $data]);
 
         // Always answer callback to remove loading spinner
         $this->answerCallback($cbqId);
 
         $pending = $this->getPending($chatId);
 
-        if (!$pending || (int) $pending['chat_id'] !== $chatId) {
+        Log::info('Telegram pending', ['pending' => $pending ? 'found' : 'null', 'chat_id' => $chatId]);
+
+        if (!$pending) {
             $this->editMessage($chatId, $messageId, '❌ Действие устарело. Отправьте запись заново.');
             return;
         }
@@ -185,16 +201,20 @@ class TelegramController extends Controller
             case 'edit_date':
             case 'edit_category':
             case 'edit_desc':
-                // 'edit_type' → 'type', 'edit_amount' → 'amount', etc.
                 $field                 = substr($data, 5);
                 $pending['editing']    = $field;
                 $pending['message_id'] = $messageId;
                 $this->savePending($chatId, $pending);
+                $keyboard = Keyboard::make()
+                    ->inline()
+                    ->row([
+                        Keyboard::inlineButton(['text' => '← Отмена', 'callback_data' => 'edit_cancel']),
+                    ]);
                 $this->editMessage(
                     $chatId,
                     $messageId,
                     $this->editPromptText($field),
-                    ['inline_keyboard' => [[['text' => '← Отмена', 'callback_data' => 'edit_cancel']]]]
+                    $keyboard
                 );
                 break;
 
@@ -232,26 +252,26 @@ class TelegramController extends Controller
 
     private function showEditMenu(int $chatId, int $messageId, array $pending): void
     {
+        $keyboard = Keyboard::make()
+            ->inline()
+            ->row([
+                Keyboard::inlineButton(['text' => '↕️ Тип',      'callback_data' => 'edit_type']),
+                Keyboard::inlineButton(['text' => '💰 Сумма',     'callback_data' => 'edit_amount']),
+            ])
+            ->row([
+                Keyboard::inlineButton(['text' => '📅 Дата',      'callback_data' => 'edit_date']),
+                Keyboard::inlineButton(['text' => '📁 Категория', 'callback_data' => 'edit_category']),
+            ])
+            ->row([
+                Keyboard::inlineButton(['text' => '📝 Описание',  'callback_data' => 'edit_desc']),
+                Keyboard::inlineButton(['text' => '← Назад',      'callback_data' => 'edit_cancel']),
+            ]);
+
         $this->editMessage(
             $chatId,
             $messageId,
             $this->formatConfirmText($pending) . "\n\n✏️ Что изменить?",
-            [
-                'inline_keyboard' => [
-                    [
-                        ['text' => '↕️ Тип',      'callback_data' => 'edit_type'],
-                        ['text' => '💰 Сумма',     'callback_data' => 'edit_amount'],
-                    ],
-                    [
-                        ['text' => '📅 Дата',      'callback_data' => 'edit_date'],
-                        ['text' => '📁 Категория', 'callback_data' => 'edit_category'],
-                    ],
-                    [
-                        ['text' => '📝 Описание',  'callback_data' => 'edit_desc'],
-                        ['text' => '← Назад',      'callback_data' => 'edit_cancel'],
-                    ],
-                ],
-            ]
+            $keyboard
         );
     }
 
@@ -397,15 +417,15 @@ class TelegramController extends Controller
             . "📝 {$pending['description']}";
     }
 
-    private function confirmKeyboard(): array
+    private function confirmKeyboard(): Keyboard
     {
-        return [
-            'inline_keyboard' => [[
-                ['text' => '✅ Добавить',  'callback_data' => 'tx_confirm'],
-                ['text' => '✏️ Изменить', 'callback_data' => 'tx_edit'],
-                ['text' => '❌ Отмена',   'callback_data' => 'tx_cancel'],
-            ]],
-        ];
+        return Keyboard::make()
+            ->inline()
+            ->row([
+                Keyboard::inlineButton(['text' => '✅ Добавить',  'callback_data' => 'tx_confirm']),
+                Keyboard::inlineButton(['text' => '✏️ Изменить', 'callback_data' => 'tx_edit']),
+                Keyboard::inlineButton(['text' => '❌ Отмена',   'callback_data' => 'tx_cancel']),
+            ]);
     }
 
     private function editPromptText(string $field): string
@@ -526,6 +546,12 @@ class TelegramController extends Controller
 
         $this->setChatMenuButton($chatId, $webAppUrl);
 
+        $keyboard = Keyboard::make()
+            ->inline()
+            ->row([
+                Keyboard::inlineButton(['text' => 'Открыть Web App', 'web_app' => ['url' => $webAppUrl]]),
+            ]);
+
         $this->sendMessage(
             $chatId,
             "🚀 Добро пожаловать в MYDY!\n\n"
@@ -534,7 +560,7 @@ class TelegramController extends Controller
             . "/today — записи за сегодня\n"
             . "/help — список команд\n\n"
             . "💡 Или просто пишите:\n«купил еду на 60к сумов»",
-            ['inline_keyboard' => [[['text' => 'Открыть Web App', 'web_app' => ['url' => $webAppUrl]]]]]
+            $keyboard
         );
     }
 
@@ -582,67 +608,79 @@ class TelegramController extends Controller
 
     private function sendConfirmationMessage(int $chatId, array $pending): ?int
     {
-        $token = Setting::get('telegram_bot_token');
-        if (!$token) return null;
+        $tg = $this->telegram();
+        if (!$tg) return null;
 
-        $response = Http::asJson()->post("https://api.telegram.org/bot{$token}/sendMessage", [
+        $response = $tg->sendMessage([
             'chat_id'      => $chatId,
             'text'         => $this->formatConfirmText($pending),
             'reply_markup' => $this->confirmKeyboard(),
         ]);
 
-        return $response->json('result.message_id');
+        return $response->getMessageId();
     }
 
-    private function editMessage(int $chatId, int $messageId, string $text, ?array $replyMarkup = null): void
+    private function editMessage(int $chatId, int $messageId, string $text, ?Keyboard $keyboard = null): void
     {
-        $token = Setting::get('telegram_bot_token');
-        if (!$token) return;
+        $tg = $this->telegram();
+        if (!$tg) return;
 
         $payload = [
             'chat_id'    => $chatId,
             'message_id' => $messageId,
             'text'       => $text,
         ];
-        if ($replyMarkup !== null) {
-            $payload['reply_markup'] = $replyMarkup;
+
+        if ($keyboard !== null) {
+            $payload['reply_markup'] = $keyboard;
         }
 
-        Http::asJson()->post("https://api.telegram.org/bot{$token}/editMessageText", $payload);
+        try {
+            $tg->editMessageText($payload);
+        } catch (\Throwable $e) {
+            Log::warning('Telegram editMessageText failed', ['error' => $e->getMessage()]);
+        }
     }
 
     private function answerCallback(string $callbackId): void
     {
-        $token = Setting::get('telegram_bot_token');
-        if (!$token) return;
+        $tg = $this->telegram();
+        if (!$tg) return;
 
-        Http::asJson()->post("https://api.telegram.org/bot{$token}/answerCallbackQuery", [
-            'callback_query_id' => $callbackId,
-        ]);
+        try {
+            $tg->answerCallbackQuery(['callback_query_id' => $callbackId]);
+        } catch (\Throwable $e) {
+            Log::warning('Telegram answerCallbackQuery failed', ['error' => $e->getMessage()]);
+        }
     }
 
     private function sendChatAction(int $chatId, string $action): void
     {
-        $token = Setting::get('telegram_bot_token');
-        if (!$token) return;
+        $tg = $this->telegram();
+        if (!$tg) return;
 
-        Http::asJson()->post("https://api.telegram.org/bot{$token}/sendChatAction", [
-            'chat_id' => $chatId,
-            'action'  => $action,
-        ]);
+        try {
+            $tg->sendChatAction(['chat_id' => $chatId, 'action' => $action]);
+        } catch (\Throwable $e) {
+            Log::warning('Telegram sendChatAction failed', ['error' => $e->getMessage()]);
+        }
     }
 
-    private function sendMessage(int $chatId, string $text, ?array $replyMarkup = null): void
+    private function sendMessage(int $chatId, string $text, ?Keyboard $keyboard = null): void
     {
-        $token = Setting::get('telegram_bot_token');
-        if (!$token) return;
+        $tg = $this->telegram();
+        if (!$tg) return;
 
         $payload = ['chat_id' => $chatId, 'text' => $text];
-        if ($replyMarkup) {
-            $payload['reply_markup'] = $replyMarkup;
+        if ($keyboard) {
+            $payload['reply_markup'] = $keyboard;
         }
 
-        Http::asJson()->post("https://api.telegram.org/bot{$token}/sendMessage", $payload);
+        try {
+            $tg->sendMessage($payload);
+        } catch (\Throwable $e) {
+            Log::warning('Telegram sendMessage failed', ['error' => $e->getMessage()]);
+        }
     }
 
     private function setChatMenuButton(int $chatId, string $webAppUrl): void
