@@ -29,7 +29,7 @@ const pageMap: Record<string, { title: string; subtitle?: string }> = {
   '/kanban':          { title: 'Канбан',       subtitle: 'Управление задачами' },
   '/kanban/archive':  { title: 'Архив задач',  subtitle: 'Завершённые задачи' },
   '/finance':         { title: 'Финансы',      subtitle: 'Учёт расходов' },
-  '/finance/advisor': { title: 'AI Советник',  subtitle: 'Финансовый помощник' },
+  '/ai':              { title: 'Чат с AI',      subtitle: 'Персональный ассистент' },
   '/settings':        { title: 'Настройки',    subtitle: 'Конфигурация' },
 }
 

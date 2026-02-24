@@ -48,4 +48,12 @@ export default defineNuxtConfig({
   imports: {
     dirs: ['composables/**'],
   },
+
+  vite: {
+    server: {
+      allowedHosts: process.env.NUXT_ALLOWED_HOSTS
+        ? process.env.NUXT_ALLOWED_HOSTS.split(',')
+        : [],
+    },
+  },
 })

@@ -3,13 +3,8 @@
 
     <!-- Header -->
     <div class="flex items-center gap-2 shrink-0">
-      <NuxtLink to="/tma/finance">
-        <Button variant="ghost" size="sm" class="px-2">
-          <ChevronLeft class="w-5 h-5" />
-        </Button>
-      </NuxtLink>
       <div class="flex-1 min-w-0">
-        <h1 class="text-base font-semibold text-foreground truncate">AI Советник</h1>
+        <h1 class="text-base font-semibold text-foreground truncate">Чат с AI</h1>
       </div>
       <Button variant="outline" size="sm" @click="newChat" :disabled="streaming">
         <Plus class="w-4 h-4" />
@@ -41,8 +36,8 @@
     >
       <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center py-10">
         <Bot class="w-10 h-10 text-muted-foreground/30 mb-2" />
-        <p class="text-sm font-medium text-foreground">AI Финансовый советник</p>
-        <p class="text-xs text-muted-foreground mt-1">Задайте любой вопрос о ваших финансах</p>
+        <p class="text-sm font-medium text-foreground">Чат с AI</p>
+        <p class="text-xs text-muted-foreground mt-1">Задайте любой вопрос — я запоминаю важное о вас</p>
       </div>
 
       <div
@@ -83,7 +78,7 @@
       <form @submit.prevent="sendMessage" class="flex gap-2">
         <Input
           v-model="input"
-          placeholder="Спросите о ваших финансах..."
+          placeholder="Напишите сообщение..."
           :disabled="streaming"
           class="flex-1 text-sm"
           @keydown.enter.exact.prevent="sendMessage"
@@ -99,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { Bot, User, Send, Loader2, Plus, ChevronLeft } from 'lucide-vue-next'
+import { Bot, User, Send, Loader2, Plus } from 'lucide-vue-next'
 import { marked } from 'marked'
 
 const renderMd = (text: string) => marked(text, { breaks: true }) as string
@@ -121,7 +116,7 @@ const currentId     = ref<number | null>(null)
 const selectedId    = ref<string>('')
 
 onMounted(async () => {
-  showBackButton(() => navigateTo('/tma/finance'))
+  showBackButton(() => navigateTo('/tma/'))
   await loadConversations()
   if (currentId.value) await loadMessages(currentId.value)
 })

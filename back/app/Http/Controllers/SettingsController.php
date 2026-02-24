@@ -11,12 +11,14 @@ class SettingsController extends Controller
 {
     public function index(): JsonResponse
     {
-        $settings = Setting::whereNotIn('key', ['app_password', 'api_token', 'ai_api_key'])
+        $settings = Setting::whereNotIn('key', ['app_password', 'api_token', 'ai_api_key', 'groq_api_key', 'jina_api_key'])
             ->get()
             ->pluck('value', 'key');
 
-        // Indicate whether an AI key is stored without exposing it
-        $settings['ai_api_key_set'] = (bool) Setting::get('ai_api_key');
+        // Indicate whether keys are stored without exposing them
+        $settings['ai_api_key_set']   = (bool) Setting::get('ai_api_key');
+        $settings['groq_api_key_set'] = (bool) Setting::get('groq_api_key');
+        $settings['jina_api_key_set'] = (bool) Setting::get('jina_api_key');
 
         return $this->success($settings->toArray());
     }
@@ -31,9 +33,11 @@ class SettingsController extends Controller
             'ai_provider'     => 'sometimes|string|in:anthropic,openai,groq',
             'ai_api_key'      => 'sometimes|string|max:500',
             'ai_model'        => 'sometimes|string|max:100',
+            'groq_api_key'    => 'sometimes|string|max:500',
+            'jina_api_key'    => 'sometimes|string|max:500',
         ]);
 
-        foreach (['currency', 'currency_symbol', 'initial_balance', 'ai_provider', 'ai_api_key', 'ai_model'] as $key) {
+        foreach (['currency', 'currency_symbol', 'initial_balance', 'ai_provider', 'ai_api_key', 'ai_model', 'groq_api_key', 'jina_api_key'] as $key) {
             if (isset($data[$key])) {
                 Setting::set($key, $data[$key]);
             }

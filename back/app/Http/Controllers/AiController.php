@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\AiConversation;
+use App\Models\AiMemory;
 use App\Services\AiService;
 use App\Services\FinanceContextBuilder;
+use App\Services\MemoryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -111,9 +113,17 @@ class AiController extends Controller
                     'messages'     => [],
                  ]);
 
-        $ctx          = (new FinanceContextBuilder())->buildForMessage($request->message);
-        $systemPrompt = "Ты персональный финансовый советник. Русский язык. Будь кратким и конкретным.\n"
-            . 'Финансовый контекст: ' . json_encode($ctx, JSON_UNESCAPED_UNICODE);
+        $memoryService = new MemoryService();
+        $financeCtx    = (new FinanceContextBuilder())->buildForMessage($request->message);
+
+        // Retrieve relevant memories to include in system prompt
+        $memories     = $memoryService->search($request->message);
+        $systemPrompt = "Ты умный персональный ассистент. Отвечай на том языке, на котором пишет пользователь. Будь полезным, кратким и конкретным."
+            . "\n\nФинансовые данные пользователя (реальные, актуальные):\n" . json_encode($financeCtx, JSON_UNESCAPED_UNICODE);
+
+        if (! empty($memories)) {
+            $systemPrompt .= "\n\nПамять о пользователе:\n- " . implode("\n- ", $memories);
+        }
 
         $messages   = $conversation->messages;
         $messages[] = ['role' => 'user', 'content' => $request->message];
@@ -125,7 +135,7 @@ class AiController extends Controller
         $userMessage = $request->message;
         $ai          = new AiService();
 
-        return response()->stream(function () use ($messages, $systemPrompt, $conversation, $userMessage, $ai) {
+        return response()->stream(function () use ($messages, $systemPrompt, $conversation, $userMessage, $ai, $memoryService) {
             while (ob_get_level() > 0) {
                 ob_end_clean();
             }
@@ -158,6 +168,11 @@ class AiController extends Controller
                 $conversation->update(['messages' => $updatedMessages, 'title' => $newTitle]);
             } catch (\Throwable) {}
 
+            // Extract and store memories from this exchange (async-ish, after response sent)
+            if (! empty($fullResponse)) {
+                $memoryService->extractAndStore($userMessage, $fullResponse);
+            }
+
             echo "data: [DONE]\n\n";
         }, 200, [
             'Content-Type'      => 'text/event-stream',
@@ -165,6 +180,40 @@ class AiController extends Controller
             'X-Accel-Buffering' => 'no',
             'Connection'        => 'keep-alive',
         ]);
+    }
+
+    // ─── Memory endpoints ─────────────────────────────────────────────────────
+
+    public function listMemories(): JsonResponse
+    {
+        $memories = AiMemory::select('id', 'content', 'category', 'created_at')
+            ->orderByDesc('created_at')
+            ->get();
+
+        return $this->success($memories->toArray());
+    }
+
+    public function storeMemory(Request $request): JsonResponse
+    {
+        $request->validate(['content' => 'required|string|max:1000']);
+
+        (new MemoryService())->store($request->input('content'));
+
+        return $this->success(message: 'Сохранено');
+    }
+
+    public function deleteMemory(int $id): JsonResponse
+    {
+        AiMemory::findOrFail($id)->delete();
+
+        return $this->success(message: 'Удалено');
+    }
+
+    public function clearMemories(): JsonResponse
+    {
+        AiMemory::truncate();
+
+        return $this->success(message: 'Память очищена');
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

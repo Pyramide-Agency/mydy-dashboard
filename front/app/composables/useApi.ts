@@ -128,6 +128,12 @@ export const useApi = () => {
     deleteConversation: (id: number) => del(`/finance/conversations/${id}`),
     getConversation: (id?: number) => get('/finance/ai-conversation', id ? { id } : undefined),
 
+    // AI memories
+    listMemories: () => get('/ai/memories'),
+    storeMemory: (content: string) => post('/ai/memories', { content }),
+    deleteMemory: (id: number) => del(`/ai/memories/${id}`),
+    clearMemories: () => del('/ai/memories'),
+
     // Settings
     getSettings: () => get('/settings'),
     updateSettings: (data: any) => put('/settings', data),

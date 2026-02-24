@@ -101,18 +101,20 @@
                 <History class="w-3.5 h-3.5 shrink-0" />
                 История
               </NuxtLink>
-              <NuxtLink
-                to="/finance/advisor"
-                class="sub-item"
-                :class="route.path === '/finance/advisor' ? 'sub-item--active' : 'sub-item--default'"
-              >
-                <Bot class="w-3.5 h-3.5 shrink-0" />
-                Спросить AI
-              </NuxtLink>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- AI чат (flat link) -->
+      <NuxtLink
+        to="/ai"
+        class="nav-item"
+        :class="route.path.startsWith('/ai') ? 'nav-item--active' : 'nav-item--default'"
+      >
+        <Bot class="nav-icon" />
+        <span>Чат с AI</span>
+      </NuxtLink>
 
       <!-- Настройки (flat link) -->
       <NuxtLink
@@ -148,7 +150,6 @@ import {
   Bot,
   Settings,
   LogOut,
-  Zap,
   ChevronRight,
   Archive,
   CalendarCheck,

@@ -44,11 +44,33 @@
           <p v-if="errors.aiProvider" class="text-xs text-destructive mt-1">{{ errors.aiProvider }}</p>
         </div>
         <div>
-          <label class="text-sm font-medium mb-1.5 block">API ключ</label>
+          <label class="text-sm font-medium mb-1.5 block">API ключ (основной провайдер)</label>
           <Input
             v-model="aiForm.apiKey"
             type="password"
             :placeholder="aiApiKeySet ? '●●●●●●●● (ключ сохранён)' : 'sk-ant-... или sk-...'"
+          />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">
+            Groq API ключ
+            <span class="text-xs text-muted-foreground font-normal ml-1">(для извлечения памяти)</span>
+          </label>
+          <Input
+            v-model="aiForm.groqApiKey"
+            type="password"
+            :placeholder="groqApiKeySet ? '●●●●●●●● (ключ сохранён)' : 'gsk_...'"
+          />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">
+            Jina API ключ
+            <span class="text-xs text-muted-foreground font-normal ml-1">(для векторной памяти)</span>
+          </label>
+          <Input
+            v-model="aiForm.jinaApiKey"
+            type="password"
+            :placeholder="jinaApiKeySet ? '●●●●●●●● (ключ сохранён)' : 'jina_...'"
           />
         </div>
         <div>
@@ -72,6 +94,90 @@
           <Loader2 v-if="savingAi" class="w-4 h-4 mr-2 animate-spin" />
           Сохранить
         </Button>
+      </CardContent>
+    </Card>
+
+    <!-- AI Memory -->
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base flex items-center gap-2">
+          <Brain class="w-4 h-4" />
+          Память AI
+        </CardTitle>
+        <CardDescription>
+          AI запоминает факты о вас из диалогов. Здесь можно добавить информацию вручную или удалить ненужное.
+        </CardDescription>
+      </CardHeader>
+      <CardContent class="space-y-4">
+
+        <!-- Manual input -->
+        <div class="space-y-2">
+          <label class="text-sm font-medium block">Добавить информацию о себе</label>
+          <textarea
+            v-model="newMemoryText"
+            placeholder="Например: Я занимаюсь фрилансом, мне 27 лет, хочу накопить на квартиру..."
+            rows="3"
+            class="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          />
+          <Button
+            size="sm"
+            :disabled="!newMemoryText.trim() || savingMemory"
+            @click="addMemory"
+          >
+            <Loader2 v-if="savingMemory" class="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            <Plus v-else class="w-3.5 h-3.5 mr-1.5" />
+            Сохранить в память
+          </Button>
+        </div>
+
+        <!-- Divider -->
+        <div class="border-t border-border" />
+
+        <!-- Memory list -->
+        <div class="space-y-1">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-sm font-medium">
+              Сохранённые факты
+              <span v-if="memories.length > 0" class="ml-1.5 text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
+                {{ memories.length }}
+              </span>
+            </p>
+            <button
+              v-if="memories.length > 0"
+              class="text-xs text-muted-foreground hover:text-destructive transition-colors"
+              @click="confirmClearMemories"
+            >
+              Очистить всё
+            </button>
+          </div>
+
+          <div v-if="memoriesLoading" class="text-xs text-muted-foreground py-3 text-center">
+            <Loader2 class="w-4 h-4 animate-spin mx-auto" />
+          </div>
+
+          <div
+            v-else-if="memories.length === 0"
+            class="text-xs text-muted-foreground text-center py-4 bg-muted/30 rounded-lg"
+          >
+            Пока нет сохранённых фактов. AI будет автоматически запоминать важное из диалогов.
+          </div>
+
+          <div
+            v-for="mem in memories"
+            :key="mem.id"
+            class="group flex items-start gap-2 px-3 py-2 rounded-lg hover:bg-muted/40 transition-colors"
+          >
+            <span class="text-muted-foreground text-xs mt-0.5 shrink-0">•</span>
+            <p class="text-sm flex-1 leading-relaxed">{{ mem.content }}</p>
+            <button
+              class="opacity-0 group-hover:opacity-100 shrink-0 text-muted-foreground hover:text-destructive transition-all"
+              @click="deleteMemory(mem.id)"
+            >
+              <Trash2 class="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+
       </CardContent>
     </Card>
 
@@ -196,7 +302,7 @@
 </template>
 
 <script setup lang="ts">
-import { Send, Loader2, Plus, Trash2, Check, Bot } from 'lucide-vue-next'
+import { Send, Loader2, Plus, Trash2, Check, Bot, Brain } from 'lucide-vue-next'
 import type { FormField } from '~/components/DynamicForm.vue'
 
 definePageMeta({ middleware: 'auth' })
@@ -213,6 +319,14 @@ const showAddCategory    = ref(false)
 const telegramStatus     = ref('')
 const telegramError      = ref(false)
 const aiApiKeySet        = ref(false)
+const groqApiKeySet      = ref(false)
+const jinaApiKeySet      = ref(false)
+
+type Memory = { id: number; content: string; category: string | null; created_at: string }
+const memories        = ref<Memory[]>([])
+const memoriesLoading = ref(false)
+const newMemoryText   = ref('')
+const savingMemory    = ref(false)
 const errors             = reactive({
   currency: '',
   symbol: '',
@@ -254,6 +368,8 @@ const providerModels: Record<string, { label: string; value: string }[]> = {
 const aiForm = reactive({
   provider: 'anthropic',
   apiKey: '',
+  groqApiKey: '',
+  jinaApiKey: '',
   model: providerModels['anthropic']![0]!.value,
 })
 
@@ -261,14 +377,50 @@ const onProviderChange = (value: any) => {
   aiForm.model = providerModels[value as string]?.[0]?.value ?? ''
 }
 
+const loadMemories = async () => {
+  memoriesLoading.value = true
+  try {
+    memories.value = (await api.listMemories()) as Memory[]
+  } finally {
+    memoriesLoading.value = false
+  }
+}
+
+const addMemory = async () => {
+  const text = newMemoryText.value.trim()
+  if (!text) return
+  savingMemory.value = true
+  try {
+    await api.storeMemory(text)
+    newMemoryText.value = ''
+    await loadMemories()
+  } finally {
+    savingMemory.value = false
+  }
+}
+
+const deleteMemory = async (id: number) => {
+  await api.deleteMemory(id)
+  memories.value = memories.value.filter(m => m.id !== id)
+}
+
+const confirmClearMemories = async () => {
+  if (!confirm('Очистить всю память AI? Это действие необратимо.')) return
+  await api.clearMemories()
+  memories.value = []
+}
+
 onMounted(async () => {
   const [settings, cats] = await Promise.all([api.getSettings(), api.getCategories()])
+  void loadMemories()
   const s = settings as any
   currencyForm.value.currency = s.currency        || 'USD'
   currencyForm.value.symbol   = s.currency_symbol || '$'
   aiForm.provider = s.ai_provider || 'anthropic'
   aiForm.model    = s.ai_model   || providerModels[aiForm.provider]?.[0]?.value || ''
-  aiApiKeySet.value     = s.ai_api_key_set  || false
+  aiApiKeySet.value     = s.ai_api_key_set   || false
+  groqApiKeySet.value   = s.groq_api_key_set || false
+  jinaApiKeySet.value   = s.jina_api_key_set || false
   categories.value      = cats as any[]
   telegramToken.value   = s.telegram_bot_token || ''
 })
@@ -291,13 +443,14 @@ const saveAi = async () => {
   savingAi.value = true
   try {
     const payload: any = { ai_provider: aiForm.provider }
-    if (aiForm.apiKey)  payload.ai_api_key = aiForm.apiKey
-    if (aiForm.model)   payload.ai_model   = aiForm.model
+    if (aiForm.apiKey)     payload.ai_api_key  = aiForm.apiKey
+    if (aiForm.groqApiKey) payload.groq_api_key = aiForm.groqApiKey
+    if (aiForm.jinaApiKey) payload.jina_api_key = aiForm.jinaApiKey
+    if (aiForm.model)      payload.ai_model     = aiForm.model
     await api.updateSettings(payload)
-    if (aiForm.apiKey) {
-      aiApiKeySet.value = true
-      aiForm.apiKey = ''
-    }
+    if (aiForm.apiKey)     { aiApiKeySet.value   = true; aiForm.apiKey     = '' }
+    if (aiForm.groqApiKey) { groqApiKeySet.value = true; aiForm.groqApiKey = '' }
+    if (aiForm.jinaApiKey) { jinaApiKeySet.value = true; aiForm.jinaApiKey = '' }
   } finally {
     savingAi.value = false
   }

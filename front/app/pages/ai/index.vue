@@ -1,9 +1,9 @@
 <template>
   <!-- h-[calc(100vh-6.5rem)] = 100vh - header(3.5rem) - main padding(3rem) -->
-  <div class="flex gap-4 h-[calc(100vh-6.5rem)]">
+  <div class="flex gap-3 h-[calc(100vh-6.5rem)]">
 
-    <!-- Sidebar: conversation list -->
-    <div class="w-60 shrink-0 flex flex-col gap-2">
+    <!-- Left: conversation list -->
+    <div class="w-56 shrink-0 flex flex-col gap-2">
       <Button class="w-full" size="sm" @click="newChat">
         <Plus class="w-4 h-4 mr-1" />
         Новый чат
@@ -43,26 +43,26 @@
       </Card>
     </div>
 
-    <!-- Chat area -->
+    <!-- Center: chat area -->
     <Card class="flex-1 flex flex-col overflow-hidden min-w-0">
       <CardHeader class="border-b border-border pb-3 shrink-0">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 bg-primary/10 rounded-full flex items-center justify-center shrink-0">
             <Bot class="w-5 h-5 text-primary" />
           </div>
-          <div class="min-w-0">
+          <div class="min-w-0 flex-1">
             <CardTitle class="text-base truncate">{{ currentTitle }}</CardTitle>
-            <CardDescription>Задайте любой вопрос о ваших финансах</CardDescription>
+            <CardDescription>Спросите что угодно — я помогу разобраться</CardDescription>
           </div>
         </div>
       </CardHeader>
 
-      <!-- Messages — flex-1 + min-h-0 is the key for scroll to work in flex -->
+      <!-- Messages -->
       <div ref="messagesRef" class="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         <div v-if="messages.length === 0" class="text-center py-12 text-muted-foreground">
           <Bot class="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p class="text-sm">Начните разговор с AI советником</p>
-          <p class="text-xs mt-1">Он знает о ваших расходах и может дать персональные советы</p>
+          <p class="text-sm">Начните разговор с AI</p>
+          <p class="text-xs mt-1">Задайте любой вопрос — я запоминаю важное о вас</p>
         </div>
 
         <div
@@ -103,7 +103,7 @@
         <form @submit.prevent="sendMessage" class="flex gap-2">
           <Input
             v-model="input"
-            placeholder="Спросите что-нибудь о ваших финансах..."
+            placeholder="Напишите сообщение..."
             :disabled="streaming"
             class="flex-1"
             @keydown.enter.exact.prevent="sendMessage"
@@ -138,7 +138,7 @@ type ConvSummary = { id: number; title: string; preview: string; updated_at: str
 const conversations = ref<ConvSummary[]>([])
 const currentId     = ref<number | null>(null)
 const currentTitle  = computed(() =>
-  conversations.value.find(c => c.id === currentId.value)?.title ?? 'AI Финансовый советник'
+  conversations.value.find(c => c.id === currentId.value)?.title ?? 'Чат с AI'
 )
 
 onMounted(async () => {
@@ -208,7 +208,6 @@ const sendMessage = async () => {
   const text = input.value.trim()
   if (!text || streaming.value) return
 
-  // Ensure there's an active conversation
   if (!currentId.value) {
     await newChat()
     if (!currentId.value) return
@@ -265,9 +264,7 @@ const sendMessage = async () => {
       }
     }
 
-    // Refresh sidebar to update title/preview after response
     await loadConversations()
-    // Keep current conversation selected after refresh
     if (currentId.value) {
       const fresh = conversations.value.find(c => c.id === currentId.value)
       if (fresh) currentId.value = fresh.id

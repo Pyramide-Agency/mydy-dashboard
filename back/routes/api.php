@@ -70,6 +70,12 @@ Route::middleware('auth.api')->group(function () {
     Route::get('/finance/ai-conversation',       [AiController::class, 'getConversation']);
     Route::post('/finance/ai-conversation',      [AiController::class, 'sendMessage']);
 
+    // AI memories
+    Route::get('/ai/memories',          [AiController::class, 'listMemories']);
+    Route::post('/ai/memories',         [AiController::class, 'storeMemory']);
+    Route::delete('/ai/memories/{id}',  [AiController::class, 'deleteMemory']);
+    Route::delete('/ai/memories',       [AiController::class, 'clearMemories']);
+
     // Settings
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::put('/settings', [SettingsController::class, 'update']);
