@@ -13,6 +13,29 @@ class MemoryService
     private const JINA_MODEL    = 'jina-embeddings-v3';
     private const DIMS          = 1024;
 
+    // ─── Internal state ──────────────────────────────────────────────────────
+
+    private ?bool $hasVectorColumn = null;
+
+    private function vectorColumnExists(): bool
+    {
+        if ($this->hasVectorColumn !== null) {
+            return $this->hasVectorColumn;
+        }
+
+        try {
+            $result = \Illuminate\Support\Facades\DB::selectOne(
+                "SELECT 1 FROM information_schema.columns
+                 WHERE table_name = 'ai_memories' AND column_name = 'embedding'"
+            );
+            $this->hasVectorColumn = $result !== null;
+        } catch (\Throwable) {
+            $this->hasVectorColumn = false;
+        }
+
+        return $this->hasVectorColumn;
+    }
+
     // ─── Public API ──────────────────────────────────────────────────────────
 
     /**
@@ -52,8 +75,8 @@ class MemoryService
             return [];
         }
 
-        // Try vector search if Jina is configured
-        if (Setting::get('jina_api_key')) {
+        // Try vector search if Jina is configured and vector column exists
+        if (Setting::get('jina_api_key') && $this->vectorColumnExists()) {
             try {
                 $vector  = $this->embed($query);
                 $results = AiMemory::similarTo($vector, $limit);
@@ -76,7 +99,7 @@ class MemoryService
     public function store(string $content): void
     {
         try {
-            if (Setting::get('jina_api_key')) {
+            if (Setting::get('jina_api_key') && $this->vectorColumnExists()) {
                 $embedding = $this->embed($content);
                 $vectorStr = '[' . implode(',', $embedding) . ']';
 
