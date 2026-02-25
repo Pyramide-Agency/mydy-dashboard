@@ -29,7 +29,7 @@
 
           <!-- Timer -->
           <div class="flex-1 flex flex-col items-center sm:items-start gap-3">
-            <div class="text-4xl font-mono font-bold tabular-nums" :class="isCheckedIn ? 'text-white' : 'text-slate-600'">
+            <div class="text-4xl font-mono font-bold tabular-nums" :class="isCheckedIn ? 'text-black' : 'text-slate-600'">
               {{ timerDisplay }}
             </div>
 
