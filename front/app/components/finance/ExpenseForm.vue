@@ -14,6 +14,7 @@ import type { FormField } from '~/components/DynamicForm.vue'
 
 const emit = defineEmits<{ submitted: [] }>()
 
+const { $t } = useLocale()
 const api        = useApi()
 const categories = ref<any[]>([])
 const loading    = ref(false)
@@ -31,16 +32,16 @@ const form = ref<Record<string, any>>({
 const expenseFields = computed((): FormField[] => [
   {
     key:     'type',
-    label:   'Тип',
+    label:   $t('finance.type'),
     type:    'toggle',
     options: [
-      { label: 'Расход', value: 'expense', activeClass: 'bg-white text-red-600 shadow-sm'     },
-      { label: 'Доход',  value: 'income',  activeClass: 'bg-white text-emerald-600 shadow-sm' },
+      { label: $t('finance.expense'), value: 'expense', activeClass: 'bg-white text-red-600 shadow-sm'     },
+      { label: $t('finance.income'),  value: 'income',  activeClass: 'bg-white text-emerald-600 shadow-sm' },
     ],
   },
   {
     key:         'amount',
-    label:       'Сумма',
+    label:       $t('finance.amount'),
     type:        'number',
     required:    true,
     placeholder: '0.00',
@@ -49,7 +50,7 @@ const expenseFields = computed((): FormField[] => [
   },
   {
     key:          'date',
-    label:        'Дата',
+    label:        $t('finance.date'),
     type:         'date',
     required:     true,
     defaultValue: today,
@@ -57,25 +58,25 @@ const expenseFields = computed((): FormField[] => [
   },
   {
     key:       'category_id',
-    label:     'Категория',
+    label:     $t('finance.category'),
     type:      'select',
     condition: (data) => data.type === 'expense',
     options:   [
-      { label: 'Без категории', value: 'none' },
+      { label: $t('finance.noCategory'), value: 'none' },
       ...categories.value.map(c => ({ label: c.name, value: String(c.id) })),
     ],
   },
   {
     key:         'description',
-    label:       'Описание',
+    label:       $t('common.description'),
     type:        'textarea',
-    placeholder: form.value.type === 'income' ? 'Источник дохода...' : 'На что потрачено...',
+    placeholder: form.value.type === 'income' ? $t('finance.descriptionIncome') : $t('finance.descriptionExpense'),
     rows:        2,
   },
 ])
 
 const submitLabel = computed(() =>
-  form.value.type === 'income' ? 'Добавить доход' : 'Добавить расход'
+  form.value.type === 'income' ? $t('finance.addIncome') : $t('finance.addExpense')
 )
 
 onMounted(async () => {

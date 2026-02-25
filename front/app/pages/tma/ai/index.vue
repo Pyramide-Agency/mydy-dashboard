@@ -4,7 +4,7 @@
     <!-- Header -->
     <div class="flex items-center gap-2 shrink-0">
       <div class="flex-1 min-w-0">
-        <h1 class="text-base font-semibold text-foreground truncate">Чат с AI</h1>
+        <h1 class="text-base font-semibold text-foreground truncate">{{ $t('ai.title') }}</h1>
       </div>
       <Button variant="outline" size="sm" @click="newChat" :disabled="streaming">
         <Plus class="w-4 h-4" />
@@ -15,7 +15,7 @@
     <div v-if="conversations.length > 0" class="shrink-0">
       <Select v-model="selectedId" @update:model-value="onSelectChange">
         <SelectTrigger class="text-sm">
-          <SelectValue placeholder="Выберите чат" />
+          <SelectValue :placeholder="$t('ai.conversations')" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem
@@ -36,8 +36,8 @@
     >
       <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center py-10">
         <Bot class="w-10 h-10 text-muted-foreground/30 mb-2" />
-        <p class="text-sm font-medium text-foreground">Чат с AI</p>
-        <p class="text-xs text-muted-foreground mt-1">Задайте любой вопрос — я запоминаю важное о вас</p>
+        <p class="text-sm font-medium text-foreground">{{ $t('ai.title') }}</p>
+        <p class="text-xs text-muted-foreground mt-1">{{ $t('ai.startHint') }}</p>
       </div>
 
       <div
@@ -78,7 +78,7 @@
       <form @submit.prevent="sendMessage" class="flex gap-2">
         <Input
           v-model="input"
-          placeholder="Напишите сообщение..."
+          :placeholder="$t('ai.messagePlaceholder')"
           :disabled="streaming"
           class="flex-1 text-sm"
           @keydown.enter.exact.prevent="sendMessage"
@@ -103,6 +103,7 @@ definePageMeta({ layout: 'telegram', middleware: 'tma-auth' })
 
 const api         = useApi()
 const config      = useRuntimeConfig()
+const { $t } = useLocale()
 const messages    = ref<{ role: string; content: string; streaming?: boolean }[]>([])
 const input       = ref('')
 const streaming   = ref(false)
@@ -221,7 +222,7 @@ const sendMessage = async () => {
           try {
             const parsed = JSON.parse(data)
             if (parsed.chunk) { assistantMsg.content += parsed.chunk; scrollToBottom() }
-            if (parsed.error) { assistantMsg.content = `Ошибка: ${parsed.error}` }
+            if (parsed.error) { assistantMsg.content = `${$t('common.error')}: ${parsed.error}` }
           } catch {}
         }
         if (finished) break
@@ -230,7 +231,7 @@ const sendMessage = async () => {
 
     await loadConversations()
   } catch {
-    assistantMsg.content = 'Ошибка соединения. Попробуйте ещё раз.'
+    assistantMsg.content = $t('ai.connectionError')
   } finally {
     assistantMsg.streaming = false
     streaming.value        = false

@@ -1,16 +1,35 @@
 <template>
   <div class="max-w-2xl space-y-6">
+    <!-- Language settings -->
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base">{{ $t('settings.language') }}</CardTitle>
+        <CardDescription>{{ $t('settings.selectLanguage') }}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Select v-model="languageForm" @update:modelValue="saveLanguage">
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="en">{{ $t('settings.english') }}</SelectItem>
+            <SelectItem value="ru">{{ $t('settings.russian') }}</SelectItem>
+          </SelectContent>
+        </Select>
+      </CardContent>
+    </Card>
+
     <!-- Currency settings -->
     <Card>
       <CardHeader>
-        <CardTitle class="text-base">Валюта</CardTitle>
-        <CardDescription>Настройка отображения валюты</CardDescription>
+        <CardTitle class="text-base">{{ $t('settings.currency') }}</CardTitle>
+        <CardDescription>{{ $t('settings.currencyCode') }}</CardDescription>
       </CardHeader>
       <CardContent>
         <DynamicForm
           v-model="currencyForm"
           :fields="currencyFields"
-          submit-label="Сохранить"
+          :submit-label="$t('common.save')"
           :loading="saving"
           @submit="saveCurrency"
         />
@@ -22,59 +41,59 @@
       <CardHeader>
         <CardTitle class="text-base flex items-center gap-2">
           <Bot class="w-4 h-4" />
-          AI Провайдер
+          {{ $t('settings.aiProvider') }}
         </CardTitle>
         <CardDescription>
-          Настройка провайдера и ключа для AI-советника и анализа расходов
+          {{ $t('settings.selectProvider') }}
         </CardDescription>
       </CardHeader>
       <CardContent class="space-y-3">
         <div>
-          <label class="text-sm font-medium mb-1.5 block">Провайдер</label>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.aiProvider') }}</label>
           <Select v-model="aiForm.provider" @update:modelValue="onProviderChange">
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="anthropic">Anthropic (Claude)</SelectItem>
-              <SelectItem value="openai">OpenAI (GPT)</SelectItem>
-              <SelectItem value="groq">Groq (бесплатно)</SelectItem>
+              <SelectItem value="anthropic">{{ $t('settings.anthropic') }}</SelectItem>
+              <SelectItem value="openai">{{ $t('settings.openai') }}</SelectItem>
+              <SelectItem value="groq">{{ $t('settings.groq') }}</SelectItem>
             </SelectContent>
           </Select>
           <p v-if="errors.aiProvider" class="text-xs text-destructive mt-1">{{ errors.aiProvider }}</p>
         </div>
         <div>
-          <label class="text-sm font-medium mb-1.5 block">API ключ (основной провайдер)</label>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.apiKey') }} ({{ $t('settings.aiProvider') }})</label>
           <Input
             v-model="aiForm.apiKey"
             type="password"
-            :placeholder="aiApiKeySet ? '●●●●●●●● (ключ сохранён)' : 'sk-ant-... или sk-...'"
+            :placeholder="aiApiKeySet ? `●●●●●●●● (${$t('settings.apiKeySet')})` : 'sk-ant-... или sk-...'"
           />
         </div>
         <div>
           <label class="text-sm font-medium mb-1.5 block">
-            Groq API ключ
-            <span class="text-xs text-muted-foreground font-normal ml-1">(для извлечения памяти)</span>
+            {{ $t('settings.groqApiKey') }}
+            <span class="text-xs text-muted-foreground font-normal ml-1">{{ $t('settings.forMemoryExtraction') }}</span>
           </label>
           <Input
             v-model="aiForm.groqApiKey"
             type="password"
-            :placeholder="groqApiKeySet ? '●●●●●●●● (ключ сохранён)' : 'gsk_...'"
+            :placeholder="groqApiKeySet ? `●●●●●●●● (${$t('settings.apiKeySet')})` : 'gsk_...'"
           />
         </div>
         <div>
           <label class="text-sm font-medium mb-1.5 block">
-            Jina API ключ
-            <span class="text-xs text-muted-foreground font-normal ml-1">(для векторной памяти)</span>
+            {{ $t('settings.jinaApiKey') }}
+            <span class="text-xs text-muted-foreground font-normal ml-1">{{ $t('settings.forVectorMemory') }}</span>
           </label>
           <Input
             v-model="aiForm.jinaApiKey"
             type="password"
-            :placeholder="jinaApiKeySet ? '●●●●●●●● (ключ сохранён)' : 'jina_...'"
+            :placeholder="jinaApiKeySet ? `●●●●●●●● (${$t('settings.apiKeySet')})` : 'jina_...'"
           />
         </div>
         <div>
-          <label class="text-sm font-medium mb-1.5 block">Модель</label>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.model') }}</label>
           <Select v-model="aiForm.model">
             <SelectTrigger>
               <SelectValue />
@@ -92,7 +111,7 @@
         </div>
         <Button @click="saveAi" :disabled="savingAi">
           <Loader2 v-if="savingAi" class="w-4 h-4 mr-2 animate-spin" />
-          Сохранить
+          {{ $t('common.save') }}
         </Button>
       </CardContent>
     </Card>
@@ -102,20 +121,20 @@
       <CardHeader>
         <CardTitle class="text-base flex items-center gap-2">
           <Brain class="w-4 h-4" />
-          Память AI
+          {{ $t('settings.aiMemory') }}
         </CardTitle>
         <CardDescription>
-          AI запоминает факты о вас из диалогов. Здесь можно добавить информацию вручную или удалить ненужное.
+          {{ $t('settings.aiMemory') }}
         </CardDescription>
       </CardHeader>
       <CardContent class="space-y-4">
 
         <!-- Manual input -->
         <div class="space-y-2">
-          <label class="text-sm font-medium block">Добавить информацию о себе</label>
+          <label class="text-sm font-medium block">{{ $t('settings.addInfoAboutYou') }}</label>
           <textarea
             v-model="newMemoryText"
-            placeholder="Например: Я занимаюсь фрилансом, мне 27 лет, хочу накопить на квартиру..."
+            :placeholder="$t('settings.addInfoAboutYou')"
             rows="3"
             class="w-full resize-none rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           />
@@ -126,7 +145,7 @@
           >
             <Loader2 v-if="savingMemory" class="w-3.5 h-3.5 mr-1.5 animate-spin" />
             <Plus v-else class="w-3.5 h-3.5 mr-1.5" />
-            Сохранить в память
+            {{ $t('settings.saveToMemory') }}
           </Button>
         </div>
 
@@ -137,7 +156,7 @@
         <div class="space-y-1">
           <div class="flex items-center justify-between mb-2">
             <p class="text-sm font-medium">
-              Сохранённые факты
+              {{ $t('settings.savedFacts') }}
               <span v-if="memories.length > 0" class="ml-1.5 text-xs bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
                 {{ memories.length }}
               </span>
@@ -147,7 +166,7 @@
               class="text-xs text-muted-foreground hover:text-destructive transition-colors"
               @click="confirmClearMemories"
             >
-              Очистить всё
+              {{ $t('settings.clearAll') }}
             </button>
           </div>
 
@@ -159,7 +178,7 @@
             v-else-if="memories.length === 0"
             class="text-xs text-muted-foreground text-center py-4 bg-muted/30 rounded-lg"
           >
-            Пока нет сохранённых фактов. AI будет автоматически запоминать важное из диалогов.
+            {{ $t('settings.noFactsYet') }}
           </div>
 
           <div
@@ -184,15 +203,15 @@
     <!-- Password change -->
     <Card>
       <CardHeader>
-        <CardTitle class="text-base">Изменить пароль</CardTitle>
+        <CardTitle class="text-base">{{ $t('settings.changePassword') }}</CardTitle>
       </CardHeader>
       <CardContent class="space-y-3">
-        <Input v-model="newPassword" type="password" placeholder="Новый пароль" />
+        <Input v-model="newPassword" type="password" :placeholder="$t('settings.newPassword')" />
         <p v-if="errors.password" class="text-xs text-destructive -mt-1">{{ errors.password }}</p>
-        <p class="text-xs text-muted-foreground">После смены пароля потребуется повторный вход</p>
+        <p class="text-xs text-muted-foreground">{{ $t('settings.reloginAfterChange') }}</p>
         <Button @click="changePassword" :disabled="!newPassword || savingPassword">
           <Loader2 v-if="savingPassword" class="w-4 h-4 mr-2 animate-spin" />
-          Сменить пароль
+          {{ $t('settings.changePassword') }}
         </Button>
       </CardContent>
     </Card>
@@ -202,27 +221,27 @@
       <CardHeader>
         <CardTitle class="text-base flex items-center gap-2">
           <Send class="w-4 h-4" />
-          Telegram бот
+          {{ $t('settings.telegramBot') }}
         </CardTitle>
         <CardDescription>
-          Подключите Telegram бота для добавления расходов через мессенджер
+          {{ $t('settings.connectTelegramBot') }}
         </CardDescription>
       </CardHeader>
       <CardContent class="space-y-3">
         <div class="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
-          <p class="font-medium">Как подключить:</p>
+          <p class="font-medium">{{ $t('settings.connectInstructions') }}</p>
           <ol class="text-muted-foreground space-y-1 list-decimal list-inside">
-            <li>Создайте бота через <span class="font-mono text-xs bg-background px-1 rounded">@BotFather</span> в Telegram</li>
-            <li>Скопируйте токен бота</li>
-            <li>Вставьте токен ниже и сохраните</li>
-            <li>Напишите боту <span class="font-mono text-xs bg-background px-1 rounded">/help</span></li>
+            <li>{{ $t('settings.createBotVia') }} <span class="font-mono text-xs bg-background px-1 rounded">@BotFather</span> {{ $t('settings.inTelegram') }}</li>
+            <li>{{ $t('settings.copyToken') }}</li>
+            <li>{{ $t('settings.insertTokenBelow') }}</li>
+            <li>{{ $t('settings.writeBot') }} <span class="font-mono text-xs bg-background px-1 rounded">/help</span></li>
           </ol>
         </div>
         <div class="bg-muted/30 rounded-lg p-3 text-sm">
-          <p class="font-medium mb-1">Команды бота:</p>
-          <p class="font-mono text-xs text-muted-foreground">/add 25.50 Кофе — добавить расход</p>
-          <p class="font-mono text-xs text-muted-foreground">/today — расходы за сегодня</p>
-          <p class="font-mono text-xs text-muted-foreground">/help — помощь</p>
+          <p class="font-medium mb-1">{{ $t('settings.botCommands') }}</p>
+          <p class="font-mono text-xs text-muted-foreground">/add 25.50 Coffee — {{ $t('settings.addExpense') }}</p>
+          <p class="font-mono text-xs text-muted-foreground">/today — {{ $t('settings.todayExpenses') }}</p>
+          <p class="font-mono text-xs text-muted-foreground">/help — {{ $t('settings.help') }}</p>
         </div>
         <Input
           v-model="telegramToken"
@@ -236,13 +255,113 @@
         <div class="flex items-center gap-x-3">
           <Button @click="connectTelegram" :disabled="!telegramToken || connectingTelegram">
             <Loader2 v-if="connectingTelegram" class="w-4 h-4 mr-2 animate-spin" />
-            Подключить бота
+            {{ $t('settings.connectBot') }}
           </Button>
           <p class="text-green-500 text-sm">
             <Check class="w-4 h-4 inline mr-1" />
-            Telegram Bot уже подключен
+            {{ $t('settings.botConnected') }}
           </p>
         </div>
+      </CardContent>
+    </Card>
+
+    <!-- Work Tracker -->
+    <Card>
+      <CardHeader>
+        <div class="flex items-center justify-between">
+          <div>
+            <CardTitle class="text-base flex items-center gap-2">
+              <BriefcaseBusiness class="w-4 h-4" />
+              {{ $t('settings.workTracker') }}
+            </CardTitle>
+            <CardDescription class="mt-1">
+              {{ $t('settings.webhookForShortcuts') }}
+            </CardDescription>
+          </div>
+          <Switch
+            v-model="workEnabled"
+            :disabled="workToggling"
+            @update:model-value="onWorkToggle"
+          />
+        </div>
+      </CardHeader>
+
+      <!-- Webhook content when enabled -->
+      <CardContent v-if="workEnabled" class="space-y-4 pt-0">
+
+        <div v-if="workToggling" class="flex items-center gap-2 text-sm text-muted-foreground py-1">
+          <Loader2 class="w-4 h-4 animate-spin" />
+          {{ $t('settings.generatingKey') }}
+        </div>
+
+        <template v-else>
+
+        <!-- Registration status badge -->
+        <div
+          class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium"
+          :class="workShortcutRegistered ? 'bg-green-500/10 text-green-400' : 'bg-muted/50 text-muted-foreground'"
+        >
+          <span
+            class="w-2 h-2 rounded-full shrink-0"
+            :class="workShortcutRegistered ? 'bg-green-400' : 'bg-slate-500 animate-pulse'"
+          />
+          <span v-if="workShortcutRegistered">
+            {{ $t('settings.shortcutConnected') }}
+            <span class="font-normal text-xs ml-1 opacity-70">{{ workShortcutRegisteredAt }}</span>
+          </span>
+          <span v-else>{{ $t('settings.waitingForFirstRequest') }}</span>
+          <Loader2 v-if="!workShortcutRegistered" class="w-3.5 h-3.5 ml-auto animate-spin opacity-40" />
+        </div>
+
+        <!-- Webhook URL -->
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.webhookUrl') }}</label>
+          <div class="flex gap-2">
+            <input
+              :value="workWebhookUrl"
+              readonly
+              :disabled="workShortcutRegistered"
+              :class="{
+                'cursor-not-allowed opacity-60': workShortcutRegistered,
+                'cursor-text': !workShortcutRegistered
+              }"
+              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-xs font-mono ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+            <Button variant="outline" size="icon" @click="copyWebhookUrl" :title="workCopied ? $t('common.copied') : $t('settings.copy')">
+              <Check v-if="workCopied" class="w-4 h-4 text-green-500" />
+              <Copy v-else class="w-4 h-4" />
+            </Button>
+            <Button variant="outline" size="icon" @click="regenerateWebhookKey" :disabled="workRegenerating" :title="$t('settings.regenerate')">
+              <Loader2 v-if="workRegenerating" class="w-4 h-4 animate-spin" />
+              <RefreshCw v-else class="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        <!-- QR Code -->
+        <div class="flex flex-col items-start gap-2">
+          <label class="text-sm font-medium">{{ $t('settings.qrCode') }}</label>
+          <canvas ref="qrCanvas" class="rounded-lg border border-border" />
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-muted/50 rounded-lg p-3 text-sm">
+          <p class="font-medium mb-2">{{ $t('settings.iosSetup') }}</p>
+          <ol class="text-muted-foreground space-y-1.5 list-decimal list-inside text-xs">
+            <li>{{ $t('settings.openShortcuts') }}</li>
+            <li>{{ $t('settings.tapAdd') }}</li>
+            <li>{{ $t('settings.setArrivalOrDeparture') }}</li>
+            <li>{{ $t('settings.addAction') }} <span class="font-mono bg-background px-1 rounded">{{ $t('settings.getContentsOfUrl') }}</span></li>
+            <li>{{ $t('settings.insertUrlFromAbove') }}</li>
+            <li>{{ $t('settings.method') }} <span class="font-mono bg-background px-1 rounded">{{ $t('settings.post') }}</span></li>
+            <li>{{ $t('settings.requestBody') }} <span class="font-mono bg-background px-1 rounded">{"action":"toggle"}</span></li>
+            <li>{{ $t('settings.saveAndAddToHome') }}</li>
+            <li>{{ $t('settings.tapOnce') }}</li>
+          </ol>
+        </div>
+
+        </template>
+
       </CardContent>
     </Card>
 
@@ -250,12 +369,12 @@
     <Card>
       <CardHeader class="flex flex-row items-center justify-between pb-3">
         <div>
-          <CardTitle class="text-base">Категории расходов</CardTitle>
-          <CardDescription>Управление категориями</CardDescription>
+          <CardTitle class="text-base">{{ $t('settings.expenseCategories') }}</CardTitle>
+          <CardDescription>{{ $t('settings.managingCategories') }}</CardDescription>
         </div>
         <Button size="sm" @click="showAddCategory = true">
           <Plus class="w-4 h-4 mr-1" />
-          Добавить
+          {{ $t('common.add') }}
         </Button>
       </CardHeader>
       <CardContent class="space-y-2">
@@ -282,18 +401,18 @@
     <Dialog v-model:open="showAddCategory">
       <DialogContent class="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Новая категория</DialogTitle>
+          <DialogTitle>{{ $t('finance.newCategory') }}</DialogTitle>
         </DialogHeader>
         <div class="space-y-3">
-          <Input v-model="newCat.name" placeholder="Название" />
+          <Input v-model="newCat.name" :placeholder="$t('finance.categoryName')" />
           <p v-if="errors.category" class="text-xs text-destructive -mt-1">{{ errors.category }}</p>
           <div>
-            <label class="text-sm font-medium mb-1.5 block">Цвет</label>
+            <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.color') }}</label>
             <input v-model="newCat.color" type="color" class="w-10 h-10 rounded cursor-pointer border border-border" />
           </div>
           <div class="flex gap-2 justify-end">
-            <Button variant="outline" @click="showAddCategory = false">Отмена</Button>
-            <Button @click="addCategory">Добавить</Button>
+            <Button variant="outline" @click="showAddCategory = false">{{ $t('common.cancel') }}</Button>
+            <Button @click="addCategory">{{ $t('common.add') }}</Button>
           </div>
         </div>
       </DialogContent>
@@ -302,13 +421,19 @@
 </template>
 
 <script setup lang="ts">
-import { Send, Loader2, Plus, Trash2, Check, Bot, Brain } from 'lucide-vue-next'
+import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw } from 'lucide-vue-next'
+import { Switch } from '@/components/ui/switch'
+import QRCode from 'qrcode'
 import type { FormField } from '~/components/DynamicForm.vue'
 
 definePageMeta({ middleware: 'auth' })
 
-const api = useApi()
+const api      = useApi()
+const toast    = useToast()
 const { logout } = useAuth()
+const { $t, locale, setLocale } = useLocale()
+
+const languageForm = ref<'en' | 'ru'>('ru')
 
 const categories         = ref<any[]>([])
 const saving             = ref(false)
@@ -377,6 +502,105 @@ const onProviderChange = (value: any) => {
   aiForm.model = providerModels[value as string]?.[0]?.value ?? ''
 }
 
+// ── Work Tracker ──────────────────────────────────────────────────────────────
+const workEnabled              = ref(false)   // mirrors whether a webhook key exists
+const workToggling             = ref(false)
+const workRegenerating         = ref(false)
+const workWebhookUrl           = ref('')
+const workCopied               = ref(false)
+const workShortcutRegistered   = ref(false)
+const workShortcutRegisteredAt = ref('')
+const qrCanvas                 = ref<HTMLCanvasElement | null>(null)
+let   workPollInterval: ReturnType<typeof setInterval> | null = null
+
+const renderQr = async (url: string) => {
+  await nextTick()
+  if (qrCanvas.value && url) {
+    await QRCode.toCanvas(qrCanvas.value, url, { width: 200, margin: 2, color: { dark: '#000000', light: '#ffffff' } })
+  }
+}
+
+const pollWorkStatus = async () => {
+  try {
+    const data = await api.getWorkStatus() as any
+    if (data?.shortcut_registered) {
+      workShortcutRegistered.value   = true
+      workShortcutRegisteredAt.value = data.shortcut_registered_at
+        ? new Date(data.shortcut_registered_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })
+        : ''
+      stopWorkPoll()
+      toast.success(`iOS ${$t('settings.shortcutConnected')}!`)
+    }
+  } catch {}
+}
+
+const startWorkPoll = () => {
+  if (workPollInterval) return
+  workPollInterval = setInterval(pollWorkStatus, 3000)
+}
+
+const stopWorkPoll = () => {
+  if (workPollInterval) { clearInterval(workPollInterval); workPollInterval = null }
+}
+
+onUnmounted(() => stopWorkPoll())
+
+// v-model:checked already updated workEnabled before this is called
+const onWorkToggle = async (enable: boolean) => {
+  workToggling.value = true
+  let urlToRender = ''
+  try {
+    const data = await api.setWorkEnabled(enable) as any
+    if (enable) {
+      urlToRender          = data?.url ?? ''
+      workWebhookUrl.value = urlToRender
+      if (!workShortcutRegistered.value) startWorkPoll()
+    } else {
+      stopWorkPoll()
+      workWebhookUrl.value           = ''
+      workShortcutRegistered.value   = false
+      workShortcutRegisteredAt.value = ''
+    }
+  } catch {
+    // rollback switch
+    workEnabled.value = !enable
+    toast.error($t('settings.errorChangingStatus'))
+  } finally {
+    workToggling.value = false
+  }
+  if (urlToRender) {
+    await nextTick()
+    await renderQr(urlToRender)
+  }
+}
+
+const copyWebhookUrl = async () => {
+  if (!workWebhookUrl.value) return
+  await navigator.clipboard.writeText(workWebhookUrl.value)
+  workCopied.value = true
+  setTimeout(() => { workCopied.value = false }, 2000)
+}
+
+const regenerateWebhookKey = async () => {
+  if (!confirm($t('settings.confirmKeyUpdate'))) return
+  workRegenerating.value = true
+  try {
+    const data = await api.regenerateWorkKey() as any
+    workWebhookUrl.value           = data?.url ?? ''
+    workShortcutRegistered.value   = false
+    workShortcutRegisteredAt.value = ''
+    stopWorkPoll()
+    await nextTick()
+    await renderQr(workWebhookUrl.value)
+    startWorkPoll()
+    toast.success($t('settings.keyUpdated'))
+  } catch {
+    toast.error($t('settings.errorUpdatingKey'))
+  } finally {
+    workRegenerating.value = false
+  }
+}
+
 const loadMemories = async () => {
   memoriesLoading.value = true
   try {
@@ -405,7 +629,7 @@ const deleteMemory = async (id: number) => {
 }
 
 const confirmClearMemories = async () => {
-  if (!confirm('Очистить всю память AI? Это действие необратимо.')) return
+  if (!confirm($t('settings.iosClearMemory'))) return
   await api.clearMemories()
   memories.value = []
 }
@@ -413,7 +637,27 @@ const confirmClearMemories = async () => {
 onMounted(async () => {
   const [settings, cats] = await Promise.all([api.getSettings(), api.getCategories()])
   void loadMemories()
+
+  // Restore work tracker state from DB
+  try {
+    const workStatus = await api.getWorkStatus() as any
+    if (workStatus?.webhook_enabled) {
+      const url = workStatus?.webhook_url ?? ''
+      workWebhookUrl.value           = url
+      workShortcutRegistered.value   = workStatus?.shortcut_registered ?? false
+      workShortcutRegisteredAt.value = workStatus?.shortcut_registered_at
+        ? new Date(workStatus.shortcut_registered_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })
+        : ''
+      workEnabled.value = true
+      if (url) {
+        await nextTick()
+        await renderQr(url)
+      }
+      if (!workShortcutRegistered.value) startWorkPoll()
+    }
+  } catch {}
   const s = settings as any
+  languageForm.value         = s.language         || locale.value
   currencyForm.value.currency = s.currency        || 'USD'
   currencyForm.value.symbol   = s.currency_symbol || '$'
   aiForm.provider = s.ai_provider || 'anthropic'
@@ -423,7 +667,15 @@ onMounted(async () => {
   jinaApiKeySet.value   = s.jina_api_key_set || false
   categories.value      = cats as any[]
   telegramToken.value   = s.telegram_bot_token || ''
+
+  // Restore locale from settings
+  setLocale(languageForm.value)
 })
+
+const saveLanguage = async (lang: 'en' | 'ru') => {
+  setLocale(lang)
+  await api.updateSettings({ language: lang })
+}
 
 const saveCurrency = async (data: Record<string, any>) => {
   saving.value = true
@@ -437,7 +689,7 @@ const saveCurrency = async (data: Record<string, any>) => {
 const saveAi = async () => {
   errors.aiProvider = ''
   if (!aiForm.provider) {
-    errors.aiProvider = 'Выберите провайдера'
+    errors.aiProvider = $t('settings.selectProvider')
     return
   }
   savingAi.value = true
@@ -459,11 +711,11 @@ const saveAi = async () => {
 const changePassword = async () => {
   errors.password = ''
   if (!newPassword.value.trim()) {
-    errors.password = 'Введите новый пароль'
+    errors.password = $t('settings.passwordRequired')
     return
   }
   if (newPassword.value.length < 4) {
-    errors.password = 'Минимум 4 символа'
+    errors.password = $t('settings.minChars')
     return
   }
   savingPassword.value = true
@@ -479,7 +731,7 @@ const changePassword = async () => {
 const connectTelegram = async () => {
   errors.telegram = ''
   if (!telegramToken.value.trim()) {
-    errors.telegram = 'Введите токен бота'
+    errors.telegram = $t('settings.enterToken')
     return
   }
   connectingTelegram.value = true
@@ -491,7 +743,7 @@ const connectTelegram = async () => {
     telegramToken.value  = ''
   } catch (e: any) {
     telegramError.value  = true
-    telegramStatus.value = e?.data?.message || 'Ошибка подключения'
+    telegramStatus.value = e?.data?.message || $t('common.error')
   } finally {
     connectingTelegram.value = false
   }
@@ -500,7 +752,7 @@ const connectTelegram = async () => {
 const addCategory = async () => {
   errors.category = ''
   if (!newCat.name.trim()) {
-    errors.category = 'Введите название категории'
+    errors.category = `${$t('finance.categoryName')} ${$t('common.required')}`
     return
   }
   await api.createCategory({ name: newCat.name, color: newCat.color })
@@ -511,7 +763,7 @@ const addCategory = async () => {
 }
 
 const deleteCategory = async (cat: any) => {
-  if (!confirm(`Удалить категорию "${cat.name}"?`)) return
+  if (!confirm(`${$t('settings.deleteConfirm')} "${cat.name}"?`)) return
   await api.deleteCategory(cat.id)
   categories.value = (await api.getCategories()) as any[]
 }

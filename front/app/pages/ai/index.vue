@@ -6,7 +6,7 @@
     <div class="w-56 shrink-0 flex flex-col gap-2">
       <Button class="w-full" size="sm" @click="newChat">
         <Plus class="w-4 h-4 mr-1" />
-        Новый чат
+        {{ $t('ai.newChat') }}
       </Button>
 
       <Card class="flex-1 overflow-hidden flex flex-col min-h-0">
@@ -15,7 +15,7 @@
             v-if="conversations.length === 0"
             class="text-xs text-muted-foreground text-center py-4"
           >
-            Нет чатов
+            {{ $t('ai.noChats') }}
           </div>
           <div
             v-for="conv in conversations"
@@ -29,7 +29,7 @@
             <div class="flex-1 min-w-0">
               <p class="text-xs font-medium truncate leading-tight">{{ conv.title }}</p>
               <p class="text-[10px] text-muted-foreground truncate mt-0.5 leading-tight">
-                {{ conv.preview || 'Пустой чат' }}
+                {{ conv.preview || $t('ai.emptyChat') }}
               </p>
             </div>
             <button
@@ -52,7 +52,7 @@
           </div>
           <div class="min-w-0 flex-1">
             <CardTitle class="text-base truncate">{{ currentTitle }}</CardTitle>
-            <CardDescription>Спросите что угодно — я помогу разобраться</CardDescription>
+            <CardDescription>{{ $t('ai.subtitle') }}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -61,8 +61,8 @@
       <div ref="messagesRef" class="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         <div v-if="messages.length === 0" class="text-center py-12 text-muted-foreground">
           <Bot class="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p class="text-sm">Начните разговор с AI</p>
-          <p class="text-xs mt-1">Задайте любой вопрос — я запоминаю важное о вас</p>
+          <p class="text-sm">{{ $t('ai.startConversation') }}</p>
+          <p class="text-xs mt-1">{{ $t('ai.startHint') }}</p>
         </div>
 
         <div
@@ -103,7 +103,7 @@
         <form @submit.prevent="sendMessage" class="flex gap-2">
           <Input
             v-model="input"
-            placeholder="Напишите сообщение..."
+            :placeholder="$t('ai.messagePlaceholder')"
             :disabled="streaming"
             class="flex-1"
             @keydown.enter.exact.prevent="sendMessage"
@@ -128,6 +128,7 @@ const renderMd = (text: string) => marked(text, { breaks: true }) as string
 definePageMeta({ middleware: 'auth' })
 
 const api         = useApi()
+const { $t }     = useLocale()
 const config      = useRuntimeConfig()
 const messages    = ref<{ role: string; content: string; streaming?: boolean }[]>([])
 const input       = ref('')
@@ -138,7 +139,7 @@ type ConvSummary = { id: number; title: string; preview: string; updated_at: str
 const conversations = ref<ConvSummary[]>([])
 const currentId     = ref<number | null>(null)
 const currentTitle  = computed(() =>
-  conversations.value.find(c => c.id === currentId.value)?.title ?? 'Чат с AI'
+  conversations.value.find(c => c.id === currentId.value)?.title ?? $t('ai.title')
 )
 
 onMounted(async () => {
@@ -184,7 +185,7 @@ const newChat = async () => {
 }
 
 const removeConversation = async (id: number) => {
-  if (!confirm('Удалить этот чат?')) return
+  if (!confirm($t('ai.deleteConversation'))) return
   try {
     await api.deleteConversation(id)
     conversations.value = conversations.value.filter(c => c.id !== id)
@@ -257,7 +258,7 @@ const sendMessage = async () => {
           try {
             const parsed = JSON.parse(data)
             if (parsed.chunk) { assistantMsg.content += parsed.chunk; scrollToBottom() }
-            if (parsed.error) { assistantMsg.content = `Ошибка: ${parsed.error}` }
+            if (parsed.error) { assistantMsg.content = `${$t('common.error')}: ${parsed.error}` }
           } catch {}
         }
         if (finished) break
@@ -270,7 +271,7 @@ const sendMessage = async () => {
       if (fresh) currentId.value = fresh.id
     }
   } catch {
-    assistantMsg.content = 'Ошибка соединения. Попробуйте ещё раз.'
+    assistantMsg.content = $t('ai.connectionError')
   } finally {
     assistantMsg.streaming = false
     streaming.value        = false

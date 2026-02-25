@@ -20,7 +20,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <Card v-if="hasCategories">
         <CardHeader class="pb-2">
-          <CardTitle class="text-sm">Расходы по категориям</CardTitle>
+          <CardTitle class="text-sm">{{ $t('finance.summaryByCategory') }}</CardTitle>
         </CardHeader>
         <CardContent>
           <SummaryChart type="doughnut" :data="summary.by_category || {}" :height="200" />
@@ -29,7 +29,7 @@
 
       <Card v-if="showBar && hasDays">
         <CardHeader class="pb-2">
-          <CardTitle class="text-sm">По дням</CardTitle>
+          <CardTitle class="text-sm">{{ $t('finance.byDay') }}</CardTitle>
         </CardHeader>
         <CardContent>
           <SummaryChart type="bar" :data="byDayExpense" :height="200" />
@@ -39,12 +39,14 @@
 
     <!-- Empty state -->
     <div v-if="!hasCategories && !hasDays" class="text-center py-6 text-sm text-muted-foreground">
-      Нет данных за период
+      {{ $t('finance.noDataForPeriod') }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+const { $t } = useLocale()
+
 const props = defineProps<{
   summary: any
   currency: string

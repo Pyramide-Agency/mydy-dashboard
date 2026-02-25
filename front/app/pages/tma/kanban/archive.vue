@@ -7,7 +7,7 @@
           <ChevronLeft class="w-5 h-5" />
         </Button>
       </NuxtLink>
-      <h1 class="text-base font-semibold text-foreground">Архив задач</h1>
+      <h1 class="text-base font-semibold text-foreground">{{ $t('tma.archiveTasks') }}</h1>
     </div>
 
     <div v-if="loading" class="flex items-center justify-center py-20">
@@ -16,7 +16,7 @@
 
     <div v-else-if="groups.length === 0" class="text-center py-20 text-muted-foreground">
       <ArchiveRestore class="w-12 h-12 mx-auto mb-3 opacity-30" />
-      <p>Архив пуст</p>
+      <p>{{ $t('kanban.archiveEmpty') }}</p>
     </div>
 
     <div v-else class="space-y-5">
@@ -55,16 +55,16 @@ definePageMeta({ layout: 'telegram', middleware: 'tma-auth' })
 const api     = useApi()
 const groups  = ref<any[]>([])
 const loading = ref(true)
+const { $t, locale } = useLocale()
 
 const { showBackButton, hideBackButton } = useTelegram()
 
-const priorityLabels: Record<string, string> = {
-  low: 'Низкий', medium: 'Средний', high: 'Высокий',
-}
-const priorityLabel = (p: string) => priorityLabels[p] || p
+const priorityLabel = (p: string) => ({
+  low: $t('kanban.low'), medium: $t('kanban.medium'), high: $t('kanban.high'),
+} as Record<string, string>)[p] || p
 
 const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })
+  new Date(d).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'ru-RU', { weekday: 'long', day: 'numeric', month: 'long' })
 
 onMounted(async () => {
   showBackButton(() => navigateTo('/tma/kanban'))

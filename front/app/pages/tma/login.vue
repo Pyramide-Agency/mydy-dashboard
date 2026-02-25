@@ -10,14 +10,14 @@
           <Zap class="w-7 h-7 text-white" />
         </div>
         <h1 class="text-2xl font-bold text-white mb-1">MYDY Dashboard</h1>
-        <p class="text-sm text-slate-400">Введите пароль для входа</p>
+        <p class="text-sm text-slate-400">{{ $t('login.subtitle') }}</p>
       </div>
 
       <!-- Card -->
       <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 shadow-2xl">
         <form @submit.prevent="handleLogin" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-300 mb-1.5">Пароль</label>
+            <label class="block text-sm font-medium text-slate-300 mb-1.5">{{ $t('login.password') }}</label>
             <input
               v-model="password"
               type="password"
@@ -47,7 +47,7 @@
             :style="!loading && password ? 'box-shadow: 0 4px 15px hsl(243 75% 59% / 0.4);' : ''"
           >
             <Loader2 v-if="loading" class="w-4 h-4 animate-spin" />
-            {{ loading ? 'Вход...' : 'Войти' }}
+            {{ loading ? $t('login.signing') : $t('login.signIn') }}
           </button>
         </form>
       </div>
@@ -60,6 +60,7 @@ import { Zap, Loader2, AlertCircle } from 'lucide-vue-next'
 
 definePageMeta({ layout: false })
 
+const { $t } = useLocale()
 const { login } = useAuth()
 const password  = ref('')
 const loading   = ref(false)
@@ -74,7 +75,7 @@ const handleLogin = async () => {
     await login(password.value)
     await navigateTo('/tma/')
   } catch {
-    error.value = 'Неверный пароль'
+    error.value = $t('login.invalidPassword')
   } finally {
     loading.value = false
   }

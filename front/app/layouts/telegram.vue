@@ -25,8 +25,8 @@
         :class="isActiveTab(tab.to) ? 'text-primary' : 'text-muted-foreground hover:text-foreground'"
         @click="hapticFeedback('selection')"
       >
-        <component :is="tab.icon" class="w-5 h-5" />
-        <span class="text-[10px] font-medium">{{ tab.label }}</span>
+        <component :is="tab.icon" class="w-4 h-4" />
+        <span class="text-[9px] font-medium">{{ tab.label }}</span>
       </NuxtLink>
     </nav>
 
@@ -35,18 +35,20 @@
 </template>
 
 <script setup lang="ts">
-import { LayoutDashboard, LayoutList, Wallet, Bot, Settings } from 'lucide-vue-next'
+import { LayoutDashboard, LayoutList, Wallet, Bot, Settings, BriefcaseBusiness } from 'lucide-vue-next'
 
 const route = useRoute()
 const { hapticFeedback } = useTelegram()
+const { $t } = useLocale()
 
-const tabs = [
-  { to: '/tma/',         label: 'Главная',   icon: LayoutDashboard },
-  { to: '/tma/kanban',   label: 'Задачи',    icon: LayoutList      },
-  { to: '/tma/finance',  label: 'Финансы',   icon: Wallet          },
-  { to: '/tma/ai',       label: 'AI',        icon: Bot             },
-  { to: '/tma/settings', label: 'Настройки', icon: Settings        },
-]
+const tabs = computed(() => [
+  { to: '/tma/',         label: $t('sidebar.dashboard'), icon: LayoutDashboard  },
+  { to: '/tma/kanban',   label: $t('sidebar.tasks'),     icon: LayoutList       },
+  { to: '/tma/finance',  label: $t('sidebar.finance'),   icon: Wallet           },
+  { to: '/tma/work',     label: $t('sidebar.work'),      icon: BriefcaseBusiness },
+  { to: '/tma/ai',       label: $t('sidebar.aiChat'),    icon: Bot              },
+  { to: '/tma/settings', label: $t('sidebar.settings'),  icon: Settings         },
+])
 
 const isActiveTab = (to: string) => {
   const path = route.path

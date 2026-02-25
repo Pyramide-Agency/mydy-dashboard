@@ -6,7 +6,7 @@
 
     <div v-else-if="groups.length === 0" class="text-center py-20 text-muted-foreground">
       <ArchiveRestore class="w-12 h-12 mx-auto mb-3 opacity-30" />
-      <p>Архив пуст</p>
+      <p>{{ $t('kanban.archiveEmpty') }}</p>
     </div>
 
     <div v-else class="space-y-6">
@@ -42,17 +42,17 @@ import { ArchiveRestore, Loader2 } from 'lucide-vue-next'
 
 definePageMeta({ middleware: 'auth' })
 
-const api     = useApi()
+const api          = useApi()
+const { $t, locale } = useLocale()
 const groups  = ref<any[]>([])
 const loading = ref(true)
 
-const priorityLabels: Record<string, string> = {
-  low: 'Низкий', medium: 'Средний', high: 'Высокий',
-}
-const priorityLabel = (p: string) => priorityLabels[p] || p
+const priorityLabel = (p: string) => ({
+  low: $t('kanban.low'), medium: $t('kanban.medium'), high: $t('kanban.high'),
+} as Record<string, string>)[p] || p
 
 const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  new Date(d).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 
 onMounted(async () => {
   try {

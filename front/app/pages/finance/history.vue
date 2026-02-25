@@ -6,7 +6,7 @@
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <History class="w-4 h-4 text-muted-foreground" />
-          <h1 class="text-base font-semibold text-foreground">История записей</h1>
+          <h1 class="text-base font-semibold text-foreground">{{ $t('finance.history') }}</h1>
         </div>
 
         <!-- Stats badge -->
@@ -61,8 +61,8 @@
         <div class="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-3">
           <Receipt class="w-5 h-5 text-muted-foreground" />
         </div>
-        <p class="text-sm font-medium text-foreground">Нет записей</p>
-        <p class="text-xs text-muted-foreground mt-1">За этот период нет расходов или доходов</p>
+        <p class="text-sm font-medium text-foreground">{{ $t('finance.noEntries') }}</p>
+        <p class="text-xs text-muted-foreground mt-1">{{ $t('finance.noEntriesForPeriod') }}</p>
       </div>
 
       <!-- List -->
@@ -73,7 +73,6 @@
           class="flex items-center justify-between px-5 py-3.5 hover:bg-muted/30 transition-colors group"
         >
           <div class="flex items-center gap-3 min-w-0">
-            <!-- Color indicator -->
             <div
               v-if="entry.type === 'income'"
               class="w-2.5 h-2.5 rounded-full shrink-0 bg-emerald-400"
@@ -86,11 +85,11 @@
 
             <div class="min-w-0">
               <p class="text-sm font-medium text-foreground truncate">
-                {{ entry.description || (entry.type === 'income' ? 'Доход' : 'Без описания') }}
+                {{ entry.description || (entry.type === 'income' ? $t('finance.incomeLabel') : $t('finance.noDescription')) }}
               </p>
               <p class="text-xs text-muted-foreground flex items-center gap-1">
-                <span v-if="entry.type === 'income'" class="text-emerald-600 font-medium">Доход</span>
-                <span v-else>{{ entry.category?.name || 'Без категории' }}</span>
+                <span v-if="entry.type === 'income'" class="text-emerald-600 font-medium">{{ $t('finance.income') }}</span>
+                <span v-else>{{ entry.category?.name || $t('finance.noCategory') }}</span>
                 <span class="text-muted-foreground/50">·</span>
                 <span>{{ formatDate(entry.date) }}</span>
                 <span v-if="entry.source === 'telegram'" class="text-slate-400 flex items-center gap-0.5">
@@ -109,14 +108,14 @@
             </span>
             <button
               class="text-muted-foreground hover:text-foreground transition-all duration-150 p-1.5 rounded-md hover:bg-muted"
-              title="Редактировать"
+              :title="$t('common.edit')"
               @click="openEdit(entry)"
             >
               <Pencil class="w-3.5 h-3.5" />
             </button>
             <button
               class="text-muted-foreground hover:text-destructive transition-all duration-150 p-1.5 rounded-md hover:bg-destructive/10 disabled:opacity-50"
-              title="Удалить"
+              :title="$t('common.delete')"
               :disabled="deletingId === entry.id"
               @click="deleteEntry(entry)"
             >
@@ -126,7 +125,7 @@
           </div>
         </div>
 
-        <!-- Load more (only for "Все" tab) -->
+        <!-- Load more -->
         <div v-if="hasMore" class="px-5 py-4 flex justify-center border-t border-border">
           <button
             class="text-sm text-muted-foreground hover:text-foreground font-medium flex items-center gap-1.5 transition-colors disabled:opacity-50"
@@ -134,7 +133,7 @@
             @click="loadMore"
           >
             <Loader2 v-if="loadingMore" class="w-3.5 h-3.5 animate-spin" />
-            <span>{{ loadingMore ? 'Загрузка...' : `Показать ещё (загружено ${entries.length} из ${totalCount})` }}</span>
+            <span>{{ loadingMore ? $t('finance.loading') : `${$t('finance.loadMore')} (${entries.length} / ${totalCount})` }}</span>
           </button>
         </div>
       </div>
@@ -146,11 +145,10 @@
   <Dialog v-model:open="editOpen">
     <DialogContent class="sm:max-w-md">
       <DialogHeader>
-        <DialogTitle>Редактировать запись</DialogTitle>
+        <DialogTitle>{{ $t('finance.editEntry') }}</DialogTitle>
       </DialogHeader>
 
       <div class="space-y-3 py-1">
-        <!-- Type toggle -->
         <div class="flex gap-1 bg-muted rounded-lg p-1">
           <button
             type="button"
@@ -159,7 +157,7 @@
             @click="editForm.type = 'expense'"
           >
             <TrendingDown class="w-3.5 h-3.5" />
-            Расход
+            {{ $t('finance.expense') }}
           </button>
           <button
             type="button"
@@ -168,31 +166,31 @@
             @click="editForm.type = 'income'"
           >
             <TrendingUp class="w-3.5 h-3.5" />
-            Доход
+            {{ $t('finance.income') }}
           </button>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs text-muted-foreground mb-1 block">Сумма *</label>
+            <label class="text-xs text-muted-foreground mb-1 block">{{ $t('finance.amount') }} *</label>
             <Input v-model="editForm.amount" type="number" step="0.01" min="0.01" placeholder="0.00" />
             <p v-if="editErrors.amount" class="text-xs text-destructive mt-1">{{ editErrors.amount }}</p>
           </div>
           <div>
-            <label class="text-xs text-muted-foreground mb-1 block">Дата *</label>
+            <label class="text-xs text-muted-foreground mb-1 block">{{ $t('finance.date') }} *</label>
             <Input v-model="editForm.date" type="date" />
             <p v-if="editErrors.date" class="text-xs text-destructive mt-1">{{ editErrors.date }}</p>
           </div>
         </div>
 
         <div v-if="editForm.type === 'expense'">
-          <label class="text-xs text-muted-foreground mb-1 block">Категория</label>
+          <label class="text-xs text-muted-foreground mb-1 block">{{ $t('finance.category') }}</label>
           <Select v-model="editForm.category_id">
             <SelectTrigger>
-              <SelectValue placeholder="Без категории" />
+              <SelectValue :placeholder="$t('finance.noCategory')" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Без категории</SelectItem>
+              <SelectItem value="none">{{ $t('finance.noCategory') }}</SelectItem>
               <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
                 {{ cat.name }}
               </SelectItem>
@@ -201,10 +199,10 @@
         </div>
 
         <div>
-          <label class="text-xs text-muted-foreground mb-1 block">Описание</label>
+          <label class="text-xs text-muted-foreground mb-1 block">{{ $t('common.description') }}</label>
           <Input
             v-model="editForm.description"
-            :placeholder="editForm.type === 'income' ? 'Источник дохода...' : 'На что потрачено...'"
+            :placeholder="editForm.type === 'income' ? $t('finance.descriptionIncome') : $t('finance.descriptionExpense')"
           />
         </div>
       </div>
@@ -214,11 +212,11 @@
           class="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           @click="editOpen = false"
         >
-          Отмена
+          {{ $t('common.cancel') }}
         </button>
         <Button :disabled="editSaving" @click="saveEdit">
           <Loader2 v-if="editSaving" class="w-3.5 h-3.5 mr-2 animate-spin" />
-          {{ editSaving ? 'Сохранение...' : 'Сохранить' }}
+          {{ editSaving ? $t('finance.saving') : $t('common.save') }}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -231,14 +229,15 @@ import { History, Receipt, Trash2, Loader2, Pencil, TrendingDown, TrendingUp } f
 
 definePageMeta({ middleware: 'auth' })
 
-const api = useApi()
+const api    = useApi()
+const { $t, plural, locale } = useLocale()
 
-const periods = [
-  { value: 'today',     label: 'Сегодня' },
-  { value: 'yesterday', label: 'Вчера' },
-  { value: 'dayBefore', label: 'Позавчера' },
-  { value: 'all',       label: 'Все расходы' },
-]
+const periods = computed(() => [
+  { value: 'today',     label: $t('finance.today')       },
+  { value: 'yesterday', label: $t('finance.yesterday')    },
+  { value: 'dayBefore', label: $t('finance.dayBefore')    },
+  { value: 'all',       label: $t('finance.allExpenses')  },
+])
 
 const period      = ref('today')
 const entries     = ref<any[]>([])
@@ -250,7 +249,6 @@ const totalCount  = ref(0)
 const currency    = ref('$')
 const deletingId  = ref<number | null>(null)
 
-// Edit dialog
 const editOpen    = ref(false)
 const editSaving  = ref(false)
 const editId      = ref<number | null>(null)
@@ -264,7 +262,6 @@ const editForm    = reactive({
   type:        'expense' as 'expense' | 'income',
 })
 
-// Build local date string (avoids UTC offset issues)
 const localDateStr = (offset: number) => {
   const d = new Date()
   d.setDate(d.getDate() - offset)
@@ -284,31 +281,18 @@ const dateParams = computed<Record<string, string>>(() => {
 })
 
 const totalExpense = computed(() =>
-  entries.value
-    .filter(e => e.type !== 'income')
-    .reduce((s, e) => s + parseFloat(e.amount ?? 0), 0)
+  entries.value.filter(e => e.type !== 'income').reduce((s, e) => s + parseFloat(e.amount ?? 0), 0)
 )
-
 const totalIncome = computed(() =>
-  entries.value
-    .filter(e => e.type === 'income')
-    .reduce((s, e) => s + parseFloat(e.amount ?? 0), 0)
+  entries.value.filter(e => e.type === 'income').reduce((s, e) => s + parseFloat(e.amount ?? 0), 0)
 )
 
 const loadEntries = async (reset = true) => {
-  if (reset) {
-    loading.value = true
-    entries.value = []
-    page.value = 1
-  } else {
-    loadingMore.value = true
-  }
-
+  if (reset) { loading.value = true; entries.value = []; page.value = 1 }
+  else loadingMore.value = true
   try {
-    const params: Record<string, any> = { ...dateParams.value, page: page.value }
-    const res = await api.getEntries(params) as any
+    const res = await api.getEntries({ ...dateParams.value, page: page.value }) as any
     const data: any[] = res.data ?? []
-
     entries.value = reset ? data : [...entries.value, ...data]
     totalCount.value = res.meta?.total ?? data.length
     hasMore.value = (res.meta?.current_page ?? 1) < (res.meta?.last_page ?? 1)
@@ -318,15 +302,8 @@ const loadEntries = async (reset = true) => {
   }
 }
 
-const loadMore = async () => {
-  page.value++
-  await loadEntries(false)
-}
-
-const switchPeriod = (p: string) => {
-  period.value = p
-  loadEntries()
-}
+const loadMore = async () => { page.value++; await loadEntries(false) }
+const switchPeriod = (p: string) => { period.value = p; loadEntries() }
 
 const openEdit = (entry: any) => {
   editId.value          = entry.id
@@ -346,10 +323,10 @@ const saveEdit = async () => {
   editErrors.date = ''
   const amountNum = parseFloat(editForm.amount)
   if (!editForm.amount || Number.isNaN(amountNum) || amountNum <= 0) {
-    editErrors.amount = 'Введите сумму больше 0'
+    editErrors.amount = $t('finance.enterAmountPositive')
   }
   if (!editForm.date) {
-    editErrors.date = 'Укажите дату'
+    editErrors.date = $t('finance.enterDate')
   }
   if (editErrors.amount || editErrors.date) return
 
@@ -373,9 +350,8 @@ const saveEdit = async () => {
 }
 
 const deleteEntry = async (entry: any) => {
-  const label = entry.description || (entry.type === 'income' ? 'Доход' : 'Расход')
-  if (!confirm(`Удалить запись "${label}"?`)) return
-
+  const label = entry.description || (entry.type === 'income' ? $t('finance.income') : $t('finance.expense'))
+  if (!confirm(`${$t('finance.deleteEntry')} "${label}"?`)) return
   deletingId.value = entry.id
   try {
     await api.deleteEntry(entry.id)
@@ -389,20 +365,13 @@ const deleteEntry = async (entry: any) => {
 const formatMoney = (value: any) => {
   const num = parseFloat(String(value ?? 0).replace(',', '.'))
   if (isNaN(num)) return '0.00'
-  return new Intl.NumberFormat('en-US', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(num)
+  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num)
 }
 
 const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+  new Date(d).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'long' })
 
-const pluralEntries = (n: number) => {
-  if (n % 10 === 1 && n % 100 !== 11) return 'запись'
-  if ([2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100)) return 'записи'
-  return 'записей'
-}
+const pluralEntries = (n: number) => plural(n, $t('finance.entry'), $t('finance.entryFew'), $t('finance.entryMany'))
 
 onMounted(async () => {
   const [, settings] = await Promise.all([

@@ -19,6 +19,7 @@
   <img src="https://img.shields.io/badge/Claude_API-Anthropic-6B46C1?style=flat-square&logo=anthropic&logoColor=white" />
   <img src="https://img.shields.io/badge/pgvector-AI_Memory-FF6B35?style=flat-square" />
   <img src="https://img.shields.io/badge/Telegram_Bot_+_TMA-2CA5E0?style=flat-square&logo=telegram&logoColor=white" />
+  <img src="https://img.shields.io/badge/i18n-EN_%2F_RU-4CAF50?style=flat-square" />
 </p>
 
 ---
@@ -61,17 +62,32 @@ A full mobile-optimized interface embedded directly inside Telegram. Five sectio
 | **Home** | Stats summary, quick expense form, recent transactions |
 | **Tasks** | Kanban boards with horizontal column scrolling |
 | **Finance** | Expense list, period summary |
+| **Work** | Check-in/out, shift history, weekly/monthly stats |
 | **AI Chat** | Streaming AI advisor with conversation switcher |
-| **Settings** | Currency, AI provider, categories, bot connection |
+| **Settings** | Language, currency, AI provider, categories, bot connection |
 
 Includes haptic feedback, Telegram safe area support, and a dedicated `tma-auth` middleware.
 
+### Work Time Tracker
+Track work hours with one-tap check-in / check-out. The current shift is displayed as a live timer. The history view shows sessions grouped by week or month, with per-session duration, start/end time, and totals. Stats cards show hours this week, this month, and average shift duration.
+
+Supports **iOS Shortcuts** integration — a webhook endpoint lets you automate check-in/out via location-triggered shortcuts. The webhook key can be regenerated at any time from Settings.
+
+Work tracker is available both on the web dashboard and in the Telegram Mini App.
+
+### Localization (EN / RU)
+Full English and Russian interface. Language is selected in Settings (both web and TMA) and saved to the backend — it persists across devices.
+
+Implementation: lightweight custom `useLocale` composable (no external library), reactive `$t()` helper, locale stored in `localStorage` + backend settings key. All dates, durations, and plural forms are locale-aware.
+
 ### Settings
+- **Language** — English / Russian
 - Currency code and symbol
 - AI provider and model selection
 - API keys: Anthropic, OpenAI, Groq, Jina
 - Finance categories (CRUD with custom colors)
 - Telegram bot token and webhook registration
+- Work tracker iOS Shortcut webhook (generate / regenerate)
 - Password change
 
 ---

@@ -18,13 +18,13 @@
         style="border-left-color: #6366f1;"
       >
         <div class="flex items-center justify-between mb-3">
-          <p class="text-sm font-medium text-muted-foreground">Активные задачи</p>
+          <p class="text-sm font-medium text-muted-foreground">{{ $t('dashboard.activeTasks') }}</p>
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: #6366f1/10; background: rgb(99 102 241 / 0.1);">
             <LayoutList class="w-4 h-4" style="color: #6366f1;" />
           </div>
         </div>
         <p class="text-3xl font-bold text-foreground">{{ stats.activeTasks }}</p>
-        <p class="text-xs text-muted-foreground mt-1">{{ stats.doneTasks }} в статусе «Готово»</p>
+        <p class="text-xs text-muted-foreground mt-1">{{ stats.doneTasks }} {{ $t('dashboard.tasksInProgress') }}</p>
       </div>
 
       <!-- Today spending -->
@@ -33,13 +33,13 @@
         style="border-left-color: #10b981;"
       >
         <div class="flex items-center justify-between mb-3">
-          <p class="text-sm font-medium text-muted-foreground">Расходы сегодня</p>
+          <p class="text-sm font-medium text-muted-foreground">{{ $t('dashboard.todayExpenses') }}</p>
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgb(16 185 129 / 0.1);">
             <Wallet class="w-4 h-4" style="color: #10b981;" />
           </div>
         </div>
         <p class="text-3xl font-bold text-foreground">{{ currency }} {{ formatMoney(stats.todaySpending) }}</p>
-        <p class="text-xs text-muted-foreground mt-1">{{ stats.todayCount }} {{ plural(stats.todayCount, 'транзакция', 'транзакции', 'транзакций') }}</p>
+        <p class="text-xs text-muted-foreground mt-1">{{ stats.todayCount }} {{ plural(stats.todayCount, $t('dashboard.transaction'), $t('dashboard.transactions'), $t('dashboard.transactionsMany')) }}</p>
       </div>
 
       <!-- Month spending -->
@@ -48,13 +48,13 @@
         style="border-left-color: #f59e0b;"
       >
         <div class="flex items-center justify-between mb-3">
-          <p class="text-sm font-medium text-muted-foreground">За месяц</p>
+          <p class="text-sm font-medium text-muted-foreground">{{ $t('dashboard.thisMonth') }}</p>
           <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: rgb(245 158 11 / 0.1);">
             <TrendingUp class="w-4 h-4" style="color: #f59e0b;" />
           </div>
         </div>
         <p class="text-3xl font-bold text-foreground">{{ currency }} {{ formatMoney(stats.monthSpending) }}</p>
-        <p class="text-xs text-muted-foreground mt-1">{{ stats.monthCount }} {{ plural(stats.monthCount, 'транзакция', 'транзакции', 'транзакций') }}</p>
+        <p class="text-xs text-muted-foreground mt-1">{{ stats.monthCount }} {{ plural(stats.monthCount, $t('dashboard.transaction'), $t('dashboard.transactions'), $t('dashboard.transactionsMany')) }}</p>
       </div>
     </div>
 
@@ -64,7 +64,7 @@
       <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex items-center gap-2">
           <Plus class="w-4 h-4 text-muted-foreground" />
-          <h2 class="text-sm font-semibold text-foreground">Быстрое добавление расхода</h2>
+          <h2 class="text-sm font-semibold text-foreground">{{ $t('dashboard.quickAdd') }}</h2>
         </div>
         <div class="p-5">
           <ExpenseForm @submitted="onExpenseAdded" />
@@ -76,13 +76,13 @@
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Clock class="w-4 h-4 text-muted-foreground" />
-            <h2 class="text-sm font-semibold text-foreground">Последние расходы</h2>
+            <h2 class="text-sm font-semibold text-foreground">{{ $t('dashboard.recentExpenses') }}</h2>
           </div>
           <NuxtLink
             to="/finance"
             class="text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1"
           >
-            Все
+            {{ $t('common.all') }}
             <ArrowRight class="w-3 h-3" />
           </NuxtLink>
         </div>
@@ -98,8 +98,8 @@
           <div class="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-3">
             <Receipt class="w-5 h-5 text-muted-foreground" />
           </div>
-          <p class="text-sm font-medium text-foreground">Нет расходов сегодня</p>
-          <p class="text-xs text-muted-foreground mt-1">Добавьте первую запись слева</p>
+          <p class="text-sm font-medium text-foreground">{{ $t('dashboard.noExpensesYet') }}</p>
+          <p class="text-xs text-muted-foreground mt-1">{{ $t('dashboard.addFirstEntry') }}</p>
         </div>
 
         <div v-else class="divide-y divide-border">
@@ -114,8 +114,8 @@
                 :style="{ background: entry.category?.color || '#9ca3af' }"
               />
               <div class="min-w-0">
-                <p class="text-sm text-foreground truncate">{{ entry.description || 'Без описания' }}</p>
-                <p class="text-xs text-muted-foreground">{{ entry.category?.name || 'Без категории' }}</p>
+                <p class="text-sm text-foreground truncate">{{ entry.description || $t('common.noDescription') }}</p>
+                <p class="text-xs text-muted-foreground">{{ entry.category?.name || $t('finance.noCategory') }}</p>
               </div>
             </div>
             <span class="text-sm font-semibold text-foreground ml-3 shrink-0">
@@ -133,7 +133,8 @@ import { Wallet, TrendingUp, LayoutList, Plus, Clock, ArrowRight, Receipt } from
 
 definePageMeta({ middleware: 'auth' })
 
-const api     = useApi()
+const api      = useApi()
+const { $t, plural } = useLocale()
 const loading = ref(true)
 
 const stats = reactive({
@@ -147,14 +148,6 @@ const stats = reactive({
 
 const recentEntries = ref<any[]>([])
 const currency      = ref('$')
-
-const plural = (n: number, one: string, few: string, many: string) => {
-  const mod10  = n % 10
-  const mod100 = n % 100
-  if (mod10 === 1 && mod100 !== 11) return one
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20)) return few
-  return many
-}
 
 const formatMoney = (value: any) => {
   if (value === null || value === undefined || value === '') return '0.00'

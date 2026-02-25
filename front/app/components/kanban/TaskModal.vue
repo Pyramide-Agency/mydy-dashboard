@@ -2,7 +2,7 @@
   <Dialog :open="open" @update:open="$emit('update:open', $event)">
     <DialogContent class="sm:max-w-md">
       <DialogHeader>
-        <DialogTitle>{{ task ? 'Редактировать задачу' : 'Новая задача' }}</DialogTitle>
+        <DialogTitle>{{ task ? $t('kanban.editTask') : $t('kanban.newTask') }}</DialogTitle>
       </DialogHeader>
 
       <DynamicForm
@@ -14,11 +14,11 @@
 
       <div class="flex gap-2 justify-end pt-2">
         <Button type="button" variant="outline" @click="$emit('update:open', false)">
-          Отмена
+          {{ $t('common.cancel') }}
         </Button>
         <Button @click="handleSubmit" :disabled="loading">
           <Loader2 v-if="loading" class="w-4 h-4 mr-2 animate-spin" />
-          {{ task ? 'Сохранить' : 'Создать' }}
+          {{ task ? $t('kanban.save') : $t('kanban.create') }}
         </Button>
       </div>
     </DialogContent>
@@ -42,6 +42,7 @@ const emit = defineEmits<{
 }>()
 
 const api     = useApi()
+const { $t } = useLocale()
 const loading = ref(false)
 const formRef = ref()
 
@@ -51,32 +52,32 @@ const form = ref({
   priority:    'medium',
 })
 
-const taskFields: FormField[] = [
+const taskFields = computed((): FormField[] => [
   {
     key:         'title',
-    label:       'Название',
+    label:       $t('kanban.title'),
     type:        'text',
     required:    true,
-    placeholder: 'Название задачи',
+    placeholder: $t('kanban.titlePlaceholder'),
   },
   {
     key:         'description',
-    label:       'Описание',
+    label:       $t('kanban.description'),
     type:        'textarea',
-    placeholder: 'Опишите задачу...',
+    placeholder: $t('kanban.descriptionPlaceholder'),
     rows:        3,
   },
   {
     key:     'priority',
-    label:   'Приоритет',
+    label:   $t('kanban.priority'),
     type:    'select',
     options: [
-      { label: 'Низкий',  value: 'low'    },
-      { label: 'Средний', value: 'medium' },
-      { label: 'Высокий', value: 'high'   },
+      { label: $t('kanban.low'),    value: 'low'    },
+      { label: $t('kanban.medium'), value: 'medium' },
+      { label: $t('kanban.high'),   value: 'high'   },
     ],
   },
-]
+])
 
 watch(() => props.open, (val) => {
   if (val) {

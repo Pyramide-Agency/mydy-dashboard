@@ -10,6 +10,7 @@ use App\Http\Controllers\FinanceSummaryController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TelegramController;
+use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
 
 // Health check (used by Docker HEALTHCHECK and Dokploy)
@@ -20,6 +21,10 @@ Route::post('/auth/login', [AuthController::class, 'login']);
 
 // Telegram webhook (must be public, no auth, no throttle)
 Route::post('/telegram/webhook', [TelegramController::class, 'webhook'])
+    ->withoutMiddleware('throttle');
+
+// Work webhook (public, key-based auth, no throttle)
+Route::post('/work/webhook', [WorkController::class, 'webhook'])
     ->withoutMiddleware('throttle');
 
 // Protected routes
@@ -82,4 +87,17 @@ Route::middleware('auth.api')->group(function () {
 
     // Telegram registration
     Route::post('/telegram/register', [TelegramController::class, 'register']);
+
+    // Work tracker
+    Route::get('/work/status',                  [WorkController::class, 'status']);
+    Route::get('/work/sessions',                [WorkController::class, 'sessions']);
+    Route::get('/work/stats',                   [WorkController::class, 'stats']);
+    Route::post('/work/checkin',                [WorkController::class, 'checkin']);
+    Route::post('/work/checkout',               [WorkController::class, 'checkout']);
+    Route::patch('/work/sessions/{session}',    [WorkController::class, 'update']);
+    Route::delete('/work/sessions/{session}',   [WorkController::class, 'destroy']);
+    Route::post('/work/webhook-enabled',        [WorkController::class, 'setEnabled']);
+    Route::get('/work/webhook-info',            [WorkController::class, 'webhookInfo']);
+    Route::post('/work/webhook-key/regenerate', [WorkController::class, 'regenerateKey']);
+    Route::delete('/work/webhook',              [WorkController::class, 'revokeWebhook']);
 });

@@ -141,6 +141,19 @@ export const useApi = () => {
     // Telegram
     registerTelegram: (token: string) => post('/telegram/register', { token }),
 
+    // Work tracker
+    getWorkStatus:       () => get('/work/status'),
+    setWorkEnabled:      (enabled: boolean) => post('/work/webhook-enabled', { enabled }),
+    getWorkSessions:     (filter = 'week') => get('/work/sessions', { filter }),
+    getWorkStats:        () => get('/work/stats'),
+    workCheckIn:         () => post('/work/checkin'),
+    workCheckOut:        () => post('/work/checkout'),
+    updateWorkSession:   (id: number, data: any) => request(`/work/sessions/${id}`, { method: 'PATCH', body: data }, { success: true, error: true }),
+    deleteWorkSession:   (id: number) => del(`/work/sessions/${id}`),
+    getWorkWebhookInfo:  () => get('/work/webhook-info'),
+    regenerateWorkKey:   () => post('/work/webhook-key/regenerate'),
+    revokeWorkWebhook:   () => del('/work/webhook'),
+
     // Raw base URL for streaming
     baseUrl: base,
     getHeaders: headers,

@@ -8,7 +8,7 @@
       <div class="flex items-center gap-2">
         <Select v-model="activeBoardId" @update:model-value="loadBoard" class="flex-1">
           <SelectTrigger>
-            <SelectValue placeholder="Выберите доску" />
+            <SelectValue :placeholder="$t('kanban.selectBoard')" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem v-for="b in boards" :key="b.id" :value="String(b.id)">
@@ -27,7 +27,7 @@
       </div>
       <Button variant="outline" size="sm" class="w-full" @click="handleArchiveDone" :disabled="archiving">
         <Archive class="w-4 h-4 mr-1" />
-        {{ archiving ? 'Архивирую...' : 'Архивировать «Готово»' }}
+        {{ archiving ? $t('kanban.archiving') : $t('kanban.archiveDone') }}
       </Button>
     </div>
 
@@ -135,12 +135,12 @@
     <Dialog v-model:open="showNewBoard">
       <DialogContent class="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Новая доска</DialogTitle>
+          <DialogTitle>{{ $t('kanban.newBoard') }}</DialogTitle>
         </DialogHeader>
         <DynamicForm
           v-model="newBoardForm"
           :fields="boardFields"
-          submit-label="Создать"
+          :submit-label="$t('kanban.create')"
           @submit="createBoard"
         />
       </DialogContent>
@@ -155,6 +155,7 @@ import type { FormField } from '~/components/DynamicForm.vue'
 definePageMeta({ layout: 'telegram', middleware: 'tma-auth' })
 
 const api = useApi()
+const { $t } = useLocale()
 
 const boards           = ref<any[]>([])
 const board            = ref<any>(null)
@@ -244,9 +245,9 @@ const handleDropOnZone = async ({ taskId, direction }: { taskId: number; directi
 onUnmounted(() => stopDrag())
 
 // ── Board data ─────────────────────────────────────────────────────────
-const boardFields: FormField[] = [
-  { key: 'name', label: 'Название', type: 'text', required: true, placeholder: 'Название доски' },
-]
+const boardFields = computed((): FormField[] => [
+  { key: 'name', label: $t('kanban.boardName'), type: 'text', required: true, placeholder: $t('kanban.newBoardName') },
+])
 
 onMounted(async () => { await loadBoards() })
 
@@ -305,7 +306,7 @@ const openEditTask = (task: any) => {
 }
 
 const confirmDeleteTask = async (task: any) => {
-  if (!confirm(`Удалить задачу "${task.title}"?`)) return
+  if (!confirm(`${$t('kanban.deleteTask')} "${task.title}"?`)) return
   await api.deleteTask(task.id)
   await refreshBoard()
 }
@@ -316,7 +317,7 @@ const handleArchiveDone = async () => {
   archiving.value = true
   try {
     const res: any = await api.archiveDone(parseInt(activeBoardId.value))
-    alert(`Архивировано задач: ${res.archived_count}`)
+    alert(`${$t('kanban.archivedCount')} ${res.archived_count}`)
     await refreshBoard()
   } finally {
     archiving.value = false

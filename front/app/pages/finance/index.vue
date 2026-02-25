@@ -11,8 +11,8 @@
           <Wallet class="w-4 h-4 text-amber-600" />
         </div>
         <div>
-          <p class="text-sm font-medium text-amber-900">Задайте начальный баланс</p>
-          <p class="text-xs text-amber-700 mt-0.5">Укажите стартовую сумму, чтобы точнее отслеживать финансы</p>
+          <p class="text-sm font-medium text-amber-900">{{ $t('finance.setInitialBalance') }}</p>
+          <p class="text-xs text-amber-700 mt-0.5">{{ $t('finance.initialBalanceHint') }}</p>
         </div>
       </div>
       <div class="flex items-center gap-2 shrink-0">
@@ -31,11 +31,11 @@
         </div>
         <Button size="sm" @click="saveInitialBalance" :disabled="savingBalance">
           <Loader2 v-if="savingBalance" class="w-3.5 h-3.5 mr-1 animate-spin" />
-          Сохранить
+          {{ $t('common.save') }}
         </Button>
         <button
           class="text-muted-foreground hover:text-foreground p-1"
-          title="Скрыть"
+          :title="$t('common.close')"
           @click="showInitialBalancePrompt = false"
         >
           <X class="w-4 h-4" />
@@ -68,9 +68,9 @@
             <TrendingUp class="w-4.5 h-4.5 text-emerald-600" />
           </div>
           <div>
-            <p class="text-xs text-muted-foreground">Доходы</p>
+            <p class="text-xs text-muted-foreground">{{ $t('finance.income') }}</p>
             <p class="text-lg font-bold text-emerald-600">+{{ currency }} {{ formatMoney(summary.total_income) }}</p>
-            <p class="text-xs text-muted-foreground">{{ summary.count_income || 0 }} опер.</p>
+            <p class="text-xs text-muted-foreground">{{ summary.count_income || 0 }} {{ $t('finance.incomeCount') }}</p>
           </div>
         </div>
 
@@ -80,9 +80,9 @@
             <TrendingDown class="w-4.5 h-4.5 text-red-500" />
           </div>
           <div>
-            <p class="text-xs text-muted-foreground">Расходы</p>
+            <p class="text-xs text-muted-foreground">{{ $t('finance.expense') }}</p>
             <p class="text-lg font-bold text-red-500">-{{ currency }} {{ formatMoney(summary.total_expense) }}</p>
-            <p class="text-xs text-muted-foreground">{{ summary.count_expense || 0 }} опер.</p>
+            <p class="text-xs text-muted-foreground">{{ summary.count_expense || 0 }} {{ $t('finance.incomeCount') }}</p>
           </div>
         </div>
 
@@ -98,7 +98,7 @@
             />
           </div>
           <div>
-            <p class="text-xs text-muted-foreground">Общий баланс</p>
+            <p class="text-xs text-muted-foreground">{{ $t('finance.overallBalance') }}</p>
             <p
               class="text-lg font-bold"
               :class="(summary.overall_balance ?? 0) >= 0 ? 'text-indigo-600' : 'text-orange-500'"
@@ -109,7 +109,7 @@
               class="text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
               @click="showInitialBalancePrompt = true"
             >
-              нач. {{ currency }}{{ formatMoney(summary.initial_balance ?? 0) }}
+              {{ $t('finance.setInitialBalance') }}: {{ currency }}{{ formatMoney(summary.initial_balance ?? 0) }}
             </button>
           </div>
         </div>
@@ -133,7 +133,7 @@
       <!-- Charts -->
       <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border">
-          <h2 class="text-sm font-semibold text-foreground">Сводка по категориям</h2>
+          <h2 class="text-sm font-semibold text-foreground">{{ $t('finance.summaryByCategory') }}</h2>
         </div>
         <div v-if="loadingData" class="p-5">
           <div class="skeleton h-40 w-full" />
@@ -149,7 +149,7 @@
           <div class="w-6 h-6 rounded-md bg-indigo-100 flex items-center justify-center">
             <Bot class="w-3.5 h-3.5 text-indigo-600" />
           </div>
-          <h2 class="text-sm font-semibold text-foreground">AI Анализ</h2>
+          <h2 class="text-sm font-semibold text-foreground">{{ $t('finance.aiAnalysis') }}</h2>
         </div>
         <div class="p-5">
           <AiFeedbackPanel />
@@ -163,7 +163,7 @@
       <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex items-center gap-2">
           <Plus class="w-4 h-4 text-muted-foreground" />
-          <h2 class="text-sm font-semibold text-foreground">Добавить запись</h2>
+          <h2 class="text-sm font-semibold text-foreground">{{ $t('finance.addEntry') }}</h2>
         </div>
         <div class="p-5">
           <ExpenseForm @submitted="onEntryAdded" />
@@ -175,7 +175,7 @@
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
           <div class="flex items-center gap-2">
             <List class="w-4 h-4 text-muted-foreground" />
-            <h2 class="text-sm font-semibold text-foreground">История</h2>
+            <h2 class="text-sm font-semibold text-foreground">{{ $t('sidebar.history') }}</h2>
           </div>
           <span class="text-xs text-muted-foreground bg-muted rounded-full px-2.5 py-0.5">
             {{ periodLabel }}
@@ -201,8 +201,8 @@
           <div class="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-3">
             <Receipt class="w-5 h-5 text-muted-foreground" />
           </div>
-          <p class="text-sm font-medium text-foreground">Нет записей за период</p>
-          <p class="text-xs text-muted-foreground mt-1">Добавьте расход или доход с помощью формы</p>
+          <p class="text-sm font-medium text-foreground">{{ $t('finance.noEntries') }}</p>
+          <p class="text-xs text-muted-foreground mt-1">{{ $t('finance.noEntriesForPeriod') }}</p>
         </div>
 
         <!-- Entries -->
@@ -213,7 +213,6 @@
             class="flex items-center justify-between px-5 py-3 hover:bg-muted/30 transition-colors group"
           >
             <div class="flex items-center gap-3 min-w-0">
-              <!-- Icon indicator: income vs expense -->
               <div
                 v-if="entry.type === 'income'"
                 class="w-2.5 h-2.5 rounded-full shrink-0 bg-emerald-400"
@@ -225,11 +224,11 @@
               />
               <div class="min-w-0">
                 <p class="text-sm font-medium text-foreground truncate">
-                  {{ entry.description || (entry.type === 'income' ? 'Доход' : 'Без описания') }}
+                  {{ entry.description || (entry.type === 'income' ? $t('finance.incomeLabel') : $t('finance.noDescription')) }}
                 </p>
                 <p class="text-xs text-muted-foreground">
-                  <span v-if="entry.type === 'income'" class="text-emerald-600 font-medium">Доход</span>
-                  <span v-else>{{ entry.category?.name || 'Без категории' }}</span>
+                  <span v-if="entry.type === 'income'" class="text-emerald-600 font-medium">{{ $t('finance.income') }}</span>
+                  <span v-else>{{ entry.category?.name || $t('finance.noCategory') }}</span>
                   · {{ formatDate(entry.date) }}
                 </p>
               </div>
@@ -244,7 +243,7 @@
               </span>
               <button
                 class="text-muted-foreground hover:text-destructive transition-all duration-150 p-1 rounded hover:bg-destructive/10"
-                title="Удалить"
+                :title="$t('common.delete')"
                 @click="deleteEntry(entry)"
               >
                 <Trash2 class="w-3.5 h-3.5" />
@@ -263,6 +262,7 @@ import { Bot, Trash2, Plus, List, Receipt, TrendingUp, TrendingDown, Landmark, W
 definePageMeta({ middleware: 'auth' })
 
 const api        = useApi()
+const { $t }     = useLocale()
 const period     = ref('today')
 const summary    = ref<any>({})
 const entries    = ref<any[]>([])
@@ -286,16 +286,15 @@ const formatMoney = (value: any) => {
   }).format(num)
 }
 
-
-const periods = [
-  { value: 'today', label: 'Сегодня' },
-  { value: 'week',  label: 'Неделя' },
-  { value: 'month', label: 'Месяц' },
-]
+const periods = computed(() => [
+  { value: 'today', label: $t('finance.today') },
+  { value: 'week',  label: $t('finance.week')  },
+  { value: 'month', label: $t('finance.month') },
+])
 
 const periodLabel = computed(() => ({
-  today: 'Сегодня', week: 'Эта неделя', month: 'Этот месяц',
-}[period.value] || ''))
+  today: $t('finance.today'), week: $t('finance.thisWeek'), month: $t('finance.thisMonth'),
+} as Record<string, string>)[period.value] || '')
 
 const today = new Date().toISOString().split('T')[0]
 const weekStart = () => {
@@ -323,12 +322,8 @@ const loadSummary = async () => {
     summary.value  = s
     entries.value  = (entriesRes as any).data || []
     currency.value = (settings as any).currency_symbol || '$'
-
-    // Show initial balance prompt if it's 0 or not set
     const initBal = parseFloat((settings as any).initial_balance ?? '0')
-    if (initBal === 0) {
-      showInitialBalancePrompt.value = true
-    }
+    if (initBal === 0) showInitialBalancePrompt.value = true
   } finally {
     loadingData.value = false
   }
@@ -339,7 +334,7 @@ onMounted(() => loadSummary())
 const onEntryAdded = () => loadSummary()
 
 const deleteEntry = async (entry: any) => {
-  if (!confirm(`Удалить "${entry.description || (entry.type === 'income' ? 'доход' : 'расход')}"?`)) return
+  if (!confirm(`${$t('common.delete')} "${entry.description || (entry.type === 'income' ? $t('finance.income') : $t('finance.expense'))}"?`)) return
   await api.deleteEntry(entry.id)
   await loadSummary()
 }
@@ -348,7 +343,7 @@ const saveInitialBalance = async () => {
   const val = parseFloat(initialBalanceInput.value)
   initialBalanceError.value = ''
   if (isNaN(val) || val < 0) {
-    initialBalanceError.value = 'Введите сумму 0 или больше'
+    initialBalanceError.value = $t('finance.initialBalanceError')
     return
   }
   savingBalance.value = true

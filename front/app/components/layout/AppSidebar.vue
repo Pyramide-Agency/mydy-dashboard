@@ -24,7 +24,7 @@
         :class="route.path === '/' ? 'nav-item--active' : 'nav-item--default'"
       >
         <LayoutDashboard class="nav-icon" />
-        <span>Дашборд</span>
+        <span>{{ $t('sidebar.dashboard') }}</span>
       </NuxtLink>
 
       <!-- Задачи (with submenu) -->
@@ -35,7 +35,7 @@
           @click="toggle('tasks')"
         >
           <Kanban class="nav-icon" />
-          <span class="flex-1 text-left">Задачи</span>
+          <span class="flex-1 text-left">{{ $t('sidebar.tasks') }}</span>
           <ChevronRight
             class="w-3.5 h-3.5 transition-transform duration-200 shrink-0"
             :class="open.tasks ? 'rotate-90' : ''"
@@ -52,7 +52,7 @@
                 :class="route.path === '/kanban' ? 'sub-item--active' : 'sub-item--default'"
               >
                 <CalendarCheck class="w-3.5 h-3.5 shrink-0" />
-                Сегодня
+                {{ $t('sidebar.today') }}
               </NuxtLink>
               <NuxtLink
                 to="/kanban/archive"
@@ -60,7 +60,7 @@
                 :class="route.path === '/kanban/archive' ? 'sub-item--active' : 'sub-item--default'"
               >
                 <Archive class="w-3.5 h-3.5 shrink-0" />
-                Архив
+                {{ $t('sidebar.archive') }}
               </NuxtLink>
             </div>
           </div>
@@ -75,7 +75,7 @@
           @click="toggle('finance')"
         >
           <Wallet class="nav-icon" />
-          <span class="flex-1 text-left">Финансы</span>
+          <span class="flex-1 text-left">{{ $t('sidebar.finance') }}</span>
           <ChevronRight
             class="w-3.5 h-3.5 transition-transform duration-200 shrink-0"
             :class="open.finance ? 'rotate-90' : ''"
@@ -91,7 +91,7 @@
                 :class="route.path === '/finance' ? 'sub-item--active' : 'sub-item--default'"
               >
                 <PlusCircle class="w-3.5 h-3.5 shrink-0" />
-                Расходы
+                {{ $t('sidebar.expenses') }}
               </NuxtLink>
               <NuxtLink
                 to="/finance/history"
@@ -99,12 +99,22 @@
                 :class="route.path === '/finance/history' ? 'sub-item--active' : 'sub-item--default'"
               >
                 <History class="w-3.5 h-3.5 shrink-0" />
-                История
+                {{ $t('sidebar.history') }}
               </NuxtLink>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Работа (flat link) -->
+      <NuxtLink
+        to="/work"
+        class="nav-item"
+        :class="route.path.startsWith('/work') ? 'nav-item--active' : 'nav-item--default'"
+      >
+        <BriefcaseBusiness class="nav-icon" />
+        <span>{{ $t('sidebar.work') }}</span>
+      </NuxtLink>
 
       <!-- AI чат (flat link) -->
       <NuxtLink
@@ -113,7 +123,7 @@
         :class="route.path.startsWith('/ai') ? 'nav-item--active' : 'nav-item--default'"
       >
         <Bot class="nav-icon" />
-        <span>Чат с AI</span>
+        <span>{{ $t('sidebar.aiChat') }}</span>
       </NuxtLink>
 
       <!-- Настройки (flat link) -->
@@ -123,7 +133,7 @@
         :class="route.path === '/settings' ? 'nav-item--active' : 'nav-item--default'"
       >
         <Settings class="nav-icon" />
-        <span>Настройки</span>
+        <span>{{ $t('sidebar.settings') }}</span>
       </NuxtLink>
 
     </nav>
@@ -135,7 +145,7 @@
         @click="handleLogout"
       >
         <LogOut class="w-4 h-4 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />
-        <span>Выйти</span>
+        <span>{{ $t('sidebar.logout') }}</span>
       </button>
     </div>
 
@@ -148,6 +158,7 @@ import {
   Kanban,
   Wallet,
   Bot,
+  BriefcaseBusiness,
   Settings,
   LogOut,
   ChevronRight,
@@ -157,8 +168,9 @@ import {
   History,
 } from 'lucide-vue-next'
 
-const route     = useRoute()
+const route      = useRoute()
 const { logout } = useAuth()
+const { $t }    = useLocale()
 
 // Which submenu is open
 const open = reactive({ tasks: false, finance: false })

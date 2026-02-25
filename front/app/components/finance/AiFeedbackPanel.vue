@@ -8,7 +8,7 @@
     >
       <Bot v-if="!loading" class="w-4 h-4 mr-2" />
       <Loader2 v-else class="w-4 h-4 mr-2 animate-spin" />
-      {{ loading ? 'Анализирую расходы...' : 'Получить AI анализ за сегодня' }}
+      {{ loading ? $t('finance.analyzing') : $t('finance.getAiAnalysis') }}
     </Button>
 
     <div
@@ -17,7 +17,7 @@
     >
       <div class="flex items-center gap-2 mb-2 text-primary font-medium">
         <Bot class="w-4 h-4" />
-        AI Анализ
+        {{ $t('finance.aiAnalysis') }}
       </div>
       <span class="prose prose-sm dark:prose-invert max-w-none" v-html="renderMd(analysis)" />
     </div>
@@ -30,7 +30,8 @@ import { marked } from 'marked'
 
 const renderMd = (text: string) => marked(text, { breaks: true }) as string
 
-const api      = useApi()
+const { $t } = useLocale()
+const api     = useApi()
 const loading  = ref(false)
 const analysis = ref('')
 
@@ -41,8 +42,8 @@ const getFeedback = async () => {
     const res: any = await api.getAiFeedback()
     analysis.value  = res.analysis
   } catch (e: any) {
-    const msg = e?.data?.error ?? e?.message ?? 'Неизвестная ошибка'
-    analysis.value = `Ошибка: ${msg}`
+    const msg = e?.data?.error ?? e?.message ?? $t('common.error')
+    analysis.value = `${$t('common.error')}: ${msg}`
   } finally {
     loading.value = false
   }

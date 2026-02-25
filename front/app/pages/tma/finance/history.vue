@@ -8,7 +8,7 @@
           <ChevronLeft class="w-5 h-5" />
         </Button>
       </NuxtLink>
-      <h1 class="text-base font-semibold text-foreground flex-1">История</h1>
+      <h1 class="text-base font-semibold text-foreground flex-1">{{ $t('tma.history') }}</h1>
       <div v-if="!loading && entries.length > 0" class="flex items-center gap-2 text-xs text-muted-foreground">
         <span v-if="totalExpense > 0" class="text-red-500 font-medium">-{{ currency }}{{ formatMoney(totalExpense) }}</span>
         <span v-if="totalIncome > 0" class="text-emerald-600 font-medium">+{{ currency }}{{ formatMoney(totalIncome) }}</span>
@@ -45,7 +45,7 @@
 
       <div v-else-if="!loading && entries.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
         <Receipt class="w-8 h-8 text-muted-foreground/30 mb-2" />
-        <p class="text-sm font-medium text-foreground">Нет записей</p>
+        <p class="text-sm font-medium text-foreground">{{ $t('finance.noEntries') }}</p>
       </div>
 
       <div v-else class="divide-y divide-border">
@@ -59,11 +59,11 @@
             <span v-else class="w-2.5 h-2.5 rounded-full shrink-0" :style="{ background: entry.category?.color || '#9ca3af' }" />
             <div class="min-w-0">
               <p class="text-sm font-medium text-foreground truncate">
-                {{ entry.description || (entry.type === 'income' ? 'Доход' : 'Без описания') }}
+                {{ entry.description || (entry.type === 'income' ? $t('finance.incomeLabel') : $t('finance.noDescription')) }}
               </p>
               <p class="text-xs text-muted-foreground">
-                <span v-if="entry.type === 'income'" class="text-emerald-600 font-medium">Доход</span>
-                <span v-else>{{ entry.category?.name || 'Без категории' }}</span>
+                <span v-if="entry.type === 'income'" class="text-emerald-600 font-medium">{{ $t('finance.income') }}</span>
+                <span v-else>{{ entry.category?.name || $t('finance.noCategory') }}</span>
                 · {{ formatDate(entry.date) }}
               </p>
             </div>
@@ -93,7 +93,7 @@
             @click="loadMore"
           >
             <Loader2 v-if="loadingMore" class="w-3.5 h-3.5 animate-spin" />
-            <span>{{ loadingMore ? 'Загрузка...' : `Ещё (${entries.length} из ${totalCount})` }}</span>
+            <span>{{ loadingMore ? $t('finance.loading') : `${$t('finance.loadMore')} (${entries.length} / ${totalCount})` }}</span>
           </button>
         </div>
       </div>
@@ -105,7 +105,7 @@
   <Dialog v-model:open="editOpen">
     <DialogContent class="sm:max-w-md">
       <DialogHeader>
-        <DialogTitle>Редактировать</DialogTitle>
+        <DialogTitle>{{ $t('finance.editEntry') }}</DialogTitle>
       </DialogHeader>
       <div class="space-y-3 py-1">
         <div class="flex gap-1 bg-muted rounded-lg p-1">
@@ -115,7 +115,7 @@
             :class="editForm.type === 'expense' ? 'bg-white text-red-600 shadow-sm' : 'text-muted-foreground'"
             @click="editForm.type = 'expense'"
           >
-            <TrendingDown class="w-3.5 h-3.5" /> Расход
+            <TrendingDown class="w-3.5 h-3.5" /> {{ $t('finance.expense') }}
           </button>
           <button
             type="button"
@@ -123,39 +123,39 @@
             :class="editForm.type === 'income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-muted-foreground'"
             @click="editForm.type = 'income'"
           >
-            <TrendingUp class="w-3.5 h-3.5" /> Доход
+            <TrendingUp class="w-3.5 h-3.5" /> {{ $t('finance.income') }}
           </button>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="text-xs text-muted-foreground mb-1 block">Сумма *</label>
+            <label class="text-xs text-muted-foreground mb-1 block">{{ $t('finance.amount') }} *</label>
             <Input v-model="editForm.amount" type="number" step="0.01" min="0.01" placeholder="0.00" />
           </div>
           <div>
-            <label class="text-xs text-muted-foreground mb-1 block">Дата *</label>
+            <label class="text-xs text-muted-foreground mb-1 block">{{ $t('finance.date') }} *</label>
             <Input v-model="editForm.date" type="date" />
           </div>
         </div>
         <div v-if="editForm.type === 'expense'">
-          <label class="text-xs text-muted-foreground mb-1 block">Категория</label>
+          <label class="text-xs text-muted-foreground mb-1 block">{{ $t('finance.category') }}</label>
           <Select v-model="editForm.category_id">
-            <SelectTrigger><SelectValue placeholder="Без категории" /></SelectTrigger>
+            <SelectTrigger><SelectValue :placeholder="$t('finance.noCategory')" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">Без категории</SelectItem>
+              <SelectItem value="none">{{ $t('finance.noCategory') }}</SelectItem>
               <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">{{ cat.name }}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div>
-          <label class="text-xs text-muted-foreground mb-1 block">Описание</label>
-          <Input v-model="editForm.description" :placeholder="editForm.type === 'income' ? 'Источник дохода...' : 'На что потрачено...'" />
+          <label class="text-xs text-muted-foreground mb-1 block">{{ $t('common.description') }}</label>
+          <Input v-model="editForm.description" :placeholder="editForm.type === 'income' ? $t('finance.descriptionIncome') : $t('finance.descriptionExpense')" />
         </div>
       </div>
       <DialogFooter>
-        <button class="px-4 py-2 text-sm text-muted-foreground" @click="editOpen = false">Отмена</button>
+        <button class="px-4 py-2 text-sm text-muted-foreground" @click="editOpen = false">{{ $t('common.cancel') }}</button>
         <Button :disabled="editSaving" @click="saveEdit">
           <Loader2 v-if="editSaving" class="w-3.5 h-3.5 mr-2 animate-spin" />
-          {{ editSaving ? 'Сохранение...' : 'Сохранить' }}
+          {{ editSaving ? $t('finance.saving') : $t('common.save') }}
         </Button>
       </DialogFooter>
     </DialogContent>
@@ -169,13 +169,14 @@ definePageMeta({ layout: 'telegram', middleware: 'tma-auth' })
 
 const api = useApi()
 const { showBackButton, hideBackButton } = useTelegram()
+const { $t, locale } = useLocale()
 
-const periods = [
-  { value: 'today',     label: 'Сегодня' },
-  { value: 'yesterday', label: 'Вчера' },
-  { value: 'dayBefore', label: 'Поза' },
-  { value: 'all',       label: 'Все' },
-]
+const periods = computed(() => [
+  { value: 'today',     label: $t('finance.today') },
+  { value: 'yesterday', label: $t('finance.yesterday') },
+  { value: 'dayBefore', label: $t('finance.dayBefore') },
+  { value: 'all',       label: $t('common.all') },
+])
 
 const period      = ref('today')
 const entries     = ref<any[]>([])
@@ -264,8 +265,8 @@ const saveEdit = async () => {
 }
 
 const deleteEntry = async (entry: any) => {
-  const label = entry.description || (entry.type === 'income' ? 'Доход' : 'Расход')
-  if (!confirm(`Удалить "${label}"?`)) return
+  const label = entry.description || (entry.type === 'income' ? $t('finance.incomeLabel') : $t('finance.expenseLabel'))
+  if (!confirm(`${$t('finance.deleteConfirm')} "${label}"?`)) return
   deletingId.value = entry.id
   try {
     await api.deleteEntry(entry.id)
@@ -281,7 +282,7 @@ const formatMoney = (value: any) => {
   return isNaN(num) ? '0.00' : new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num)
 }
 
-const formatDate = (d: string) => new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+const formatDate = (d: string) => new Date(d).toLocaleDateString(locale.value === 'en' ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'long' })
 
 onMounted(async () => {
   showBackButton(() => navigateTo('/tma/finance'))

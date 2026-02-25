@@ -23,21 +23,23 @@
 import { User } from 'lucide-vue-next'
 
 const route = useRoute()
+const { $t, locale } = useLocale()
 
-const pageMap: Record<string, { title: string; subtitle?: string }> = {
-  '/':                { title: 'Дашборд',     subtitle: 'Обзор на сегодня' },
-  '/kanban':          { title: 'Канбан',       subtitle: 'Управление задачами' },
-  '/kanban/archive':  { title: 'Архив задач',  subtitle: 'Завершённые задачи' },
-  '/finance':         { title: 'Финансы',      subtitle: 'Учёт расходов' },
-  '/ai':              { title: 'Чат с AI',      subtitle: 'Персональный ассистент' },
-  '/settings':        { title: 'Настройки',    subtitle: 'Конфигурация' },
-}
+const pageMap = computed(() => ({
+  '/':               { title: $t('sidebar.dashboard'), subtitle: $t('header.overviewToday') },
+  '/kanban':         { title: $t('sidebar.tasks'),     subtitle: $t('header.taskManagement') },
+  '/kanban/archive': { title: $t('header.taskArchive'), subtitle: $t('header.completedTasks') },
+  '/finance':        { title: $t('sidebar.finance'),   subtitle: $t('header.expenseTracking') },
+  '/ai':             { title: $t('ai.title'),          subtitle: $t('header.personalAssistant') },
+  '/settings':       { title: $t('sidebar.settings'),  subtitle: $t('header.configuration') },
+}))
 
-const current  = computed(() => pageMap[route.path] || { title: 'Dashboard' })
+const current  = computed(() => (pageMap.value as any)[route.path] || { title: 'Dashboard' })
 const title    = computed(() => current.value.title)
 const subtitle = computed(() => current.value.subtitle)
 
 const now = new Date()
-const weekday   = now.toLocaleDateString('ru-RU', { weekday: 'long' })
-const shortDate = now.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })
+const localeStr = computed(() => locale.value === 'en' ? 'en-US' : 'ru-RU')
+const weekday   = computed(() => now.toLocaleDateString(localeStr.value, { weekday: 'long' }))
+const shortDate = computed(() => now.toLocaleDateString(localeStr.value, { day: 'numeric', month: 'long' }))
 </script>
