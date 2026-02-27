@@ -36,6 +36,9 @@ class TelegramController extends Controller
         $chatId  = $message['chat']['id'];
         $text    = trim($message['text'] ?? '');
 
+        // Always keep the latest chat_id so deadline notifications work
+        Setting::set('telegram_chat_id', (string) $chatId);
+
         if (empty($text)) {
             return response()->json(['ok' => true]);
         }

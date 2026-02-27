@@ -130,6 +130,42 @@
       </div>
     </div>
 
+    <!-- Notifications -->
+    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div class="px-4 py-3 border-b border-border flex items-center gap-2">
+        <Bell class="w-4 h-4 text-muted-foreground" />
+        <div>
+          <h2 class="text-sm font-semibold text-foreground">{{ $t('settings.notifications') }}</h2>
+          <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.notificationsDesc') }}</p>
+        </div>
+      </div>
+      <div class="p-4 space-y-3">
+        <div
+          v-if="!telegramConnected"
+          class="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground"
+        >
+          {{ $t('settings.notificationsRequireBot') }}
+        </div>
+        <div v-else class="flex items-start justify-between gap-3">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-foreground">{{ $t('settings.deadlineNotifications') }}</p>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.deadlineNotificationsDesc') }}</p>
+          </div>
+          <button
+            class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+            :class="deadlineNotifications ? 'bg-primary' : 'bg-muted-foreground/30'"
+            :disabled="savingNotifications"
+            @click="toggleDeadlineNotifications"
+          >
+            <span
+              class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transform transition duration-200"
+              :class="deadlineNotifications ? 'translate-x-5' : 'translate-x-0'"
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Categories -->
     <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center justify-between">
@@ -212,7 +248,7 @@
 </template>
 
 <script setup lang="ts">
-import { Send, Loader2, Plus, Trash2, Bot, LogOut } from 'lucide-vue-next'
+import { Send, Loader2, Plus, Trash2, Bot, LogOut, Bell } from 'lucide-vue-next'
 import type { FormField } from '~/components/DynamicForm.vue'
 
 definePageMeta({ layout: 'telegram', middleware: 'tma-auth' })
@@ -226,12 +262,15 @@ const categories         = ref<any[]>([])
 const saving             = ref(false)
 const savingPassword     = ref(false)
 const savingAi           = ref(false)
-const connectingTelegram = ref(false)
-const showAddCategory    = ref(false)
-const telegramStatus     = ref('')
-const telegramError      = ref(false)
-const aiApiKeySet        = ref(false)
-const errors             = reactive({
+const connectingTelegram   = ref(false)
+const showAddCategory      = ref(false)
+const telegramStatus       = ref('')
+const telegramError        = ref(false)
+const aiApiKeySet          = ref(false)
+const telegramConnected    = ref(false)
+const deadlineNotifications = ref(false)
+const savingNotifications  = ref(false)
+const errors               = reactive({
   aiProvider: '', password: '', telegram: '', category: '',
 })
 
@@ -282,9 +321,11 @@ onMounted(async () => {
   currencyForm.value.symbol   = s.currency_symbol || '$'
   aiForm.provider     = s.ai_provider || 'anthropic'
   aiForm.model        = s.ai_model    || providerModels[aiForm.provider]?.[0]?.value || ''
-  aiApiKeySet.value   = s.ai_api_key_set || false
-  categories.value    = cats as any[]
-  telegramToken.value = s.telegram_bot_token || ''
+  aiApiKeySet.value           = s.ai_api_key_set || false
+  telegramConnected.value     = s.telegram_connected || false
+  deadlineNotifications.value = s.deadline_notifications === '1'
+  categories.value            = cats as any[]
+  telegramToken.value         = s.telegram_bot_token || ''
   setLocale(languageForm.value)
 })
 
@@ -340,8 +381,9 @@ const connectTelegram = async () => {
   telegramError.value      = false
   try {
     const res: any = await api.registerTelegram(telegramToken.value)
-    telegramStatus.value = '✓ ' + res.message
-    telegramToken.value  = ''
+    telegramStatus.value    = '✓ ' + res.message
+    telegramToken.value     = ''
+    telegramConnected.value = true
   } catch (e: any) {
     telegramError.value  = true
     telegramStatus.value = e?.data?.message || $t('common.error')
@@ -363,6 +405,18 @@ const deleteCategory = async (cat: any) => {
   if (!confirm(`${$t('settings.deleteConfirm')} "${cat.name}"?`)) return
   await api.deleteCategory(cat.id)
   categories.value = (await api.getCategories()) as any[]
+}
+
+const toggleDeadlineNotifications = async () => {
+  savingNotifications.value = true
+  try {
+    deadlineNotifications.value = !deadlineNotifications.value
+    await api.updateSettings({ deadline_notifications: deadlineNotifications.value })
+  } catch {
+    deadlineNotifications.value = !deadlineNotifications.value
+  } finally {
+    savingNotifications.value = false
+  }
 }
 
 const handleLogout = async () => {

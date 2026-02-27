@@ -11,7 +11,7 @@ export interface FormFieldOption {
 export interface FormField {
   key: string
   label: string
-  type: 'text' | 'number' | 'select' | 'multiselect' | 'textarea' | 'date' | 'toggle'
+  type: 'text' | 'number' | 'select' | 'multiselect' | 'textarea' | 'date' | 'datetime' | 'toggle'
   required?: boolean
   placeholder?: string
   /** Initial value emitted to parent when modelValue[key] is undefined */
@@ -233,6 +233,19 @@ onMounted(() => {
         type="date"
         lang="en-GB"
         inputmode="numeric"
+        :class="[
+          'tabular-nums',
+          errors[field.key] ? 'border-destructive focus-visible:ring-destructive' : '',
+        ]"
+      />
+
+      <!-- Datetime -->
+      <Input
+        v-else-if="field.type === 'datetime'"
+        :model-value="modelValue[field.key] ?? field.defaultValue ?? ''"
+        @update:model-value="val => updateField(field.key, val)"
+        @blur="handleBlur(field.key)"
+        type="datetime-local"
         :class="[
           'tabular-nums',
           errors[field.key] ? 'border-destructive focus-visible:ring-destructive' : '',

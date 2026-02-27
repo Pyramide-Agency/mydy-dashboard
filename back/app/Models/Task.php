@@ -9,12 +9,13 @@ class Task extends Model
 {
     protected $fillable = [
         'board_id', 'column_id', 'title', 'description',
-        'priority', 'archived', 'archived_at', 'position',
+        'priority', 'deadline', 'archived', 'archived_at', 'position',
     ];
 
     protected $casts = [
         'archived'    => 'boolean',
         'archived_at' => 'datetime',
+        'deadline'    => 'datetime',
         'position'    => 'integer',
     ];
 

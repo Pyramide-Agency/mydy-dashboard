@@ -65,6 +65,7 @@
       >
         <KanbanColumn
           :column="col"
+          :tma="true"
           @add-task="openAddTask"
           @edit-task="openEditTask"
           @delete-task="confirmDeleteTask"

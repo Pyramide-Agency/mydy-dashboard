@@ -141,6 +141,8 @@ export default {
     archivedCount: 'Tasks archived:',
     create: 'Create',
     save: 'Save',
+    deadline: 'Deadline',
+    noDeadline: 'No deadline',
   },
   ai: {
     newChat: 'New chat',
@@ -274,6 +276,11 @@ export default {
     errorChangingStatus: 'Error changing tracker status',
     iosClearMemory: 'Clear all AI memory? This action is irreversible.',
     confirmLogout: 'Sign out of account?',
+    notifications: 'Notifications',
+    notificationsDesc: 'Notifications via Telegram bot',
+    deadlineNotifications: 'Deadline notifications',
+    deadlineNotificationsDesc: 'Receive messages 12, 3 and 1 hour before deadline',
+    notificationsRequireBot: 'Telegram bot must be connected and you must have sent it at least one message',
   },
   header: {
     overviewToday: 'Today\'s overview',

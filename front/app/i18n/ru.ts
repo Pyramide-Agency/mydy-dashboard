@@ -141,6 +141,8 @@ export default {
     archivedCount: 'Архивировано задач:',
     create: 'Создать',
     save: 'Сохранить',
+    deadline: 'Дедлайн',
+    noDeadline: 'Без дедлайна',
   },
   ai: {
     newChat: 'Новый чат',
@@ -274,6 +276,11 @@ export default {
     errorChangingStatus: 'Ошибка при изменении статуса трекера',
     iosClearMemory: 'Очистить всю память AI? Это действие необратимо.',
     confirmLogout: 'Выйти из аккаунта?',
+    notifications: 'Уведомления',
+    notificationsDesc: 'Уведомления через Telegram бот',
+    deadlineNotifications: 'Уведомления о дедлайнах',
+    deadlineNotificationsDesc: 'Получать сообщения за 12, 3 и 1 час до дедлайна',
+    notificationsRequireBot: 'Для уведомлений необходимо подключить Telegram бот и написать боту хотя бы раз',
   },
   header: {
     overviewToday: 'Обзор на сегодня',

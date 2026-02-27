@@ -1,7 +1,10 @@
 <template>
-  <div class="flex flex-col bg-muted/40 rounded-xl w-72 shrink-0">
+  <div
+    class="flex flex-col rounded-xl"
+    :class="tma ? 'bg-background h-full' : 'bg-muted/40 w-72 shrink-0'"
+  >
     <!-- Column header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-border">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
       <div class="flex items-center gap-2">
         <span
           class="w-2.5 h-2.5 rounded-full"
@@ -19,12 +22,13 @@
     </div>
 
     <!-- Tasks list (draggable) -->
-    <div class="flex-1 p-3 overflow-y-auto max-h-[calc(100vh-300px)]">
+    <div class="flex-1 p-3 overflow-y-auto" :class="tma ? '' : 'max-h-[calc(100vh-300px)]'">
       <draggable
         v-model="localTasks"
         :group="{ name: 'tasks', pull: true, put: true }"
         item-key="id"
         class="min-h-16 space-y-2"
+        @start="onDragStart"
         @end="onDragEnd"
       >
         <template #item="{ element }">
@@ -45,6 +49,7 @@ import { Plus } from 'lucide-vue-next'
 
 const props = defineProps<{
   column: { id: number; name: string; status_key: string; tasks: any[] }
+  tma?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -52,6 +57,9 @@ const emit = defineEmits<{
   'edit-task': [task: any]
   'delete-task': [task: any]
   'task-moved': [event: any]
+  'drag-start': []
+  'drag-end': []
+  'drop-on-zone': [payload: { taskId: number; direction: 'left' | 'right' }]
 }>()
 
 const api = useApi()
@@ -66,7 +74,47 @@ const statusColors: Record<string, string> = {
 }
 const statusColor = computed(() => statusColors[props.column.status_key] || '#6b7280')
 
+// Track pointer position during drag for zone detection
+let dragTaskId = 0
+const ZONE_W = 0.22
+
+const onDragStart = (event: any) => {
+  const taskEl = event.item as HTMLElement
+  dragTaskId = parseInt(taskEl.dataset.id || '0')
+  emit('drag-start')
+
+  if (props.tma) {
+    window.addEventListener('touchend', onTouchEnd, { once: true })
+    window.addEventListener('mouseup', onMouseUp, { once: true })
+  }
+}
+
+const checkZoneDrop = (clientX: number) => {
+  if (!props.tma || !dragTaskId) return false
+  const w = window.innerWidth
+  if (clientX < w * ZONE_W) {
+    emit('drop-on-zone', { taskId: dragTaskId, direction: 'left' })
+    return true
+  }
+  if (clientX > w * (1 - ZONE_W)) {
+    emit('drop-on-zone', { taskId: dragTaskId, direction: 'right' })
+    return true
+  }
+  return false
+}
+
+const onTouchEnd = (e: TouchEvent) => {
+  const touch = e.changedTouches[0]
+  if (touch) checkZoneDrop(touch.clientX)
+}
+
+const onMouseUp = (e: MouseEvent) => {
+  checkZoneDrop(e.clientX)
+}
+
 const onDragEnd = async (event: any) => {
+  emit('drag-end')
+
   const taskEl = event.item
   const taskId = parseInt(taskEl.dataset.id || '0')
   if (!taskId) return

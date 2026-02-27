@@ -51,6 +51,7 @@ class TaskController extends Controller
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
             'priority'    => 'in:low,medium,high',
+            'deadline'    => 'nullable|date',
         ]);
 
         $position = Task::where('column_id', $data['column_id'])
@@ -68,6 +69,7 @@ class TaskController extends Controller
             'title'       => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'priority'    => 'in:low,medium,high',
+            'deadline'    => 'nullable|date',
         ]);
 
         $task->update($data);

@@ -46,10 +46,22 @@ const { $t } = useLocale()
 const loading = ref(false)
 const formRef = ref()
 
+// datetime-local works in local time, but backend stores UTC.
+// Convert UTC ISO string → "YYYY-MM-DDTHH:mm" in local time for the input.
+const utcToLocal = (iso: string): string => {
+  const d = new Date(iso)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+// Convert "YYYY-MM-DDTHH:mm" local time string → UTC ISO string for the backend.
+const localToUtc = (local: string): string => new Date(local).toISOString()
+
 const form = ref({
   title:       '',
   description: '',
   priority:    'medium',
+  deadline:    '',
 })
 
 const taskFields = computed((): FormField[] => [
@@ -77,6 +89,11 @@ const taskFields = computed((): FormField[] => [
       { label: $t('kanban.high'),   value: 'high'   },
     ],
   },
+  {
+    key:   'deadline',
+    label: $t('kanban.deadline'),
+    type:  'datetime',
+  },
 ])
 
 watch(() => props.open, (val) => {
@@ -85,6 +102,7 @@ watch(() => props.open, (val) => {
       title:       props.task?.title       || '',
       description: props.task?.description || '',
       priority:    props.task?.priority    || 'medium',
+      deadline:    props.task?.deadline    ? utcToLocal(props.task.deadline) : '',
     }
     formRef.value?.reset()
   }
@@ -96,11 +114,13 @@ const handleSubmit = async () => {
   loading.value = true
   try {
     let saved
+    const deadline = form.value.deadline ? localToUtc(form.value.deadline) : null
     if (props.task) {
       saved = await api.updateTask(props.task.id, {
         title:       form.value.title,
         description: form.value.description || null,
         priority:    form.value.priority,
+        deadline,
       })
     } else {
       saved = await api.createTask({
@@ -109,6 +129,7 @@ const handleSubmit = async () => {
         title:       form.value.title,
         description: form.value.description || null,
         priority:    form.value.priority,
+        deadline,
       })
     }
     emit('saved', saved)

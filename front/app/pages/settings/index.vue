@@ -265,6 +265,33 @@
       </CardContent>
     </Card>
 
+    <!-- Notifications -->
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base flex items-center gap-2">
+          <Bell class="w-4 h-4" />
+          {{ $t('settings.notifications') }}
+        </CardTitle>
+        <CardDescription>{{ $t('settings.notificationsDesc') }}</CardDescription>
+      </CardHeader>
+      <CardContent class="space-y-3">
+        <div v-if="!telegramConnected" class="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
+          {{ $t('settings.notificationsRequireBot') }}
+        </div>
+        <div v-else class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-foreground">{{ $t('settings.deadlineNotifications') }}</p>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.deadlineNotificationsDesc') }}</p>
+          </div>
+          <Switch
+            :model-value="deadlineNotifications"
+            :disabled="savingNotifications"
+            @update:model-value="toggleDeadlineNotifications"
+          />
+        </div>
+      </CardContent>
+    </Card>
+
     <!-- Work Tracker -->
     <Card>
       <CardHeader>
@@ -421,7 +448,7 @@
 </template>
 
 <script setup lang="ts">
-import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw } from 'lucide-vue-next'
+import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw, Bell } from 'lucide-vue-next'
 import { Switch } from '@/components/ui/switch'
 import QRCode from 'qrcode'
 import type { FormField } from '~/components/DynamicForm.vue'
@@ -439,11 +466,14 @@ const categories         = ref<any[]>([])
 const saving             = ref(false)
 const savingPassword     = ref(false)
 const savingAi           = ref(false)
-const connectingTelegram = ref(false)
-const showAddCategory    = ref(false)
-const telegramStatus     = ref('')
-const telegramError      = ref(false)
-const aiApiKeySet        = ref(false)
+const connectingTelegram    = ref(false)
+const showAddCategory       = ref(false)
+const telegramStatus        = ref('')
+const telegramError         = ref(false)
+const aiApiKeySet           = ref(false)
+const telegramConnected     = ref(false)
+const deadlineNotifications = ref(false)
+const savingNotifications   = ref(false)
 const groqApiKeySet      = ref(false)
 const jinaApiKeySet      = ref(false)
 
@@ -664,9 +694,11 @@ onMounted(async () => {
   aiForm.model    = s.ai_model   || providerModels[aiForm.provider]?.[0]?.value || ''
   aiApiKeySet.value     = s.ai_api_key_set   || false
   groqApiKeySet.value   = s.groq_api_key_set || false
-  jinaApiKeySet.value   = s.jina_api_key_set || false
-  categories.value      = cats as any[]
-  telegramToken.value   = s.telegram_bot_token || ''
+  jinaApiKeySet.value           = s.jina_api_key_set || false
+  telegramConnected.value       = s.telegram_connected || false
+  deadlineNotifications.value   = s.deadline_notifications === '1'
+  categories.value              = cats as any[]
+  telegramToken.value           = s.telegram_bot_token || ''
 
   // Restore locale from settings
   setLocale(languageForm.value)
@@ -739,13 +771,26 @@ const connectTelegram = async () => {
   telegramError.value      = false
   try {
     const res: any = await api.registerTelegram(telegramToken.value)
-    telegramStatus.value = '✓ ' + res.message
-    telegramToken.value  = ''
+    telegramStatus.value    = '✓ ' + res.message
+    telegramToken.value     = ''
+    telegramConnected.value = true
   } catch (e: any) {
     telegramError.value  = true
     telegramStatus.value = e?.data?.message || $t('common.error')
   } finally {
     connectingTelegram.value = false
+  }
+}
+
+const toggleDeadlineNotifications = async (val: boolean) => {
+  savingNotifications.value = true
+  try {
+    deadlineNotifications.value = val
+    await api.updateSettings({ deadline_notifications: val })
+  } catch {
+    deadlineNotifications.value = !val
+  } finally {
+    savingNotifications.value = false
   }
 }
 
