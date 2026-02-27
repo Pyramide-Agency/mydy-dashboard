@@ -103,7 +103,8 @@ class DeadlineNotify extends Command
 
     private function sendNotification(string $token, string $chatId, Task $task, int $hours): void
     {
-        $deadline = Carbon::parse($task->deadline);
+        $tz       = Setting::get('user_timezone', 'UTC');
+        $deadline = Carbon::parse($task->deadline)->setTimezone($tz);
         $timeStr  = $deadline->format('d.m.Y H:i');
 
         $hoursLabel = match ($hours) {

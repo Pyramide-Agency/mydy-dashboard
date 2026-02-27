@@ -334,6 +334,8 @@ const onProviderChange = (value: any) => {
 }
 
 onMounted(async () => {
+  // Auto-detect and sync user timezone to backend
+  const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone
   const [settings, cats] = await Promise.all([api.getSettings(), api.getCategories()])
   const s = settings as any
   languageForm.value          = s.language         || locale.value
@@ -342,6 +344,10 @@ onMounted(async () => {
   aiForm.provider     = s.ai_provider || 'anthropic'
   aiForm.model        = s.ai_model    || providerModels[aiForm.provider]?.[0]?.value || ''
   aiApiKeySet.value           = s.ai_api_key_set || false
+  // Sync timezone if changed
+  if (!s.user_timezone || s.user_timezone !== detectedTz) {
+    api.updateSettings({ user_timezone: detectedTz }).catch(() => {})
+  }
   telegramConnected.value     = s.telegram_connected || false
   telegramChatReady.value     = s.telegram_chat_ready || false
   deadlineNotifications.value = s.deadline_notifications === '1'

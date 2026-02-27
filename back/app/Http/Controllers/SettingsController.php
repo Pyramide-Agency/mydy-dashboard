@@ -40,6 +40,7 @@ class SettingsController extends Controller
             'groq_api_key'            => 'sometimes|string|max:500',
             'jina_api_key'            => 'sometimes|string|max:500',
             'deadline_notifications'  => 'sometimes|boolean',
+            'user_timezone'           => 'sometimes|string|max:60',
         ]);
 
         foreach ([
@@ -54,6 +55,10 @@ class SettingsController extends Controller
 
         if (isset($data['deadline_notifications'])) {
             Setting::set('deadline_notifications', $data['deadline_notifications'] ? '1' : '0');
+        }
+
+        if (isset($data['user_timezone'])) {
+            Setting::set('user_timezone', $data['user_timezone']);
         }
 
         if (isset($data['new_password'])) {

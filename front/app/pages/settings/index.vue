@@ -665,6 +665,7 @@ const confirmClearMemories = async () => {
 }
 
 onMounted(async () => {
+  const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone
   const [settings, cats] = await Promise.all([api.getSettings(), api.getCategories()])
   void loadMemories()
 
@@ -696,6 +697,9 @@ onMounted(async () => {
   groqApiKeySet.value   = s.groq_api_key_set || false
   jinaApiKeySet.value           = s.jina_api_key_set || false
   telegramConnected.value       = s.telegram_connected || false
+  if (!s.user_timezone || s.user_timezone !== detectedTz) {
+    api.updateSettings({ user_timezone: detectedTz }).catch(() => {})
+  }
   deadlineNotifications.value   = s.deadline_notifications === '1'
   categories.value              = cats as any[]
   telegramToken.value           = s.telegram_bot_token || ''
