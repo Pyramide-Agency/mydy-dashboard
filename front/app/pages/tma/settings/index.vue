@@ -146,23 +146,41 @@
         >
           {{ $t('settings.notificationsRequireBot') }}
         </div>
-        <div v-else class="flex items-start justify-between gap-3">
-          <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-foreground">{{ $t('settings.deadlineNotifications') }}</p>
-            <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.deadlineNotificationsDesc') }}</p>
+        <template v-else>
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-foreground">{{ $t('settings.deadlineNotifications') }}</p>
+              <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.deadlineNotificationsDesc') }}</p>
+            </div>
+            <button
+              class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
+              :class="deadlineNotifications ? 'bg-primary' : 'bg-muted-foreground/30'"
+              :disabled="savingNotifications"
+              @click="toggleDeadlineNotifications"
+            >
+              <span
+                class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transform transition duration-200"
+                :class="deadlineNotifications ? 'translate-x-5' : 'translate-x-0'"
+              />
+            </button>
           </div>
-          <button
-            class="relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none"
-            :class="deadlineNotifications ? 'bg-primary' : 'bg-muted-foreground/30'"
-            :disabled="savingNotifications"
-            @click="toggleDeadlineNotifications"
+          <!-- Chat ID not yet known -->
+          <div v-if="!telegramChatReady" class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+            {{ $t('settings.notificationsChatIdHint') }}
+          </div>
+          <!-- Test button -->
+          <Button
+            v-else
+            variant="outline"
+            size="sm"
+            class="w-full"
+            :disabled="testingNotification"
+            @click="sendTestNotification"
           >
-            <span
-              class="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg transform transition duration-200"
-              :class="deadlineNotifications ? 'translate-x-5' : 'translate-x-0'"
-            />
-          </button>
-        </div>
+            <Loader2 v-if="testingNotification" class="w-3.5 h-3.5 mr-1.5 animate-spin" />
+            {{ $t('settings.testNotification') }}
+          </Button>
+        </template>
       </div>
     </div>
 
@@ -267,9 +285,11 @@ const showAddCategory      = ref(false)
 const telegramStatus       = ref('')
 const telegramError        = ref(false)
 const aiApiKeySet          = ref(false)
-const telegramConnected    = ref(false)
+const telegramConnected     = ref(false)
+const telegramChatReady     = ref(false)
 const deadlineNotifications = ref(false)
-const savingNotifications  = ref(false)
+const savingNotifications   = ref(false)
+const testingNotification   = ref(false)
 const errors               = reactive({
   aiProvider: '', password: '', telegram: '', category: '',
 })
@@ -323,6 +343,7 @@ onMounted(async () => {
   aiForm.model        = s.ai_model    || providerModels[aiForm.provider]?.[0]?.value || ''
   aiApiKeySet.value           = s.ai_api_key_set || false
   telegramConnected.value     = s.telegram_connected || false
+  telegramChatReady.value     = s.telegram_chat_ready || false
   deadlineNotifications.value = s.deadline_notifications === '1'
   categories.value            = cats as any[]
   telegramToken.value         = s.telegram_bot_token || ''
@@ -405,6 +426,17 @@ const deleteCategory = async (cat: any) => {
   if (!confirm(`${$t('settings.deleteConfirm')} "${cat.name}"?`)) return
   await api.deleteCategory(cat.id)
   categories.value = (await api.getCategories()) as any[]
+}
+
+const sendTestNotification = async () => {
+  testingNotification.value = true
+  try {
+    await api.testDeadlineNotification()
+  } catch (e: any) {
+    alert(e?.data?.message || $t('common.error'))
+  } finally {
+    testingNotification.value = false
+  }
 }
 
 const toggleDeadlineNotifications = async () => {

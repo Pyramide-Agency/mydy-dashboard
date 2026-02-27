@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 
 class DeadlineNotify extends Command
 {
-    protected $signature   = 'deadlines:notify';
+    protected $signature   = 'deadlines:notify {--test : Send a test notification ignoring time windows}';
     protected $description = 'Send Telegram notifications for upcoming task deadlines';
 
     // Hours before deadline to send notifications
@@ -27,12 +27,47 @@ class DeadlineNotify extends Command
         $token  = Setting::get('telegram_bot_token');
         $chatId = Setting::get('telegram_chat_id');
 
-        if (!$token || !$chatId) {
-            Log::info('DeadlineNotify: bot token or chat_id not set, skipping');
+        if (!$token) {
+            Log::info('DeadlineNotify: bot token not set, skipping');
             return self::SUCCESS;
         }
 
-        $now = Carbon::now();
+        // Try to resolve chat_id from recent updates if not stored yet
+        if (!$chatId) {
+            $chatId = $this->resolveChatId($token);
+            if ($chatId) {
+                Setting::set('telegram_chat_id', $chatId);
+                Log::info('DeadlineNotify: resolved chat_id from updates', ['chat_id' => $chatId]);
+            } else {
+                Log::info('DeadlineNotify: chat_id not set and no updates found, skipping');
+                return self::SUCCESS;
+            }
+        }
+
+        $now    = Carbon::now();
+        $isTest = $this->option('test');
+
+        if ($isTest) {
+            // In test mode: send notification for all upcoming tasks regardless of window
+            $tasks = Task::where('archived', false)
+                ->whereNotNull('deadline')
+                ->where('deadline', '>', $now)
+                ->orderBy('deadline')
+                ->limit(3)
+                ->get();
+
+            if ($tasks->isEmpty()) {
+                $this->sendRaw($token, $chatId, '✅ Уведомления о дедлайнах работают! Активных дедлайнов нет.');
+                $this->line('Test notification sent (no upcoming deadlines).');
+            } else {
+                foreach ($tasks as $task) {
+                    $diffH = (int) $now->diffInHours(Carbon::parse($task->deadline), false);
+                    $this->sendNotification($token, $chatId, $task, $diffH);
+                    $this->line("Test notification sent for task #{$task->id}");
+                }
+            }
+            return self::SUCCESS;
+        }
 
         foreach (self::THRESHOLDS as $hours) {
             // Window: tasks whose deadline is within [now + Nh - 5min, now + Nh + 5min]
@@ -105,6 +140,40 @@ class DeadlineNotify extends Command
                 'error'   => $e->getMessage(),
             ]);
         }
+    }
+
+    private function sendRaw(string $token, string $chatId, string $text): void
+    {
+        try {
+            Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
+                'chat_id' => $chatId,
+                'text'    => $text,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('DeadlineNotify: sendRaw failed', ['error' => $e->getMessage()]);
+        }
+    }
+
+    private function resolveChatId(string $token): ?string
+    {
+        try {
+            $res = Http::get("https://api.telegram.org/bot{$token}/getUpdates", [
+                'limit'   => 10,
+                'timeout' => 0,
+            ]);
+            $updates = $res->json('result') ?? [];
+            foreach (array_reverse($updates) as $update) {
+                $chatId = $update['message']['chat']['id']
+                    ?? $update['callback_query']['message']['chat']['id']
+                    ?? null;
+                if ($chatId) {
+                    return (string) $chatId;
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('DeadlineNotify: getUpdates failed', ['error' => $e->getMessage()]);
+        }
+        return null;
     }
 
     private function cleanupFlags(): void

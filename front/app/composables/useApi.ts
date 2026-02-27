@@ -137,6 +137,7 @@ export const useApi = () => {
     // Settings
     getSettings: () => get('/settings'),
     updateSettings: (data: any) => put('/settings', data),
+    testDeadlineNotification: () => post('/settings/test-deadline-notification'),
 
     // Telegram
     registerTelegram: (token: string) => post('/telegram/register', { token }),

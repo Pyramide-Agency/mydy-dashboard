@@ -281,6 +281,8 @@ export default {
     deadlineNotifications: 'Deadline notifications',
     deadlineNotificationsDesc: 'Receive messages 12, 3 and 1 hour before deadline',
     notificationsRequireBot: 'Telegram bot must be connected and you must have sent it at least one message',
+    notificationsChatIdHint: 'Send the bot any message or /start — it will remember you and be able to send notifications',
+    testNotification: 'Send test',
   },
   header: {
     overviewToday: 'Today\'s overview',

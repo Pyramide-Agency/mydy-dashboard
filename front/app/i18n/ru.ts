@@ -281,6 +281,8 @@ export default {
     deadlineNotifications: 'Уведомления о дедлайнах',
     deadlineNotificationsDesc: 'Получать сообщения за 12, 3 и 1 час до дедлайна',
     notificationsRequireBot: 'Для уведомлений необходимо подключить Telegram бот и написать боту хотя бы раз',
+    notificationsChatIdHint: 'Напишите боту любое сообщение или /start — тогда он запомнит вас и сможет присылать уведомления',
+    testNotification: 'Отправить тест',
   },
   header: {
     overviewToday: 'Обзор на сегодня',

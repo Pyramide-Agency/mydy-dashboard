@@ -84,6 +84,7 @@ Route::middleware('auth.api')->group(function () {
     // Settings
     Route::get('/settings', [SettingsController::class, 'index']);
     Route::put('/settings', [SettingsController::class, 'update']);
+    Route::post('/settings/test-deadline-notification', [SettingsController::class, 'testDeadlineNotification']);
 
     // Telegram registration
     Route::post('/telegram/register', [TelegramController::class, 'register']);

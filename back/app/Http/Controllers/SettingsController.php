@@ -20,8 +20,9 @@ class SettingsController extends Controller
         $settings['groq_api_key_set'] = (bool) Setting::get('groq_api_key');
         $settings['jina_api_key_set'] = (bool) Setting::get('jina_api_key');
 
-        // Indicate whether Telegram is connected
+        // Indicate whether Telegram is connected and chat_id is known
         $settings['telegram_connected'] = (bool) Setting::get('telegram_bot_token');
+        $settings['telegram_chat_ready'] = (bool) Setting::get('telegram_chat_id');
 
         return $this->success($settings->toArray());
     }
@@ -61,5 +62,23 @@ class SettingsController extends Controller
         }
 
         return $this->success(message: 'Настройки сохранены');
+    }
+
+    public function testDeadlineNotification(): JsonResponse
+    {
+        $token  = Setting::get('telegram_bot_token');
+        $chatId = Setting::get('telegram_chat_id');
+
+        if (!$token) {
+            return $this->error('Telegram бот не подключён', 422);
+        }
+
+        if (!$chatId) {
+            return $this->error('Напишите боту любое сообщение (например /start), чтобы он запомнил ваш chat_id', 422);
+        }
+
+        \Artisan::call('deadlines:notify', ['--test' => true]);
+
+        return $this->success(message: 'Тестовое уведомление отправлено');
     }
 }
