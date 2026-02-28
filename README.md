@@ -215,3 +215,25 @@ docker compose up --build
 ├── docker-compose.yml  For local development
 └── start.sh            Dev server launcher
 ```
+
+---
+
+## License
+
+This project is licensed under **CC BY-NC-SA 4.0** (Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International) as the legal foundation, with additional commercial terms defined in [LICENSE](./LICENSE).
+
+| Use case | Allowed |
+|---|---|
+| Personal / non-commercial use | ✅ Free — attribution required |
+| Forks & derivative works | ✅ Must be open-sourced under the same license |
+| Commercial use | 💼 Requires a paid license — [contact the author](#) |
+| Claiming as your own work | ❌ Prohibited |
+| Removing attribution | ❌ Prohibited |
+
+**Attribution requirement:** Any public deployment, fork, or publication must include a visible link to the original repository:
+
+> [https://github.com/Pyramide-Agency/mydy-dashboard](https://github.com/Pyramide-Agency/mydy-dashboard)
+
+For commercial licensing inquiries, open an issue or contact via GitHub: [@Pyramide-Agency](https://github.com/Pyramide-Agency)
+
+> Full terms: [LICENSE](./LICENSE) · [CODE\_OF\_CONDUCT.md](./CODE_OF_CONDUCT.md)

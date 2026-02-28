@@ -1,88 +1,51 @@
-MYDY Dashboard Source Available License (MDSAL) v1.0
+MYDY Dashboard — License
 Copyright (c) 2024 Pyramide Agency
 https://github.com/Pyramide-Agency/mydy-dashboard
 
 ================================================================================
 
-DEFINITIONS
+BASE LICENSE: Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+              International (CC BY-NC-SA 4.0)
 
-"Software" refers to the MYDY Dashboard source code, assets, and all associated
-files in this repository.
+This project is licensed under CC BY-NC-SA 4.0 as the legal foundation.
+Full license text: https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 
-"Original Repository" refers to:
-https://github.com/Pyramide-Agency/mydy-dashboard
-
-"Author" refers to Pyramide Agency and the original copyright holder(s).
-
-"Personal Use" means use by an individual for non-commercial, private purposes
-that do not generate revenue or serve a business function.
-
-"Commercial Use" means any use of the Software, in whole or in part, that
-directly or indirectly generates revenue, is used within a commercial product
-or service, deployed for a business, or is used in a professional/paid context.
-
-"Derivative Work" means any modification, fork, adaptation, or project that
-is substantially based on or includes portions of the Software.
+CC BY-NC-SA 4.0 summary:
+  - BY  — You must give appropriate credit and link to the original repository
+  - NC  — Non-commercial use only under this license
+  - SA  — Derivative works must be distributed under the same license
 
 ================================================================================
 
-GRANT OF LICENSE — PERSONAL & NON-COMMERCIAL USE
+ADDITIONAL TERMS — COMMERCIAL USE
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this Software for personal and non-commercial use, subject to the following
-conditions:
+Commercial use (any use that directly or indirectly generates revenue, serves
+a business purpose, or is deployed in a commercial product or service) is NOT
+covered by CC BY-NC-SA 4.0 and requires a separate commercial license.
 
-  1. ATTRIBUTION REQUIRED
-     Any public distribution, deployment, publication, or sharing of the
-     Software or a Derivative Work must include a clear and visible reference
-     to the Original Repository:
+To obtain a commercial license:
+  → Open an issue: https://github.com/Pyramide-Agency/mydy-dashboard/issues
+  → Or contact via GitHub: https://github.com/Pyramide-Agency
 
-       https://github.com/Pyramide-Agency/mydy-dashboard
-
-     Attribution must appear in the README, project description, or any
-     public-facing documentation. It must not be hidden, buried, or obscured.
-
-  2. NO MISREPRESENTATION
-     You may not present the Software or any Derivative Work as your own
-     original creation. The origin of the Software must not be misrepresented.
-     You must not remove or alter this license notice or copyright headers.
-
-  3. SHARE-ALIKE (COPYLEFT)
-     Any Derivative Work that is publicly distributed or published must be
-     released under this same license (MDSAL v1.0) and must include a link
-     to the Original Repository. You may not apply a more restrictive license
-     to a Derivative Work, nor may you sublicense the Software.
+A commercial license grants the right to use the Software in a commercial
+context. Licensed copies may be owned and maintained by the licensee, but
+copyright and authorship of the original Software remain with Pyramide Agency.
 
 ================================================================================
 
-COMMERCIAL USE — SEPARATE LICENSE REQUIRED
+ATTRIBUTION REQUIREMENT (applies to all use)
 
-Commercial Use of the Software is NOT permitted under this license.
+Any public distribution, publication, deployment, or fork of this Software
+must include a clear and visible reference to the original repository:
 
-To obtain a commercial license, you must contact the Author directly:
+  https://github.com/Pyramide-Agency/mydy-dashboard
 
-  GitHub:   https://github.com/Pyramide-Agency
-  Issues:   https://github.com/Pyramide-Agency/mydy-dashboard/issues
+Attribution must appear in the README, project description, or equivalent
+public-facing documentation. Removing or obscuring this attribution is
+prohibited under all circumstances.
 
-A commercial license grants the licensee the right to use a copy of the
-Software within their product or service. The licensed copy remains the
-intellectual property of the licensee for their specific deployment, but
-the original Software and all copyright remain with the Author.
-
-Commercial licenses are issued per-project and require a one-time fee
-agreed upon with the Author.
-
-================================================================================
-
-PROHIBITED IN ALL CASES
-
-Regardless of license type, the following are strictly prohibited:
-
-  - Selling the Software itself as a standalone product without explicit
-    written permission from the Author
-  - Removing copyright notices, license headers, or attribution requirements
-  - Claiming authorship or original ownership of the Software
-  - Redistributing the Software under a different license
+You may not present this Software or any derivative of it as your own original
+work.
 
 ================================================================================
 
