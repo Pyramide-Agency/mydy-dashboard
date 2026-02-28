@@ -20,6 +20,8 @@
   <img src="https://img.shields.io/badge/pgvector-AI_Memory-FF6B35?style=flat-square" />
   <img src="https://img.shields.io/badge/Telegram_Bot_+_TMA-2CA5E0?style=flat-square&logo=telegram&logoColor=white" />
   <img src="https://img.shields.io/badge/i18n-EN_%2F_RU-4CAF50?style=flat-square" />
+  <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey?style=flat-square" /></a>
+  <a href="https://github.com/odilovicc"><img src="https://img.shields.io/badge/author-%40odilovicc-black?style=flat-square&logo=github" /></a>
 </p>
 
 ---
@@ -234,6 +236,6 @@ This project is licensed under **CC BY-NC-SA 4.0** (Creative Commons Attribution
 
 > [https://github.com/Pyramide-Agency/mydy-dashboard](https://github.com/Pyramide-Agency/mydy-dashboard)
 
-For commercial licensing inquiries, open an issue or contact via GitHub: [@Pyramide-Agency](https://github.com/Pyramide-Agency)
+For commercial licensing inquiries, open an issue or contact the author: [@odilovicc](https://github.com/odilovicc)
 
 > Full terms: [LICENSE](./LICENSE) · [CODE\_OF\_CONDUCT.md](./CODE_OF_CONDUCT.md)

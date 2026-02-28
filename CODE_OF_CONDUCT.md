@@ -45,7 +45,8 @@ Harassment, hate speech, or bad-faith behavior of any kind will not be tolerated
 ## Reporting Issues
 
 If you see this project being used without proper attribution, or if someone is violating this policy, please open an issue or contact the maintainer directly via GitHub:
-**https://github.com/Pyramide-Agency/mydy-dashboard/issues**
+- Issues: **https://github.com/Pyramide-Agency/mydy-dashboard/issues**
+- Author: **[@odilovicc](https://github.com/odilovicc)**
 
 ---
 
@@ -60,4 +61,4 @@ See [LICENSE](./LICENSE) for full terms.
 
 ---
 
-*Maintained by [Pyramide Agency](https://github.com/Pyramide-Agency)*
+*Maintained by [@odilovicc](https://github.com/odilovicc)*
