@@ -3,7 +3,7 @@
     <!-- Page content -->
     <main
       class="flex-1 overflow-y-auto"
-      style="padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));"
+      style="padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px));"
     >
       <Transition name="page" mode="out-in">
         <div :key="route.path">
@@ -15,18 +15,17 @@
     <!-- Bottom navigation -->
     <nav
       class="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 flex items-stretch"
-      style="padding-bottom: env(safe-area-inset-bottom, 0px); height: calc(60px + env(safe-area-inset-bottom, 0px));"
+      style="padding-bottom: env(safe-area-inset-bottom, 0px); height: calc(52px + env(safe-area-inset-bottom, 0px));"
     >
       <NuxtLink
         v-for="tab in tabs"
         :key="tab.to"
         :to="tab.to"
-        class="flex-1 flex flex-col items-center justify-center gap-0.5 transition-colors"
-        :class="isActiveTab(tab.to) ? 'text-primary' : 'text-muted-foreground hover:text-foreground'"
+        class="flex-1 flex items-center justify-center transition-colors"
+        :class="isActiveTab(tab.to) ? 'text-primary' : 'text-muted-foreground'"
         @click="hapticFeedback('selection')"
       >
-        <component :is="tab.icon" class="w-4 h-4" />
-        <span class="text-[9px] font-medium">{{ tab.label }}</span>
+        <component :is="tab.icon" class="w-5 h-5" />
       </NuxtLink>
     </nav>
 
@@ -39,17 +38,16 @@ import { LayoutDashboard, LayoutList, Wallet, Bot, Settings, BriefcaseBusiness, 
 
 const route = useRoute()
 const { hapticFeedback } = useTelegram()
-const { $t } = useLocale()
 
-const tabs = computed(() => [
-  { to: '/tma/',         label: $t('sidebar.dashboard'), icon: LayoutDashboard  },
-  { to: '/tma/kanban',   label: $t('sidebar.tasks'),     icon: LayoutList       },
-  { to: '/tma/finance',  label: $t('sidebar.finance'),   icon: Wallet           },
-  { to: '/tma/work',     label: $t('sidebar.work'),      icon: BriefcaseBusiness },
-  { to: '/tma/lms',      label: $t('sidebar.lms'),       icon: GraduationCap    },
-  { to: '/tma/ai',       label: $t('sidebar.aiChat'),    icon: Bot              },
-  { to: '/tma/settings', label: $t('sidebar.settings'),  icon: Settings         },
-])
+const tabs = [
+  { to: '/tma/',         icon: LayoutDashboard  },
+  { to: '/tma/kanban',   icon: LayoutList       },
+  { to: '/tma/finance',  icon: Wallet           },
+  { to: '/tma/work',     icon: BriefcaseBusiness },
+  { to: '/tma/lms',      icon: GraduationCap    },
+  { to: '/tma/ai',       icon: Bot              },
+  { to: '/tma/settings', icon: Settings         },
+]
 
 const isActiveTab = (to: string) => {
   const path = route.path
