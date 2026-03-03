@@ -23,7 +23,7 @@
           <p class="text-xs text-muted-foreground mt-0.5">{{ data.course.course_code }}</p>
           <p v-if="data.course.instructor" class="text-xs text-muted-foreground mt-1">{{ data.course.instructor }}</p>
         </div>
-        <div v-if="data.course.grade" class="text-right shrink-0">
+        <div v-if="data.course.grade?.current_score != null" class="text-right shrink-0">
           <p class="text-2xl font-bold" :style="{ color: data.course.color }">
             {{ data.course.grade.current_score }}%
           </p>

@@ -101,7 +101,7 @@
               <p class="text-sm font-medium text-foreground truncate">{{ course.name }}</p>
               <p class="text-xs text-muted-foreground truncate">{{ course.course_code }}</p>
             </div>
-            <div v-if="course.grade" class="text-right shrink-0">
+            <div v-if="course.grade?.current_score != null" class="text-right shrink-0">
               <p class="text-sm font-bold" :style="{ color: course.color || '#6366f1' }">{{ course.grade.current_score }}%</p>
               <p v-if="course.grade.current_grade" class="text-xs text-muted-foreground">{{ course.grade.current_grade }}</p>
             </div>

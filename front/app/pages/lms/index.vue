@@ -134,7 +134,7 @@
               {{ course.name }}
             </p>
             <p class="text-xs text-muted-foreground mt-0.5 truncate">{{ course.course_code }}</p>
-            <div v-if="course.grade" class="mt-2 flex items-center gap-1.5">
+            <div v-if="course.grade?.current_score != null" class="mt-2 flex items-center gap-1.5">
               <span class="text-xs text-muted-foreground">{{ $t('lms.score') }}:</span>
               <span class="text-xs font-semibold text-indigo-600">{{ course.grade.current_score }}%</span>
               <span v-if="course.grade.current_grade" class="text-xs text-muted-foreground">({{ course.grade.current_grade }})</span>

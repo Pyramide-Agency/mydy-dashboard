@@ -324,17 +324,17 @@ class CanvasService
         }
 
         $enrollment = $data[0] ?? null;
-        if (!$enrollment || !isset($enrollment['grades'])) {
-            // Try fetching course grades directly
+        $grades     = $enrollment['grades'] ?? null;
+
+        // Canvas returns grades object but without scores unless institution exposes them
+        if (!$grades || !isset($grades['current_score'])) {
             return $this->syncGradesDirect($course);
         }
-
-        $grades = $enrollment['grades'];
 
         LmsGrade::updateOrCreate(
             ['course_id' => $course->id],
             [
-                'current_score'  => $grades['current_score'] ?? null,
+                'current_score'  => $grades['current_score'],
                 'final_score'    => $grades['final_score'] ?? null,
                 'current_grade'  => $grades['current_grade'] ?? null,
                 'final_grade'    => $grades['final_grade'] ?? null,
