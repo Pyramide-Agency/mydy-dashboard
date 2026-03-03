@@ -385,5 +385,7 @@ export default {
     noShifts: 'No shifts for this period',
     shiftHistory: 'Shift history',
     now: 'now',
+    lmsDeadlines: 'Deadlines',
+    lmsCourses: 'My Courses',
   },
 }

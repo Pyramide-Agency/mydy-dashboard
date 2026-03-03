@@ -385,5 +385,7 @@ export default {
     noShifts: 'Нет смен за этот период',
     shiftHistory: 'История смен',
     now: 'сейчас',
+    lmsDeadlines: 'Дедлайны',
+    lmsCourses: 'Мои курсы',
   },
 }

@@ -35,7 +35,7 @@
 </template>
 
 <script setup lang="ts">
-import { LayoutDashboard, LayoutList, Wallet, Bot, Settings, BriefcaseBusiness } from 'lucide-vue-next'
+import { LayoutDashboard, LayoutList, Wallet, Bot, Settings, BriefcaseBusiness, GraduationCap } from 'lucide-vue-next'
 
 const route = useRoute()
 const { hapticFeedback } = useTelegram()
@@ -46,6 +46,7 @@ const tabs = computed(() => [
   { to: '/tma/kanban',   label: $t('sidebar.tasks'),     icon: LayoutList       },
   { to: '/tma/finance',  label: $t('sidebar.finance'),   icon: Wallet           },
   { to: '/tma/work',     label: $t('sidebar.work'),      icon: BriefcaseBusiness },
+  { to: '/tma/lms',      label: $t('sidebar.lms'),       icon: GraduationCap    },
   { to: '/tma/ai',       label: $t('sidebar.aiChat'),    icon: Bot              },
   { to: '/tma/settings', label: $t('sidebar.settings'),  icon: Settings         },
 ])
