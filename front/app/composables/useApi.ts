@@ -155,6 +155,20 @@ export const useApi = () => {
     regenerateWorkKey:   () => post('/work/webhook-key/regenerate'),
     revokeWorkWebhook:   () => del('/work/webhook'),
 
+    // LMS (Canvas)
+    getLmsStatus:              () => get('/lms/status'),
+    lmsSync:                   () => request('/lms/sync', { method: 'POST' }, { success: true, error: true }),
+    getLmsCourses:             () => get('/lms/courses'),
+    getLmsCourse:              (id: number) => get(`/lms/courses/${id}`),
+    updateLmsCourse:           (id: number, data: any) => request(`/lms/courses/${id}`, { method: 'PATCH', body: data }, { success: true, error: true }),
+    getLmsCourseTimeline:      (id: number) => get(`/lms/courses/${id}/timeline`),
+    getLmsAssignments:         (params?: any) => get('/lms/assignments', params),
+    getLmsDeadlines:           (period?: string) => get('/lms/deadlines', period ? { period } : undefined),
+    getLmsCalendar:            (month?: number, year?: number) => get('/lms/calendar', { month, year }),
+    getLmsGrades:              () => get('/lms/grades'),
+    getLmsAnnouncements:       (params?: any) => get('/lms/announcements', params),
+    markAnnouncementRead:      (id: number) => request(`/lms/announcements/${id}/read`, { method: 'PATCH' }, { error: true }),
+
     // Raw base URL for streaming
     baseUrl: base,
     getHeaders: headers,

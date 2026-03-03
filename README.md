@@ -9,7 +9,7 @@
 <h1 align="center">MYDY DASHBOARD</h1>
 
 <p align="center">
-  A personal dashboard with Kanban board, expense tracker, AI financial advisor, and Telegram Mini App.
+  A personal dashboard with Kanban board, expense tracker, AI financial advisor, Canvas LMS integration, and Telegram Mini App.
 </p>
 
 <p align="center">
@@ -18,6 +18,7 @@
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
   <img src="https://img.shields.io/badge/Claude_API-Anthropic-6B46C1?style=flat-square&logo=anthropic&logoColor=white" />
   <img src="https://img.shields.io/badge/pgvector-AI_Memory-FF6B35?style=flat-square" />
+  <img src="https://img.shields.io/badge/Canvas_LMS-Integration-E66000?style=flat-square" />
   <img src="https://img.shields.io/badge/Telegram_Bot_+_TMA-2CA5E0?style=flat-square&logo=telegram&logoColor=white" />
   <img src="https://img.shields.io/badge/i18n-EN_%2F_RU-4CAF50?style=flat-square" />
   <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey?style=flat-square" /></a>
@@ -29,7 +30,7 @@
 ## Features
 
 ### Dashboard
-The home page gives you a bird's-eye view of everything at once — active tasks, completed tasks, today's and monthly spending — plus a quick expense form and a recent transactions panel.
+The home page gives you a bird's-eye view of everything at once — active tasks, today's and monthly spending — plus a quick expense form and a recent transactions panel. If Canvas LMS is configured, an upcoming deadlines widget appears automatically.
 
 ### Kanban Board
 Full-featured task management with multiple boards, custom columns, and drag-and-drop. Completed tasks can be archived in bulk and restored at any time.
@@ -46,6 +47,26 @@ Supported models:
 - **Anthropic** — Claude Sonnet 4.6, Haiku 4.5, Opus 4.6
 - **OpenAI** — GPT-4o, GPT-4o Mini, GPT-3.5 Turbo
 - **Groq** — Llama 3.3 70B, Llama 3.1 8B, Mixtral 8x7B, Gemma 2 9B
+
+### Canvas LMS Integration
+Full integration with Canvas LMS (Instructure). Connect once with your API key and the dashboard syncs all your academic data automatically.
+
+**Deadlines** — view upcoming assignments and quizzes filtered by period (tomorrow / this week / this month). Each item shows submission status (graded, submitted, missing, late), points, and a direct link to Canvas.
+
+**Courses** — browse active courses with current grade/score. Each course has a dedicated page with three tabs:
+- **Timeline** — chronological view of all assignments and calendar events
+- **Assignments** — full assignment list with submission status and due dates
+- **Announcements** — course announcements with mark-as-read support
+
+**Assignments** — global assignments view across all courses, filterable by status (upcoming / past / all) and by course.
+
+**Calendar** — monthly calendar grid with color-coded events from all courses. Navigate months, click events to see details, and browse the full event list below the grid.
+
+**Grades & GPA** — current and final scores per course, displayed on the course card and course page.
+
+**Telegram notifications** — get notified 24h, 3h, and 1h before each deadline (configurable in Settings).
+
+Data is cached in PostgreSQL and refreshed on demand via a sync button. Supports manual array param encoding for Canvas API compatibility.
 
 ### Telegram Bot
 Add expenses in seconds by texting the bot. Natural language input is parsed by AI — it extracts amount, category, and date automatically. Inline keyboard buttons let you confirm or edit before saving.
@@ -87,6 +108,7 @@ Implementation: lightweight custom `useLocale` composable (no external library),
 - Currency code and symbol
 - AI provider and model selection
 - API keys: Anthropic, OpenAI, Groq, Jina
+- **Canvas LMS** — domain, API key, LMS enable toggle, deadline notification toggle
 - Finance categories (CRUD with custom colors)
 - Telegram bot token and webhook registration
 - Work tracker iOS Shortcut webhook (generate / regenerate)
@@ -208,7 +230,21 @@ docker compose up --build
 
 ```
 ├── back/               Laravel 11 API
+│   ├── app/
+│   │   ├── Http/Controllers/   LmsController, AiController, WorkController, ...
+│   │   ├── Models/             LmsCourse, LmsAssignment, LmsGrade, ...
+│   │   ├── Services/           CanvasService, MemoryService, ...
+│   │   └── Console/Commands/   LmsDeadlineNotify, ...
+│   └── database/migrations/
 ├── front/              Nuxt 4 SPA (shadcn-vue, Tailwind v3)
+│   └── app/
+│       ├── pages/
+│       │   ├── lms/            index, assignments, calendar, course/[id]
+│       │   ├── work/
+│       │   ├── finance/
+│       │   └── ...
+│       ├── composables/        useApi, useAuth, useLocale
+│       └── i18n/               en.ts, ru.ts
 ├── docker/
 │   ├── entrypoint.sh
 │   ├── nginx.conf

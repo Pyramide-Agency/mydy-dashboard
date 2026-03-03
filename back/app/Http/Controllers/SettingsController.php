@@ -11,14 +11,15 @@ class SettingsController extends Controller
 {
     public function index(): JsonResponse
     {
-        $settings = Setting::whereNotIn('key', ['app_password', 'api_token', 'ai_api_key', 'groq_api_key', 'jina_api_key'])
+        $settings = Setting::whereNotIn('key', ['app_password', 'api_token', 'ai_api_key', 'groq_api_key', 'jina_api_key', 'canvas_api_key'])
             ->get()
             ->pluck('value', 'key');
 
         // Indicate whether keys are stored without exposing them
-        $settings['ai_api_key_set']   = (bool) Setting::get('ai_api_key');
-        $settings['groq_api_key_set'] = (bool) Setting::get('groq_api_key');
-        $settings['jina_api_key_set'] = (bool) Setting::get('jina_api_key');
+        $settings['ai_api_key_set']     = (bool) Setting::get('ai_api_key');
+        $settings['groq_api_key_set']   = (bool) Setting::get('groq_api_key');
+        $settings['jina_api_key_set']   = (bool) Setting::get('jina_api_key');
+        $settings['canvas_api_key_set'] = (bool) Setting::get('canvas_api_key');
 
         // Indicate whether Telegram is connected and chat_id is known
         $settings['telegram_connected'] = (bool) Setting::get('telegram_bot_token');
@@ -30,27 +31,40 @@ class SettingsController extends Controller
     public function update(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'currency'                => 'sometimes|string|max:10',
-            'currency_symbol'         => 'sometimes|string|max:5',
-            'new_password'            => 'sometimes|string|min:4',
-            'initial_balance'         => 'sometimes|numeric|min:0',
-            'ai_provider'             => 'sometimes|string|in:anthropic,openai,groq',
-            'ai_api_key'              => 'sometimes|string|max:500',
-            'ai_model'                => 'sometimes|string|max:100',
-            'groq_api_key'            => 'sometimes|string|max:500',
-            'jina_api_key'            => 'sometimes|string|max:500',
-            'deadline_notifications'  => 'sometimes|boolean',
-            'user_timezone'           => 'sometimes|string|max:60',
+            'currency'                    => 'sometimes|string|max:10',
+            'currency_symbol'             => 'sometimes|string|max:5',
+            'new_password'                => 'sometimes|string|min:4',
+            'initial_balance'             => 'sometimes|numeric|min:0',
+            'ai_provider'                 => 'sometimes|string|in:anthropic,openai,groq',
+            'ai_api_key'                  => 'sometimes|string|max:500',
+            'ai_model'                    => 'sometimes|string|max:100',
+            'groq_api_key'                => 'sometimes|string|max:500',
+            'jina_api_key'                => 'sometimes|string|max:500',
+            'deadline_notifications'      => 'sometimes|boolean',
+            'user_timezone'               => 'sometimes|string|max:60',
+            'canvas_api_key'              => 'sometimes|string|max:500',
+            'canvas_domain'               => 'sometimes|string|max:200',
+            'lms_enabled'                 => 'sometimes|boolean',
+            'lms_deadline_notifications'  => 'sometimes|boolean',
         ]);
 
         foreach ([
             'currency', 'currency_symbol', 'initial_balance',
             'ai_provider', 'ai_api_key', 'ai_model',
             'groq_api_key', 'jina_api_key',
+            'canvas_api_key', 'canvas_domain',
         ] as $key) {
             if (isset($data[$key])) {
                 Setting::set($key, $data[$key]);
             }
+        }
+
+        if (isset($data['lms_enabled'])) {
+            Setting::set('lms_enabled', $data['lms_enabled'] ? '1' : '0');
+        }
+
+        if (isset($data['lms_deadline_notifications'])) {
+            Setting::set('lms_deadline_notifications', $data['lms_deadline_notifications'] ? '1' : '0');
         }
 
         if (isset($data['deadline_notifications'])) {

@@ -58,6 +58,42 @@
       </div>
     </div>
 
+    <!-- LMS widget (only if configured) -->
+    <div v-if="lmsConfigured" class="bg-white rounded-xl shadow-sm border border-border overflow-hidden animate-slide-up delay-200">
+      <div class="px-5 py-4 border-b border-border flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <GraduationCap class="w-4 h-4 text-indigo-500" />
+          <h2 class="text-sm font-semibold text-foreground">{{ $t('lms.deadlines') }}</h2>
+        </div>
+        <NuxtLink to="/lms" class="text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-1">
+          {{ $t('common.all') }}
+          <ArrowRight class="w-3 h-3" />
+        </NuxtLink>
+      </div>
+      <div v-if="lmsLoading" class="p-4 space-y-2">
+        <div v-for="i in 3" :key="i" class="h-10 bg-muted rounded animate-pulse" />
+      </div>
+      <div v-else-if="!lmsDeadlines.length" class="flex items-center justify-center py-8 text-muted-foreground text-sm">
+        {{ $t('lms.noDeadlines') }}
+      </div>
+      <div v-else class="divide-y divide-border">
+        <div
+          v-for="item in lmsDeadlines.slice(0, 5)"
+          :key="item.id"
+          class="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors"
+        >
+          <div class="w-1.5 h-1.5 rounded-full shrink-0" :style="{ backgroundColor: item.course?.color || '#6366f1' }" />
+          <div class="flex-1 min-w-0">
+            <p class="text-sm text-foreground truncate">{{ item.name }}</p>
+            <p class="text-xs text-muted-foreground truncate">{{ item.course?.name }}</p>
+          </div>
+          <span class="text-xs shrink-0" :class="urgencyClass(item.due_at)">
+            {{ formatDue(item.due_at) }}
+          </span>
+        </div>
+      </div>
+    </div>
+
     <!-- Quick add + Recent -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 animate-slide-up delay-225">
       <!-- Quick add expense -->
@@ -129,12 +165,14 @@
 </template>
 
 <script setup lang="ts">
-import { Wallet, TrendingUp, LayoutList, Plus, Clock, ArrowRight, Receipt } from 'lucide-vue-next'
+import { Wallet, TrendingUp, LayoutList, Plus, Clock, ArrowRight, Receipt, GraduationCap } from 'lucide-vue-next'
+import { formatDistanceToNow, parseISO } from 'date-fns'
+import { ru, enUS } from 'date-fns/locale'
 
 definePageMeta({ middleware: 'auth' })
 
 const api      = useApi()
-const { $t, plural } = useLocale()
+const { $t, plural, locale } = useLocale()
 const loading = ref(true)
 
 const stats = reactive({
@@ -146,8 +184,12 @@ const stats = reactive({
   monthCount:    0,
 })
 
-const recentEntries = ref<any[]>([])
-const currency      = ref('$')
+const recentEntries  = ref<any[]>([])
+const currency       = ref('$')
+const lmsConfigured  = ref(false)
+const lmsDeadlines   = ref<any[]>([])
+const lmsLoading     = ref(false)
+const dfns           = computed(() => locale.value === 'ru' ? ru : enUS)
 
 const formatMoney = (value: any) => {
   if (value === null || value === undefined || value === '') return '0.00'
@@ -185,12 +227,36 @@ onMounted(async () => {
     stats.monthCount    = (monthSummary as any).count
     recentEntries.value = (entries as any).data || []
     currency.value      = (settings as any).currency_symbol || '$'
+
+    // LMS widget
+    if ((settings as any).lms_enabled === '1' && (settings as any).canvas_api_key_set) {
+      lmsConfigured.value = true
+      lmsLoading.value    = true
+      api.getLmsDeadlines('week').then(data => {
+        lmsDeadlines.value = (data as any[]).slice(0, 5)
+      }).catch(() => {}).finally(() => { lmsLoading.value = false })
+    }
   } catch (e) {
     console.error(e)
   } finally {
     loading.value = false
   }
 })
+
+const urgencyClass = (dueAt: string) => {
+  if (!dueAt) return 'text-muted-foreground'
+  const hours = (new Date(dueAt).getTime() - Date.now()) / 3600000
+  if (hours < 3)  return 'text-red-500'
+  if (hours < 24) return 'text-orange-500'
+  if (hours < 72) return 'text-amber-500'
+  return 'text-muted-foreground'
+}
+
+const formatDue = (dueAt: string) => {
+  if (!dueAt) return ''
+  try { return formatDistanceToNow(parseISO(dueAt), { addSuffix: true, locale: dfns.value }) }
+  catch { return '' }
+}
 
 const onExpenseAdded = async () => {
   const [entries, summary] = await Promise.all([

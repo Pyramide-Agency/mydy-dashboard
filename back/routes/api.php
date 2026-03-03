@@ -7,6 +7,7 @@ use App\Http\Controllers\ColumnController;
 use App\Http\Controllers\FinanceCategoryController;
 use App\Http\Controllers\FinanceEntryController;
 use App\Http\Controllers\FinanceSummaryController;
+use App\Http\Controllers\LmsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TelegramController;
@@ -88,6 +89,20 @@ Route::middleware('auth.api')->group(function () {
 
     // Telegram registration
     Route::post('/telegram/register', [TelegramController::class, 'register']);
+
+    // LMS (Canvas)
+    Route::get('/lms/status',                           [LmsController::class, 'status']);
+    Route::post('/lms/sync',                            [LmsController::class, 'sync']);
+    Route::get('/lms/courses',                          [LmsController::class, 'courses']);
+    Route::get('/lms/courses/{course}',                 [LmsController::class, 'course']);
+    Route::patch('/lms/courses/{course}',               [LmsController::class, 'updateCourse']);
+    Route::get('/lms/courses/{course}/timeline',        [LmsController::class, 'courseTimeline']);
+    Route::get('/lms/assignments',                      [LmsController::class, 'assignments']);
+    Route::get('/lms/deadlines',                        [LmsController::class, 'deadlines']);
+    Route::get('/lms/calendar',                         [LmsController::class, 'calendar']);
+    Route::get('/lms/grades',                           [LmsController::class, 'grades']);
+    Route::get('/lms/announcements',                    [LmsController::class, 'announcements']);
+    Route::patch('/lms/announcements/{announcement}/read', [LmsController::class, 'markAnnouncementRead']);
 
     // Work tracker
     Route::get('/work/status',                  [WorkController::class, 'status']);

@@ -106,6 +106,53 @@
         </div>
       </div>
 
+      <!-- LMS (with submenu) -->
+      <div>
+        <button
+          class="nav-item w-full"
+          :class="isSection('/lms') ? 'nav-item--active' : 'nav-item--default'"
+          @click="toggle('lms')"
+        >
+          <GraduationCap class="nav-icon" />
+          <span class="flex-1 text-left">{{ $t('sidebar.lms') }}</span>
+          <ChevronRight
+            class="w-3.5 h-3.5 transition-transform duration-200 shrink-0"
+            :class="open.lms ? 'rotate-90' : ''"
+          />
+        </button>
+
+        <div class="submenu-wrap" :class="{ 'submenu-wrap--open': open.lms }">
+          <div class="submenu-inner">
+            <div class="ml-3 mt-0.5 pl-3 border-l border-slate-700/60 space-y-0.5 pb-1">
+              <NuxtLink
+                to="/lms"
+                class="sub-item"
+                :class="route.path === '/lms' ? 'sub-item--active' : 'sub-item--default'"
+              >
+                <AlarmClock class="w-3.5 h-3.5 shrink-0" />
+                {{ $t('sidebar.deadlines') }}
+              </NuxtLink>
+              <NuxtLink
+                to="/lms/assignments"
+                class="sub-item"
+                :class="route.path === '/lms/assignments' ? 'sub-item--active' : 'sub-item--default'"
+              >
+                <ClipboardList class="w-3.5 h-3.5 shrink-0" />
+                {{ $t('sidebar.assignments') }}
+              </NuxtLink>
+              <NuxtLink
+                to="/lms/calendar"
+                class="sub-item"
+                :class="route.path === '/lms/calendar' ? 'sub-item--active' : 'sub-item--default'"
+              >
+                <Calendar class="w-3.5 h-3.5 shrink-0" />
+                {{ $t('sidebar.calendar') }}
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Работа (flat link) -->
       <NuxtLink
         to="/work"
@@ -166,6 +213,10 @@ import {
   CalendarCheck,
   PlusCircle,
   History,
+  GraduationCap,
+  AlarmClock,
+  ClipboardList,
+  Calendar,
 } from 'lucide-vue-next'
 
 const route      = useRoute()
@@ -173,7 +224,7 @@ const { logout } = useAuth()
 const { $t }    = useLocale()
 
 // Which submenu is open
-const open = reactive({ tasks: false, finance: false })
+const open = reactive({ tasks: false, finance: false, lms: false })
 
 // Auto-open section based on current route
 watch(
@@ -181,11 +232,12 @@ watch(
   (path) => {
     if (path.startsWith('/kanban'))  open.tasks   = true
     if (path.startsWith('/finance')) open.finance = true
+    if (path.startsWith('/lms'))     open.lms     = true
   },
   { immediate: true },
 )
 
-const toggle = (key: 'tasks' | 'finance') => {
+const toggle = (key: 'tasks' | 'finance' | 'lms') => {
   open[key] = !open[key]
 }
 

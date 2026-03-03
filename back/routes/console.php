@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Check deadlines every 5 minutes for timely notifications (1h/3h/12h windows)
 Schedule::command('deadlines:notify')->everyFiveMinutes();
+
+// Check LMS deadlines every 5 minutes (1h/3h/24h windows)
+Schedule::command('lms:deadline-notify')->everyFiveMinutes();

@@ -1,5 +1,17 @@
 <template>
   <div class="max-w-2xl space-y-6">
+
+    <!-- Skeleton shown until settings are loaded -->
+    <template v-if="initializing">
+      <div v-for="i in 5" :key="i" class="rounded-xl border border-border p-6 space-y-3">
+        <div class="h-4 bg-muted rounded w-40 animate-pulse" />
+        <div class="h-3 bg-muted rounded w-64 animate-pulse" />
+        <div class="h-9 bg-muted rounded animate-pulse" />
+      </div>
+    </template>
+
+    <template v-else>
+
     <!-- Language settings -->
     <Card>
       <CardHeader>
@@ -292,6 +304,80 @@
       </CardContent>
     </Card>
 
+    <!-- LMS (Canvas) -->
+    <Card>
+      <CardHeader>
+        <div class="flex items-center justify-between">
+          <div>
+            <CardTitle class="text-base flex items-center gap-2">
+              <GraduationCap class="w-4 h-4" />
+              {{ $t('settings.lmsSection') }}
+            </CardTitle>
+            <CardDescription class="mt-1">{{ $t('settings.lmsSectionDesc') }}</CardDescription>
+          </div>
+          <Switch
+            :model-value="lmsEnabled"
+            :disabled="savingLms"
+            @update:model-value="toggleLms"
+          />
+        </div>
+      </CardHeader>
+
+      <CardContent v-if="lmsEnabled" class="space-y-4 pt-0">
+        <!-- Domain -->
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.canvasDomain') }}</label>
+          <Input
+            v-model="lmsForm.domain"
+            type="url"
+            :placeholder="$t('settings.canvasDomainPlaceholder')"
+          />
+        </div>
+
+        <!-- API Key -->
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">
+            {{ $t('settings.canvasApiKey') }}
+            <span v-if="canvasApiKeySet" class="text-xs text-green-500 font-normal ml-1">● {{ $t('settings.canvasApiKeySet') }}</span>
+          </label>
+          <Input
+            v-model="lmsForm.apiKey"
+            type="password"
+            :placeholder="canvasApiKeySet ? `●●●●●●●● (${$t('settings.canvasApiKeySet')})` : 'Canvas Access Token'"
+          />
+        </div>
+
+        <!-- Guide -->
+        <div class="bg-muted/50 rounded-lg p-3 text-sm space-y-1">
+          <p class="font-medium">{{ $t('settings.canvasApiKeyGuide') }}</p>
+          <ol class="text-muted-foreground space-y-1 list-decimal list-inside text-xs">
+            <li>{{ $t('settings.canvasApiKeyStep1') }}</li>
+            <li>{{ $t('settings.canvasApiKeyStep2') }}</li>
+            <li>{{ $t('settings.canvasApiKeyStep3') }}</li>
+            <li>{{ $t('settings.canvasApiKeyStep4') }}</li>
+          </ol>
+        </div>
+
+        <!-- LMS Deadline notifications -->
+        <div v-if="telegramConnected" class="flex items-start justify-between gap-4">
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium text-foreground">{{ $t('settings.lmsDeadlineNotifications') }}</p>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.lmsDeadlineNotificationsDesc') }}</p>
+          </div>
+          <Switch
+            :model-value="lmsDeadlineNotifications"
+            :disabled="savingLmsNotifications"
+            @update:model-value="toggleLmsNotifications"
+          />
+        </div>
+
+        <Button @click="saveLms" :disabled="savingLms">
+          <Loader2 v-if="savingLms" class="w-4 h-4 mr-2 animate-spin" />
+          {{ $t('common.save') }}
+        </Button>
+      </CardContent>
+    </Card>
+
     <!-- Work Tracker -->
     <Card>
       <CardHeader>
@@ -444,21 +530,25 @@
         </div>
       </DialogContent>
     </Dialog>
+
+    </template> <!-- end v-else (initializing) -->
   </div>
 </template>
 
 <script setup lang="ts">
-import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw, Bell } from 'lucide-vue-next'
+import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw, Bell, GraduationCap } from 'lucide-vue-next'
 import { Switch } from '@/components/ui/switch'
 import QRCode from 'qrcode'
 import type { FormField } from '~/components/DynamicForm.vue'
 
 definePageMeta({ middleware: 'auth' })
 
-const api      = useApi()
-const toast    = useToast()
+const api        = useApi()
+const toast      = useToast()
 const { logout } = useAuth()
 const { $t, locale, setLocale } = useLocale()
+
+const initializing = ref(true) // hides all content until settings are loaded
 
 const languageForm = ref<'en' | 'ru'>('ru')
 
@@ -530,6 +620,51 @@ const aiForm = reactive({
 
 const onProviderChange = (value: any) => {
   aiForm.model = providerModels[value as string]?.[0]?.value ?? ''
+}
+
+// ── LMS ───────────────────────────────────────────────────────────────────────
+const lmsEnabled              = ref(false)
+const canvasApiKeySet         = ref(false)
+const lmsDeadlineNotifications = ref(false)
+const savingLms               = ref(false)
+const savingLmsNotifications  = ref(false)
+const lmsForm = reactive({ domain: '', apiKey: '' })
+
+const toggleLms = async (val: boolean) => {
+  savingLms.value = true
+  try {
+    lmsEnabled.value = val
+    await api.updateSettings({ lms_enabled: val })
+  } catch {
+    lmsEnabled.value = !val
+  } finally {
+    savingLms.value = false
+  }
+}
+
+const saveLms = async () => {
+  savingLms.value = true
+  try {
+    const payload: any = {}
+    if (lmsForm.domain) payload.canvas_domain = lmsForm.domain
+    if (lmsForm.apiKey) payload.canvas_api_key = lmsForm.apiKey
+    await api.updateSettings(payload)
+    if (lmsForm.apiKey) { canvasApiKeySet.value = true; lmsForm.apiKey = '' }
+  } finally {
+    savingLms.value = false
+  }
+}
+
+const toggleLmsNotifications = async (val: boolean) => {
+  savingLmsNotifications.value = true
+  try {
+    lmsDeadlineNotifications.value = val
+    await api.updateSettings({ lms_deadline_notifications: val })
+  } catch {
+    lmsDeadlineNotifications.value = !val
+  } finally {
+    savingLmsNotifications.value = false
+  }
 }
 
 // ── Work Tracker ──────────────────────────────────────────────────────────────
@@ -700,12 +835,17 @@ onMounted(async () => {
   if (!s.user_timezone || s.user_timezone !== detectedTz) {
     api.updateSettings({ user_timezone: detectedTz }).catch(() => {})
   }
-  deadlineNotifications.value   = s.deadline_notifications === '1'
+  deadlineNotifications.value        = s.deadline_notifications === '1'
+  lmsEnabled.value                   = s.lms_enabled === '1'
+  canvasApiKeySet.value              = s.canvas_api_key_set || false
+  lmsForm.domain                     = s.canvas_domain || ''
+  lmsDeadlineNotifications.value     = s.lms_deadline_notifications === '1'
   categories.value              = cats as any[]
   telegramToken.value           = s.telegram_bot_token || ''
 
   // Restore locale from settings
   setLocale(languageForm.value)
+  initializing.value = false
 })
 
 const saveLanguage = async (lang: 'en' | 'ru') => {

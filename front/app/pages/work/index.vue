@@ -1,6 +1,17 @@
 <template>
   <div class="space-y-5">
 
+    <!-- Initial load skeleton -->
+    <template v-if="initializing">
+      <div class="h-32 bg-muted rounded-xl animate-pulse" />
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="h-24 bg-muted rounded-xl animate-pulse" />
+      </div>
+      <div class="h-48 bg-muted rounded-xl animate-pulse" />
+    </template>
+
+    <template v-else>
+
     <!-- Status Card -->
     <Card>
       <CardContent class="pt-6">
@@ -257,6 +268,8 @@
       </DialogContent>
     </Dialog>
 
+    </template> <!-- end v-else (initializing) -->
+
   </div>
 </template>
 
@@ -296,6 +309,7 @@ type Stats = {
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
+const initializing        = ref(true)
 const isCheckedIn         = ref(false)
 const currentSession      = ref<Session | null>(null)
 const elapsedSeconds      = ref(0)
@@ -377,7 +391,11 @@ const loadStats = async () => {
 }
 
 onMounted(async () => {
-  await Promise.all([loadStatus(), loadSessions(), loadStats()])
+  try {
+    await Promise.all([loadStatus(), loadSessions(), loadStats()])
+  } finally {
+    initializing.value = false
+  }
 })
 
 // ── Filter ────────────────────────────────────────────────────────────────────

@@ -26,15 +26,25 @@ const route = useRoute()
 const { $t, locale } = useLocale()
 
 const pageMap = computed(() => ({
-  '/':               { title: $t('sidebar.dashboard'), subtitle: $t('header.overviewToday') },
-  '/kanban':         { title: $t('sidebar.tasks'),     subtitle: $t('header.taskManagement') },
-  '/kanban/archive': { title: $t('header.taskArchive'), subtitle: $t('header.completedTasks') },
-  '/finance':        { title: $t('sidebar.finance'),   subtitle: $t('header.expenseTracking') },
-  '/ai':             { title: $t('ai.title'),          subtitle: $t('header.personalAssistant') },
-  '/settings':       { title: $t('sidebar.settings'),  subtitle: $t('header.configuration') },
+  '/':                  { title: $t('sidebar.dashboard'),   subtitle: $t('header.overviewToday') },
+  '/kanban':            { title: $t('sidebar.tasks'),       subtitle: $t('header.taskManagement') },
+  '/kanban/archive':    { title: $t('header.taskArchive'),  subtitle: $t('header.completedTasks') },
+  '/finance':           { title: $t('sidebar.finance'),     subtitle: $t('header.expenseTracking') },
+  '/ai':                { title: $t('ai.title'),            subtitle: $t('header.personalAssistant') },
+  '/settings':          { title: $t('sidebar.settings'),    subtitle: $t('header.configuration') },
+  '/lms':               { title: $t('lms.title'),           subtitle: $t('lms.deadlines') },
+  '/lms/assignments':   { title: $t('lms.title'),           subtitle: $t('lms.assignments') },
+  '/lms/calendar':      { title: $t('lms.title'),           subtitle: $t('lms.calendar') },
 }))
 
-const current  = computed(() => (pageMap.value as any)[route.path] || { title: 'Dashboard' })
+const current = computed(() => {
+  // Check exact match first
+  const exact = (pageMap.value as any)[route.path]
+  if (exact) return exact
+  // Course detail page
+  if (route.path.startsWith('/lms/course/')) return { title: $t('lms.title'), subtitle: $t('lms.timeline') }
+  return (pageMap.value as any)['/']
+})
 const title    = computed(() => current.value.title)
 const subtitle = computed(() => current.value.subtitle)
 
