@@ -1,0 +1,67 @@
+/* ═══════════════════════════════════════════════════════════════
+   Vektron — Emerald Theme Config
+   Accent: Emerald/Green
+   Font:   Cabinet Grotesk (headings) + Instrument Sans (body)
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+/* Cabinet Grotesk via Fontshare CDN */
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap');
+
+:root[data-theme="emerald"] {
+  /* ── Fonts ── */
+  --font-heading: 'Cabinet Grotesk', system-ui, sans-serif;
+  --font-body:    'Instrument Sans', system-ui, sans-serif;
+
+  /* ── Accent (Emerald) ── */
+  --primary:            160 84% 39%;   /* #10B981 */
+  --primary-foreground: 0 0% 100%;
+  --ring:               160 84% 39%;
+
+  /* ── Light mode ── */
+  --background:         150 20% 98%;
+  --foreground:         160 40% 7%;
+  --card:               0 0% 100%;
+  --card-foreground:    160 40% 7%;
+  --popover:            0 0% 100%;
+  --popover-foreground: 160 40% 7%;
+  --secondary:          160 25% 95%;
+  --secondary-foreground: 160 40% 7%;
+  --muted:              160 15% 94%;
+  --muted-foreground:   160 10% 48%;
+  --accent:             160 30% 91%;
+  --accent-foreground:  160 40% 7%;
+  --destructive:        0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border:             160 15% 88%;
+  --input:              160 15% 88%;
+  --radius:             0.5rem;
+
+  /* ── Sidebar ── */
+  --sidebar-bg:         162 35% 8%;
+  --sidebar-border:     162 28% 12%;
+  --sidebar-nav-hover:  162 28% 13%;
+  --sidebar-nav-active-bg:  160 84% 39% / 0.14;
+  --sidebar-nav-active-fg:  158 80% 62%;
+  --sidebar-nav-fg:     162 18% 46%;
+  --sidebar-sub-fg:     162 18% 40%;
+}
+
+/* ── Dark mode for emerald theme ── */
+:root[data-theme="emerald"].dark,
+.dark[data-theme="emerald"] {
+  --background:         162 35% 5%;
+  --foreground:         160 20% 94%;
+  --card:               162 30% 8%;
+  --card-foreground:    160 20% 94%;
+  --popover:            162 30% 8%;
+  --popover-foreground: 160 20% 94%;
+  --secondary:          162 25% 12%;
+  --secondary-foreground: 160 20% 94%;
+  --muted:              162 25% 11%;
+  --muted-foreground:   162 12% 52%;
+  --accent:             162 25% 14%;
+  --accent-foreground:  160 20% 94%;
+  --border:             162 25% 14%;
+  --input:              162 25% 14%;
+}
