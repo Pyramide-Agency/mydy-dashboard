@@ -3,10 +3,8 @@
 
     <!-- Brand -->
     <div class="px-4 py-4 border-b" style="border-color: hsl(var(--sidebar-border));">
-      <NuxtLink to="/" class="flex items-center gap-2.5 group">
-        <span class="font-heading text-xl font-bold tracking-tight text-white">
-          Vektron
-        </span>
+      <NuxtLink to="/" class="flex items-center gap-2.5">
+        <span class="font-heading text-xl font-bold tracking-tight text-white">Vektron</span>
       </NuxtLink>
     </div>
 
@@ -41,7 +39,7 @@
         <!-- Submenu -->
         <div class="submenu-wrap" :class="{ 'submenu-wrap--open': open.tasks }">
           <div class="submenu-inner">
-            <div class="ml-3 mt-0.5 pl-3 border-l space-y-0.5 pb-1" style="border-color: hsl(var(--sidebar-border) / 0.6);">
+            <div class="ml-3 mt-0.5 pl-3 border-l border-slate-700/60 space-y-0.5 pb-1">
               <NuxtLink
                 to="/kanban"
                 class="sub-item"
@@ -80,7 +78,7 @@
 
         <div class="submenu-wrap" :class="{ 'submenu-wrap--open': open.finance }">
           <div class="submenu-inner">
-            <div class="ml-3 mt-0.5 pl-3 border-l space-y-0.5 pb-1" style="border-color: hsl(var(--sidebar-border) / 0.6);">
+            <div class="ml-3 mt-0.5 pl-3 border-l border-slate-700/60 space-y-0.5 pb-1">
               <NuxtLink
                 to="/finance"
                 class="sub-item"
@@ -103,7 +101,7 @@
       </div>
 
       <!-- LMS (with submenu) -->
-      <div v-if="hasTmaFull">
+      <div>
         <button
           class="nav-item w-full"
           :class="isSection('/lms') ? 'nav-item--active' : 'nav-item--default'"
@@ -119,7 +117,7 @@
 
         <div class="submenu-wrap" :class="{ 'submenu-wrap--open': open.lms }">
           <div class="submenu-inner">
-            <div class="ml-3 mt-0.5 pl-3 border-l space-y-0.5 pb-1" style="border-color: hsl(var(--sidebar-border) / 0.6);">
+            <div class="ml-3 mt-0.5 pl-3 border-l border-slate-700/60 space-y-0.5 pb-1">
               <NuxtLink
                 to="/lms"
                 class="sub-item"
@@ -149,56 +147,8 @@
         </div>
       </div>
 
-      <!-- Питание (with submenu) -->
-      <div v-if="hasTmaFull">
-        <button
-          class="nav-item w-full"
-          :class="isSection('/nutrition') ? 'nav-item--active' : 'nav-item--default'"
-          @click="toggle('nutrition')"
-        >
-          <Salad class="nav-icon" />
-          <span class="flex-1 text-left">{{ $t('sidebar.nutrition') }}</span>
-          <ChevronRight
-            class="w-3.5 h-3.5 transition-transform duration-200 shrink-0"
-            :class="open.nutrition ? 'rotate-90' : ''"
-          />
-        </button>
-
-        <div class="submenu-wrap" :class="{ 'submenu-wrap--open': open.nutrition }">
-          <div class="submenu-inner">
-            <div class="ml-3 mt-0.5 pl-3 border-l space-y-0.5 pb-1" style="border-color: hsl(var(--sidebar-border) / 0.6);">
-              <NuxtLink
-                to="/nutrition"
-                class="sub-item"
-                :class="route.path === '/nutrition' ? 'sub-item--active' : 'sub-item--default'"
-              >
-                <CalendarCheck class="w-3.5 h-3.5 shrink-0" />
-                {{ $t('sidebar.today') }}
-              </NuxtLink>
-              <NuxtLink
-                to="/nutrition/history"
-                class="sub-item"
-                :class="route.path === '/nutrition/history' ? 'sub-item--active' : 'sub-item--default'"
-              >
-                <History class="w-3.5 h-3.5 shrink-0" />
-                {{ $t('sidebar.history') }}
-              </NuxtLink>
-              <NuxtLink
-                to="/nutrition/settings"
-                class="sub-item"
-                :class="route.path === '/nutrition/settings' ? 'sub-item--active' : 'sub-item--default'"
-              >
-                <Settings class="w-3.5 h-3.5 shrink-0" />
-                {{ $t('sidebar.nutritionSettings') }}
-              </NuxtLink>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Работа (flat link) -->
       <NuxtLink
-        v-if="hasTmaFull"
         to="/work"
         class="nav-item"
         :class="route.path.startsWith('/work') ? 'nav-item--active' : 'nav-item--default'"
@@ -230,10 +180,9 @@
     </nav>
 
     <!-- Logout -->
-    <div class="px-2.5 py-3 border-t" style="border-color: hsl(var(--sidebar-border));">
+    <div class="px-2.5 py-3 border-t border-slate-800">
       <button
-        class="nav-item w-full hover:bg-red-500/10 hover:text-red-400 group"
-        style="color: hsl(var(--sidebar-nav-fg));"
+        class="nav-item w-full text-slate-500 hover:bg-red-500/10 hover:text-red-400 group"
         @click="handleLogout"
       >
         <LogOut class="w-4 h-4 shrink-0 transition-transform duration-150 group-hover:translate-x-0.5" />
@@ -262,31 +211,27 @@ import {
   AlarmClock,
   ClipboardList,
   Calendar,
-  Salad,
 } from 'lucide-vue-next'
 
 const route      = useRoute()
 const { logout } = useAuth()
-const { isPaid } = usePlan()
 const { $t }    = useLocale()
-const hasTmaFull = computed(() => isPaid.value)
 
 // Which submenu is open
-const open = reactive({ tasks: false, finance: false, lms: false, nutrition: false })
+const open = reactive({ tasks: false, finance: false, lms: false })
 
 // Auto-open section based on current route
 watch(
   () => route.path,
   (path) => {
-    if (path.startsWith('/kanban'))    open.tasks     = true
-    if (path.startsWith('/finance'))   open.finance   = true
-    if (path.startsWith('/lms'))       open.lms       = true
-    if (path.startsWith('/nutrition')) open.nutrition = true
+    if (path.startsWith('/kanban'))  open.tasks   = true
+    if (path.startsWith('/finance')) open.finance = true
+    if (path.startsWith('/lms'))     open.lms     = true
   },
   { immediate: true },
 )
 
-const toggle = (key: 'tasks' | 'finance' | 'lms' | 'nutrition') => {
+const toggle = (key: 'tasks' | 'finance' | 'lms') => {
   open[key] = !open[key]
 }
 
@@ -311,15 +256,15 @@ const handleLogout = async () => await logout()
   text-decoration: none;
 }
 .nav-item--default {
-  color: hsl(var(--sidebar-nav-fg));
+  color: hsl(215 20% 45%);
 }
 .nav-item--default:hover {
-  background: hsl(var(--sidebar-nav-hover));
-  color: hsl(var(--foreground) / 0.85);
+  background: hsl(217 33% 13%);
+  color: hsl(213 31% 80%);
 }
 .nav-item--active {
-  background: hsl(var(--primary) / 0.14);
-  color: hsl(var(--primary) / 0.9);
+  background: rgb(99 102 241 / 0.14);
+  color: rgb(129 140 248);
 }
 .nav-icon {
   width: 1rem;
@@ -340,15 +285,15 @@ const handleLogout = async () => await logout()
   text-decoration: none;
 }
 .sub-item--default {
-  color: hsl(var(--sidebar-sub-fg));
+  color: hsl(215 20% 40%);
 }
 .sub-item--default:hover {
-  background: hsl(var(--sidebar-nav-hover));
-  color: hsl(var(--foreground) / 0.8);
+  background: hsl(217 33% 13%);
+  color: hsl(213 31% 75%);
 }
 .sub-item--active {
-  color: hsl(var(--primary) / 0.9);
-  background: hsl(var(--primary) / 0.1);
+  color: rgb(129 140 248);
+  background: rgb(99 102 241 / 0.1);
 }
 
 /* ── Submenu accordion ── */

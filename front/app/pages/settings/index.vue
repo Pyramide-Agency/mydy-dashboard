@@ -22,7 +22,6 @@
         <CardDescription>{{ $t('settings.themeDesc') }}</CardDescription>
       </CardHeader>
       <CardContent class="space-y-4">
-        <!-- Mode: dark / light -->
         <div>
           <label class="text-sm font-medium mb-2 block">{{ $t('settings.themeMode') }}</label>
           <div class="flex gap-2">
@@ -30,38 +29,29 @@
               v-for="m in ['dark', 'light']"
               :key="m"
               class="flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors"
-              :class="themeMode === m
-                ? 'border-primary bg-primary/10 text-primary'
-                : 'border-border text-muted-foreground hover:border-primary/40'"
+              :class="themeMode === m ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'"
               @click="setMode(m as any)"
             >
               {{ m === 'dark' ? '🌙 Dark' : '☀️ Light' }}
             </button>
           </div>
         </div>
-        <!-- Accent: violet / emerald -->
         <div>
           <label class="text-sm font-medium mb-2 block">{{ $t('settings.themeAccent') }}</label>
           <div class="flex gap-2">
             <button
               class="flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2"
-              :class="themeAccent === 'violet'
-                ? 'border-violet-500 bg-violet-500/10 text-violet-400'
-                : 'border-border text-muted-foreground hover:border-violet-500/40'"
+              :class="themeAccent === 'violet' ? 'border-violet-500 bg-violet-500/10 text-violet-400' : 'border-border text-muted-foreground hover:border-violet-500/40'"
               @click="setAccent('violet')"
             >
-              <span class="w-3 h-3 rounded-full bg-violet-500 shrink-0" />
-              Violet
+              <span class="w-3 h-3 rounded-full bg-violet-500 shrink-0" /> Violet
             </button>
             <button
               class="flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2"
-              :class="themeAccent === 'emerald'
-                ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
-                : 'border-border text-muted-foreground hover:border-emerald-500/40'"
+              :class="themeAccent === 'emerald' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-border text-muted-foreground hover:border-emerald-500/40'"
               @click="setAccent('emerald')"
             >
-              <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0" />
-              Emerald
+              <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0" /> Emerald
             </button>
           </div>
         </div>
@@ -104,29 +94,83 @@
       </CardContent>
     </Card>
 
+    <!-- AI Provider -->
     <Card>
       <CardHeader>
         <CardTitle class="text-base flex items-center gap-2">
-          {{ $t('settings.currentPlan') }}:
-          <span class="font-bold uppercase" :class="{
-            'text-muted-foreground': planLabel === 'FREE',
-            'text-blue-500': planLabel === 'PRO',
-            'text-amber-500': planLabel === 'VIP',
-          }">{{ planLabel }}</span>
+          <Bot class="w-4 h-4" />
+          {{ $t('settings.aiProvider') }}
         </CardTitle>
-        <CardDescription v-if="planLabel === 'FREE'">{{ $t('settings.upgradeHint') }}</CardDescription>
-        <CardDescription v-else-if="authUser?.plan_days_left !== null && authUser?.plan_days_left !== undefined">
-          <span v-if="authUser.plan_days_left <= 3" class="text-destructive font-medium">
-            {{ $t('settings.planExpiresIn') }} {{ authUser.plan_days_left }} {{ $t('settings.days') }}
-          </span>
-          <span v-else>
-            {{ $t('settings.planExpiresIn') }} {{ authUser.plan_days_left }} {{ $t('settings.days') }}
-            <span v-if="authUser.plan_expires_at" class="text-muted-foreground">({{ authUser.plan_expires_at }})</span>
-          </span>
+        <CardDescription>
+          {{ $t('settings.selectProvider') }}
         </CardDescription>
       </CardHeader>
-      <CardContent v-if="planLabel !== 'VIP'">
-        <Button class="w-full" variant="default" @click="navigateTo('/upgrade')">{{ $t('settings.upgradeCta') }}</Button>
+      <CardContent class="space-y-3">
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.aiProvider') }}</label>
+          <Select v-model="aiForm.provider" @update:modelValue="onProviderChange">
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="anthropic">{{ $t('settings.anthropic') }}</SelectItem>
+              <SelectItem value="openai">{{ $t('settings.openai') }}</SelectItem>
+              <SelectItem value="groq">{{ $t('settings.groq') }}</SelectItem>
+            </SelectContent>
+          </Select>
+          <p v-if="errors.aiProvider" class="text-xs text-destructive mt-1">{{ errors.aiProvider }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.apiKey') }} ({{ $t('settings.aiProvider') }})</label>
+          <Input
+            v-model="aiForm.apiKey"
+            type="password"
+            :placeholder="aiApiKeySet ? `●●●●●●●● (${$t('settings.apiKeySet')})` : 'sk-ant-... или sk-...'"
+          />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">
+            {{ $t('settings.groqApiKey') }}
+            <span class="text-xs text-muted-foreground font-normal ml-1">{{ $t('settings.forMemoryExtraction') }}</span>
+          </label>
+          <Input
+            v-model="aiForm.groqApiKey"
+            type="password"
+            :placeholder="groqApiKeySet ? `●●●●●●●● (${$t('settings.apiKeySet')})` : 'gsk_...'"
+          />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">
+            {{ $t('settings.jinaApiKey') }}
+            <span class="text-xs text-muted-foreground font-normal ml-1">{{ $t('settings.forVectorMemory') }}</span>
+          </label>
+          <Input
+            v-model="aiForm.jinaApiKey"
+            type="password"
+            :placeholder="jinaApiKeySet ? `●●●●●●●● (${$t('settings.apiKeySet')})` : 'jina_...'"
+          />
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-1.5 block">{{ $t('settings.model') }}</label>
+          <Select v-model="aiForm.model">
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="m in providerModels[aiForm.provider]"
+                :key="m.value"
+                :value="m.value"
+              >
+                {{ m.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button @click="saveAi" :disabled="savingAi">
+          <Loader2 v-if="savingAi" class="w-4 h-4 mr-2 animate-spin" />
+          {{ $t('common.save') }}
+        </Button>
       </CardContent>
     </Card>
 
@@ -307,7 +351,7 @@
     </Card>
 
     <!-- LMS (Canvas) -->
-    <Card v-if="hasPaidPlan">
+    <Card>
       <CardHeader>
         <div class="flex items-center justify-between">
           <div>
@@ -381,7 +425,7 @@
     </Card>
 
     <!-- Work Tracker -->
-    <Card v-if="hasPaidPlan">
+    <Card>
       <CardHeader>
         <div class="flex items-center justify-between">
           <div>
@@ -542,17 +586,13 @@ import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy
 import { Switch } from '@/components/ui/switch'
 import QRCode from 'qrcode'
 import type { FormField } from '~/components/DynamicForm.vue'
-import { pl } from 'date-fns/locale'
 
 definePageMeta({ middleware: 'auth' })
 
-const api                  = useApi()
-const toast                = useToast()
-const { logout, user: authUser } = useAuth()
-const { planLabel, isPaid } = usePlan()
+const api        = useApi()
+const toast      = useToast()
+const { logout } = useAuth()
 const { $t, locale, setLocale } = useLocale()
-const hasPaidPlan = computed(() => isPaid.value)
-
 const { accent: themeAccent, mode: themeMode, setAccent, setMode } = useTheme()
 
 const initializing = ref(true) // hides all content until settings are loaded
@@ -615,20 +655,6 @@ const providerModels: Record<string, { label: string; value: string }[]> = {
     { label: 'Mixtral 8x7B',           value: 'mixtral-8x7b-32768'     },
     { label: 'Gemma 2 9B',             value: 'gemma2-9b-it'           },
   ],
-  gemini: [
-    { label: 'Gemini 2.0 Flash (рек., бесплатно)', value: 'gemini-2.0-flash'      },
-    { label: 'Gemini 2.0 Flash Lite (быстрый)',     value: 'gemini-2.0-flash-lite' },
-    { label: 'Gemini 1.5 Flash',                    value: 'gemini-1.5-flash'      },
-    { label: 'Gemini 1.5 Pro',                      value: 'gemini-1.5-pro'        },
-  ],
-  openrouter: [
-    { label: 'Gemma 3 27B (бесплатно, vision, рек.)', value: 'google/gemma-3-27b-it:free'                    },
-    { label: 'Llama 3.2 Vision 11B (бесплатно)',      value: 'meta-llama/llama-3.2-11b-vision-instruct:free' },
-    { label: 'Qwen2 VL 7B (бесплатно, vision)',       value: 'qwen/qwen-2-vl-7b-instruct:free'               },
-    { label: 'Авто (выбирает лучшую бесплатную)',     value: 'openrouter/auto'                               },
-    { label: 'Llama 3.3 70B (бесплатно)',             value: 'meta-llama/llama-3.3-70b-instruct:free'        },
-    { label: 'DeepSeek R1 (бесплатно)',               value: 'deepseek/deepseek-r1:free'                     },
-  ],
 }
 
 const aiForm = reactive({
@@ -642,23 +668,6 @@ const aiForm = reactive({
 const onProviderChange = (value: any) => {
   aiForm.model = providerModels[value as string]?.[0]?.value ?? ''
 }
-
-const visionCapableModels = new Set(['gpt-4o', 'gpt-4o-mini'])
-
-const orVisionModels = new Set([
-  'google/gemma-3-27b-it:free',
-  'meta-llama/llama-3.2-11b-vision-instruct:free',
-  'qwen/qwen-2-vl-7b-instruct:free',
-  'openrouter/auto',
-])
-
-const currentModelSupportsVision = computed(() => {
-  if (aiForm.provider === 'anthropic') return true
-  if (aiForm.provider === 'gemini') return true
-  if (aiForm.provider === 'openai') return visionCapableModels.has(aiForm.model)
-  if (aiForm.provider === 'openrouter') return orVisionModels.has(aiForm.model)
-  return false // groq
-})
 
 // ── LMS ───────────────────────────────────────────────────────────────────────
 const lmsEnabled              = ref(false)
@@ -840,30 +849,26 @@ const confirmClearMemories = async () => {
 onMounted(async () => {
   const detectedTz = Intl.DateTimeFormat().resolvedOptions().timeZone
   const [settings, cats] = await Promise.all([api.getSettings(), api.getCategories()])
-  if (hasPaidPlan.value) {
-    void loadMemories()
-  }
+  void loadMemories()
 
   // Restore work tracker state from DB
-  if (hasPaidPlan.value) {
-    try {
-      const workStatus = await api.getWorkStatus() as any
-      if (workStatus?.webhook_enabled) {
-        const url = workStatus?.webhook_url ?? ''
-        workWebhookUrl.value           = url
-        workShortcutRegistered.value   = workStatus?.shortcut_registered ?? false
-        workShortcutRegisteredAt.value = workStatus?.shortcut_registered_at
-          ? new Date(workStatus.shortcut_registered_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })
-          : ''
-        workEnabled.value = true
-        if (url) {
-          await nextTick()
-          await renderQr(url)
-        }
-        if (!workShortcutRegistered.value) startWorkPoll()
+  try {
+    const workStatus = await api.getWorkStatus() as any
+    if (workStatus?.webhook_enabled) {
+      const url = workStatus?.webhook_url ?? ''
+      workWebhookUrl.value           = url
+      workShortcutRegistered.value   = workStatus?.shortcut_registered ?? false
+      workShortcutRegisteredAt.value = workStatus?.shortcut_registered_at
+        ? new Date(workStatus.shortcut_registered_at).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' })
+        : ''
+      workEnabled.value = true
+      if (url) {
+        await nextTick()
+        await renderQr(url)
       }
-    } catch {}
-  }
+      if (!workShortcutRegistered.value) startWorkPoll()
+    }
+  } catch {}
   const s = settings as any
   languageForm.value         = s.language         || locale.value
   currencyForm.value.currency = s.currency        || 'USD'
