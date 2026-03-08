@@ -6,14 +6,9 @@ const mode   = ref<ThemeMode>('dark')
 
 const applyTheme = () => {
   const html = document.documentElement
-  // Apply accent
   html.setAttribute('data-theme', accent.value)
-  // Apply dark/light
-  if (mode.value === 'dark') {
-    html.classList.add('dark')
-  } else {
-    html.classList.remove('dark')
-  }
+  html.classList.remove('dark', 'light')
+  html.classList.add(mode.value)
 }
 
 export const useTheme = () => {
