@@ -3,7 +3,7 @@
 
     <!-- Stat cards skeleton -->
     <div v-if="loading" class="space-y-3">
-      <div v-for="i in 3" :key="i" class="bg-white rounded-xl p-4 shadow-sm border border-border">
+      <div v-for="i in 3" :key="i" class="bg-card rounded-xl p-4 shadow-sm border border-border">
         <div class="skeleton h-3 w-28 mb-3" />
         <div class="skeleton h-7 w-20 mb-2" />
         <div class="skeleton h-3 w-36" />
@@ -13,7 +13,7 @@
     <!-- Stat cards -->
     <div v-else class="space-y-3">
       <div
-        class="bg-white rounded-xl p-4 shadow-sm border border-border border-l-4"
+        class="bg-card rounded-xl p-4 shadow-sm border border-border border-l-4"
         style="border-left-color: #6366f1;"
       >
         <div class="flex items-center justify-between mb-2">
@@ -27,7 +27,7 @@
       </div>
 
       <div
-        class="bg-white rounded-xl p-4 shadow-sm border border-border border-l-4"
+        class="bg-card rounded-xl p-4 shadow-sm border border-border border-l-4"
         style="border-left-color: #10b981;"
       >
         <div class="flex items-center justify-between mb-2">
@@ -41,7 +41,7 @@
       </div>
 
       <div
-        class="bg-white rounded-xl p-4 shadow-sm border border-border border-l-4"
+        class="bg-card rounded-xl p-4 shadow-sm border border-border border-l-4"
         style="border-left-color: #f59e0b;"
       >
         <div class="flex items-center justify-between mb-2">
@@ -56,7 +56,7 @@
     </div>
 
     <!-- Quick add -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center gap-2">
         <Plus class="w-4 h-4 text-muted-foreground" />
         <h2 class="text-sm font-semibold text-foreground">{{ $t('tma.quickExpense') }}</h2>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- Recent entries -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center justify-between">
         <div class="flex items-center gap-2">
           <Clock class="w-4 h-4 text-muted-foreground" />

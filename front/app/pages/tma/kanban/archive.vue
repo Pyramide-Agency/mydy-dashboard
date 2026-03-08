@@ -29,7 +29,7 @@
           <div
             v-for="task in group.tasks"
             :key="task.id"
-            class="bg-white border border-border rounded-lg p-3 opacity-80"
+            class="bg-card border border-border rounded-lg p-3 opacity-80"
           >
             <div class="flex items-start justify-between gap-2 mb-1">
               <h3 class="text-sm font-medium text-foreground">{{ task.title }}</h3>

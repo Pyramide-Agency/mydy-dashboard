@@ -1,5 +1,5 @@
 <template>
-  <header class="bg-white border-b border-border px-6 h-14 flex items-center justify-between shrink-0 shadow-sm">
+  <header class="bg-card border-b border-border px-6 h-14 flex items-center justify-between shrink-0 shadow-sm">
     <div class="flex items-center gap-3">
       <div>
         <h1 class="text-base font-semibold text-foreground leading-tight">{{ title }}</h1>

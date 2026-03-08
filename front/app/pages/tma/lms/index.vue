@@ -26,14 +26,14 @@
             v-for="p in periods"
             :key="p.key"
             class="flex-1 py-1.5 text-xs font-medium rounded-md transition-colors"
-            :class="period === p.key ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground'"
+            :class="period === p.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'"
             @click="period = p.key"
           >
             {{ $t(`lms.${p.label}`) }}
           </button>
         </div>
         <button
-          class="p-2 rounded-lg border border-border bg-white text-muted-foreground transition-colors active:bg-muted"
+          class="p-2 rounded-lg border border-border bg-card text-muted-foreground transition-colors active:bg-muted"
           :disabled="syncing"
           @click="handleSync"
         >
@@ -57,7 +57,7 @@
         <div
           v-for="item in deadlines"
           :key="item.id"
-          class="bg-white rounded-xl border border-border p-3 flex items-center gap-3 shadow-sm"
+          class="bg-card rounded-xl border border-border p-3 flex items-center gap-3 shadow-sm"
         >
           <div
             class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
@@ -94,7 +94,7 @@
           <div
             v-for="course in courses"
             :key="course.id"
-            class="bg-white rounded-xl border border-border p-3 shadow-sm flex items-center gap-3"
+            class="bg-card rounded-xl border border-border p-3 shadow-sm flex items-center gap-3"
           >
             <div class="w-1 self-stretch rounded-full shrink-0" :style="{ backgroundColor: course.color || '#6366f1' }" />
             <div class="flex-1 min-w-0">

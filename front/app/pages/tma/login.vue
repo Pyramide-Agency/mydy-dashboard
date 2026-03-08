@@ -3,13 +3,10 @@
     <div class="w-full max-w-sm">
       <!-- Brand -->
       <div class="text-center mb-8">
-        <div
-          class="w-14 h-14 rounded-2xl mx-auto mb-4 flex items-center justify-center shadow-xl shadow-indigo-500/30"
-          style="background: linear-gradient(135deg, hsl(243 75% 59%), hsl(262 83% 58%));"
-        >
-          <Zap class="w-7 h-7 text-white" />
+        <div class="w-14 h-14 mx-auto mb-4">
+          <img src="~/assets/logo/vektron-mark.svg" alt="Vektron" class="w-full h-full" />
         </div>
-        <h1 class="text-2xl font-bold text-white mb-1">MYDY Dashboard</h1>
+        <h1 class="text-2xl font-bold text-white mb-1">Vektron</h1>
         <p class="text-sm text-slate-400">{{ $t('login.subtitle') }}</p>
       </div>
 
@@ -56,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { Zap, Loader2, AlertCircle } from 'lucide-vue-next'
+import { Loader2, AlertCircle } from 'lucide-vue-next'
 
 definePageMeta({ layout: false })
 

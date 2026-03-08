@@ -5,7 +5,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap');
+/* Cabinet Grotesk — self-hosted in app/assets/fonts/ */
 
 /* ── Shared (accent, fonts, sidebar, radius) ── */
 :root[data-theme="emerald"] {

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 70" width="280" height="70" role="img" aria-label="Vektron logo horizontal concept 2">
+  <defs>
+    <linearGradient id="c2h-fill" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6D28D9" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#4C1D95" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="c2h-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A78BFA"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <linearGradient id="c2h-inner" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon scaled into 60px box, centered vertically -->
+  <g transform="translate(5,5) scale(0.6)">
+    <polygon points="50,6 88,28 88,72 50,94 12,72 12,28" fill="url(#c2h-fill)" stroke="url(#c2h-stroke)" stroke-width="2"/>
+    <polygon points="50,18 74,32 74,68 50,82 26,68 26,32" fill="none" stroke="#7C3AED" stroke-width="1" stroke-opacity="0.4" transform="rotate(30 50 50)"/>
+    <polygon points="50,30 66,50 50,70 34,50" fill="none" stroke="url(#c2h-inner)" stroke-width="2"/>
+    <circle cx="50" cy="50" r="5" fill="url(#c2h-inner)"/>
+    <line x1="50" y1="6"  x2="50" y2="30" stroke="#A78BFA" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="50" y1="70" x2="50" y2="94" stroke="#A78BFA" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="12" y1="28" x2="34" y2="50" stroke="#A78BFA" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="88" y1="28" x2="66" y2="50" stroke="#A78BFA" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="12" y1="72" x2="34" y2="50" stroke="#A78BFA" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="88" y1="72" x2="66" y2="50" stroke="#A78BFA" stroke-width="1" stroke-opacity="0.5"/>
+  </g>
+
+  <!-- Wordmark -->
+  <text
+    x="68" y="38"
+    font-family="Syne, 'DM Sans', sans-serif"
+    font-size="28"
+    font-weight="800"
+    letter-spacing="3"
+    fill="#F5F3FF"
+  >VEKTRON</text>
+
+  <text
+    x="70" y="54"
+    font-family="'DM Sans', sans-serif"
+    font-size="9"
+    font-weight="400"
+    letter-spacing="4"
+    fill="#10B981"
+  >PERSONAL DASHBOARD</text>
+</svg>

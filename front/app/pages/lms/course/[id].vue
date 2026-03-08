@@ -8,7 +8,7 @@
 
     <!-- Course header card -->
     <div
-      class="relative overflow-hidden rounded-xl p-5 border border-border bg-white shadow-sm"
+      class="relative overflow-hidden rounded-xl p-5 border border-border bg-card shadow-sm"
       :style="{ borderLeftWidth: '4px', borderLeftColor: data.course.color }"
     >
       <div class="flex items-start gap-4">
@@ -38,7 +38,7 @@
         v-for="tab in tabs"
         :key="tab.key"
         class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5"
-        :class="activeTab === tab.key ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+        :class="activeTab === tab.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
         @click="activeTab = tab.key"
       >
         {{ $t(`lms.${tab.label}`) }}
@@ -60,7 +60,7 @@
           <!-- Timeline line -->
           <div class="flex flex-col items-center">
             <div
-              class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 z-10 border border-border bg-white"
+              class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 z-10 border border-border bg-card"
               :style="{ borderLeftColor: data.course.color }"
             >
               <component :is="item.icon" class="w-4 h-4" :style="{ color: data.course.color || '#6366f1' }" />
@@ -110,7 +110,7 @@
       <div
         v-for="a in data.assignments"
         :key="a.id"
-        class="group flex items-center gap-3 p-3 bg-white border border-border rounded-lg hover:shadow-sm transition-shadow"
+        class="group flex items-center gap-3 p-3 bg-card border border-border rounded-lg hover:shadow-sm transition-shadow"
       >
         <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" :style="{ backgroundColor: (data.course.color || '#6366f1') + '18' }">
           <component :is="typeIcon(a.assignment_type)" class="w-4 h-4" :style="{ color: data.course.color || '#6366f1' }" />
@@ -140,7 +140,7 @@
       <div
         v-for="ann in data.announcements"
         :key="ann.id"
-        class="p-4 bg-white border border-border rounded-lg shadow-sm"
+        class="p-4 bg-card border border-border rounded-lg shadow-sm"
         :class="!ann.read ? 'border-l-4' : ''"
         :style="!ann.read ? { borderLeftColor: data.course.color || '#6366f1' } : {}"
       >

@@ -1,23 +1,20 @@
 <p align="center">
-  <img src="./assets/readme/banner.png" alt="MYDY Dashboard Banner" width="100%" />
+  <img src="./front/app/assets/logo/vektron-mark.svg" alt="Vektron Logo" width="80" height="80" />
 </p>
 
-<p align="center">
-  <img src="./front/public/favicon.ico" height="64" alt="MYDY Dashboard Logo" />
-</p>
-
-<h1 align="center">MYDY DASHBOARD</h1>
+<h1 align="center">VEKTRON</h1>
 
 <p align="center">
-  A personal dashboard with Kanban board, expense tracker, AI financial advisor, Canvas LMS integration, and Telegram Mini App.
+  Personal dashboard for people who take their life seriously.<br/>
+  Kanban · Finance · AI Advisor · Canvas LMS · Telegram Mini App · Work Tracker
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Laravel-11-FF2D20?style=flat-square&logo=laravel&logoColor=white" />
   <img src="https://img.shields.io/badge/Nuxt-4-00DC82?style=flat-square&logo=nuxt.js&logoColor=white" />
   <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Claude_API-Anthropic-6B46C1?style=flat-square&logo=anthropic&logoColor=white" />
-  <img src="https://img.shields.io/badge/pgvector-AI_Memory-FF6B35?style=flat-square" />
+  <img src="https://img.shields.io/badge/Claude_API-Anthropic-7C3AED?style=flat-square&logo=anthropic&logoColor=white" />
+  <img src="https://img.shields.io/badge/pgvector-AI_Memory-059669?style=flat-square" />
   <img src="https://img.shields.io/badge/Canvas_LMS-Integration-E66000?style=flat-square" />
   <img src="https://img.shields.io/badge/Telegram_Bot_+_TMA-2CA5E0?style=flat-square&logo=telegram&logoColor=white" />
   <img src="https://img.shields.io/badge/i18n-EN_%2F_RU-4CAF50?style=flat-square" />
@@ -30,7 +27,7 @@
 ## Features
 
 ### Dashboard
-The home page gives you a bird's-eye view of everything at once — active tasks, today's and monthly spending — plus a quick expense form and a recent transactions panel. If Canvas LMS is configured, an upcoming deadlines widget appears automatically.
+Bird's-eye view of everything at once — active tasks, today's and monthly spending, a quick expense form, and a recent transactions panel. Canvas LMS deadlines widget appears automatically when configured.
 
 ### Kanban Board
 Full-featured task management with multiple boards, custom columns, and drag-and-drop. Completed tasks can be archived in bulk and restored at any time.
@@ -66,10 +63,10 @@ Full integration with Canvas LMS (Instructure). Connect once with your API key a
 
 **Telegram notifications** — get notified 24h, 3h, and 1h before each deadline (configurable in Settings).
 
-Data is cached in PostgreSQL and refreshed on demand via a sync button. Supports manual array param encoding for Canvas API compatibility.
+Data is cached in PostgreSQL and refreshed on demand via a sync button.
 
 ### Telegram Bot
-Add expenses in seconds by texting the bot. Natural language input is parsed by AI — it extracts amount, category, and date automatically. Inline keyboard buttons let you confirm or edit before saving.
+Add expenses in seconds by texting the bot. Natural language input is parsed by AI — it extracts amount, category, and date automatically.
 
 | Command | Description |
 |---|---|
@@ -78,7 +75,7 @@ Add expenses in seconds by texting the bot. Natural language input is parsed by 
 | `/help` | List of commands |
 
 ### Telegram Mini App (TMA)
-A full mobile-optimized interface embedded directly inside Telegram. Five sections accessible via bottom navigation:
+A full mobile-optimized interface embedded directly inside Telegram. Sections accessible via bottom navigation:
 
 | Section | Description |
 |---|---|
@@ -92,35 +89,34 @@ A full mobile-optimized interface embedded directly inside Telegram. Five sectio
 Includes haptic feedback, Telegram safe area support, and a dedicated `tma-auth` middleware.
 
 ### Work Time Tracker
-Track work hours with one-tap check-in / check-out. The current shift is displayed as a live timer. The history view shows sessions grouped by week or month, with per-session duration, start/end time, and totals. Stats cards show hours this week, this month, and average shift duration.
+Track work hours with one-tap check-in / check-out. Live timer for active shifts. History view grouped by week or month with per-session duration and totals.
 
-Supports **iOS Shortcuts** integration — a webhook endpoint lets you automate check-in/out via location-triggered shortcuts. The webhook key can be regenerated at any time from Settings.
+Supports **iOS Shortcuts** integration — a webhook endpoint lets you automate check-in/out via location-triggered shortcuts.
 
-Work tracker is available both on the web dashboard and in the Telegram Mini App.
+### Theme System
+Two accent palettes switchable from Settings:
+- **Violet** — Syne + DM Sans, deep purple tones
+- **Emerald** — Cabinet Grotesk + Instrument Sans, green tones
+
+Both support **dark and light mode**, stored in localStorage and applied instantly without page reload.
 
 ### Localization (EN / RU)
-Full English and Russian interface. Language is selected in Settings (both web and TMA) and saved to the backend — it persists across devices.
-
-Implementation: lightweight custom `useLocale` composable (no external library), reactive `$t()` helper, locale stored in `localStorage` + backend settings key. All dates, durations, and plural forms are locale-aware.
+Full English and Russian interface. Language is selected in Settings and saved to the backend — persists across devices. Lightweight custom `useLocale` composable, no external library.
 
 ### Settings
-- **Language** — English / Russian
-- Currency code and symbol
+- Language (EN / RU) and currency
+- Theme accent (Violet / Emerald) and mode (Dark / Light)
 - AI provider and model selection
 - API keys: Anthropic, OpenAI, Groq, Jina
-- **Canvas LMS** — domain, API key, LMS enable toggle, deadline notification toggle
+- Canvas LMS domain, API key, toggles
 - Finance categories (CRUD with custom colors)
 - Telegram bot token and webhook registration
-- Work tracker iOS Shortcut webhook (generate / regenerate)
+- Work tracker iOS Shortcut webhook
 - Password change
 
 ---
 
 ## Deploy to Dokploy
-
-[Watch the video guide](https://www.youtube.com/watch?v=EaMZUBrVKag)
-
-[![Watch video guide](https://img.youtube.com/vi/EaMZUBrVKag/maxresdefault.jpg)](https://www.youtube.com/watch?v=EaMZUBrVKag)
 
 ### Step 1 — Create PostgreSQL
 
@@ -136,8 +132,6 @@ Dokploy will automatically find the `Dockerfile` in the root of the repository.
 
 ### Step 3 — Set Environment Variables
 
-In service settings → **Environment Variables**:
-
 ```env
 # Required
 APP_URL=https://your-domain.com
@@ -149,21 +143,17 @@ DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
 
 # Optional
-ANTHROPIC_API_KEY=sk-ant-...   # for Claude AI
-OPENAI_API_KEY=sk-...          # for OpenAI models
-GROQ_API_KEY=...               # for Groq models
-JINA_API_KEY=...               # for AI memory embeddings
-TELEGRAM_BOT_TOKEN=...         # for Telegram bot & Mini App
-APP_KEY=base64:...             # auto-generated on first start
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=sk-...
+GROQ_API_KEY=...
+JINA_API_KEY=...
+TELEGRAM_BOT_TOKEN=...
+APP_KEY=base64:...
 ```
-
-> `APP_KEY` is auto-generated on first start — recommended to move it to environment variables for stability.
 
 ### Step 4 — Deploy
 
-Click **Deploy**. Build takes 2–4 minutes.
-
-After startup, the container will wait for PostgreSQL, apply migrations, and seed default data automatically.
+Click **Deploy**. Build takes 2–4 minutes. After startup, the container applies migrations and seeds default data automatically.
 
 > **Default password: `secret`** — change it immediately in Settings.
 
@@ -200,7 +190,6 @@ cd front && npm install && cd ..
 ```bash
 cp .env.example .env
 # Set: DB_PASSWORD, APP_KEY (php artisan key:generate --show)
-
 docker compose up --build
 ```
 
@@ -211,18 +200,18 @@ docker compose up --build
 | Variable | Required | Description |
 |---|---|---|
 | `APP_URL` | Yes | Public URL (`https://your-domain.com`) |
-| `DB_HOST` | Yes | PostgreSQL host (service name in Dokploy) |
+| `DB_HOST` | Yes | PostgreSQL host |
 | `DB_DATABASE` | Yes | Database name |
 | `DB_USERNAME` | Yes | Database user |
 | `DB_PASSWORD` | Yes | Database password |
-| `APP_KEY` | No* | Encryption key. Auto-generated on first start |
+| `APP_KEY` | No* | Encryption key — auto-generated on first start |
 | `ANTHROPIC_API_KEY` | No | Claude API key |
 | `OPENAI_API_KEY` | No | OpenAI API key |
 | `GROQ_API_KEY` | No | Groq API key (also used for memory fact extraction) |
 | `JINA_API_KEY` | No | Jina AI key for vector embeddings |
 | `TELEGRAM_BOT_TOKEN` | No | Telegram bot token |
 
-*Recommended to set manually after first run (key will be in logs).
+*Recommended to set manually after first run.
 
 ---
 
@@ -235,16 +224,25 @@ docker compose up --build
 │   │   ├── Models/             LmsCourse, LmsAssignment, LmsGrade, ...
 │   │   ├── Services/           CanvasService, MemoryService, ...
 │   │   └── Console/Commands/   LmsDeadlineNotify, ...
-│   └── database/migrations/
+│   └── database/
+│       ├── migrations/         6 global migrations
+│       └── ...
+│   └── resources/tenant-migrations/   18 tenant migrations
 ├── front/              Nuxt 4 SPA (shadcn-vue, Tailwind v3)
 │   └── app/
+│       ├── assets/
+│       │   ├── css/main.css    Theme system (CSS custom properties)
+│       │   ├── fonts/          Self-hosted Cabinet Grotesk
+│       │   └── logo/           Vektron SVG logo mark
+│       ├── composables/        useApi, useAuth, useLocale, useTheme
 │       ├── pages/
 │       │   ├── lms/            index, assignments, calendar, course/[id]
-│       │   ├── work/
 │       │   ├── finance/
+│       │   ├── tma/            Telegram Mini App pages
 │       │   └── ...
-│       ├── composables/        useApi, useAuth, useLocale
 │       └── i18n/               en.ts, ru.ts
+├── configs/
+│   └── themes/         vektron-violet.css, vektron-emerald.css
 ├── docker/
 │   ├── entrypoint.sh
 │   ├── nginx.conf
@@ -258,20 +256,18 @@ docker compose up --build
 
 ## License
 
-This project is licensed under **CC BY-NC-SA 4.0** (Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International) as the legal foundation, with additional commercial terms defined in [LICENSE](./LICENSE).
+This project is licensed under **CC BY-NC-SA 4.0** (Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International).
 
 | Use case | Allowed |
 |---|---|
 | Personal / non-commercial use | ✅ Free — attribution required |
 | Forks & derivative works | ✅ Must be open-sourced under the same license |
-| Commercial use | 💼 Requires a paid license — [contact the author](#) |
+| Commercial use | 💼 Requires a paid license — contact the author |
 | Claiming as your own work | ❌ Prohibited |
 | Removing attribution | ❌ Prohibited |
 
-**Attribution requirement:** Any public deployment, fork, or publication must include a visible link to the original repository:
+**Attribution requirement:** Any public deployment, fork, or publication must include a visible link to the original repository.
 
-> [https://github.com/Pyramide-Agency/mydy-dashboard](https://github.com/Pyramide-Agency/mydy-dashboard)
-
-For commercial licensing inquiries, open an issue or contact the author: [@odilovicc](https://github.com/odilovicc)
+For commercial licensing inquiries: [@odilovicc](https://github.com/odilovicc)
 
 > Full terms: [LICENSE](./LICENSE) · [CODE\_OF\_CONDUCT.md](./CODE_OF_CONDUCT.md)

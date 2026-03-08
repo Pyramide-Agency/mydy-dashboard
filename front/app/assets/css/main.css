@@ -1,6 +1,31 @@
 /* ── Google Fonts — MUST be before @tailwind ── */
 @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap');
+
+/* Cabinet Grotesk — self-hosted (avoids Fontshare cross-site cookie issue) */
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-800.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;

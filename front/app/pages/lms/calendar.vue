@@ -83,7 +83,7 @@
           <div
             v-for="event in allEvents"
             :key="`ev-${event.type}-${event.id}`"
-            class="flex items-center gap-3 p-2.5 rounded-lg bg-white border border-border hover:shadow-sm transition-shadow"
+            class="flex items-center gap-3 p-2.5 rounded-lg bg-card border border-border hover:shadow-sm transition-shadow"
           >
             <div class="w-1 self-stretch rounded-full shrink-0" :style="{ backgroundColor: event.color || '#6366f1' }" />
             <div class="flex-1 min-w-0">

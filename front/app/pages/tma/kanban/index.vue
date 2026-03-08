@@ -4,7 +4,7 @@
     style="height: calc(100dvh - 60px - env(safe-area-inset-bottom, 0px)); overflow: hidden;"
   >
     <!-- Top: board selector + archive -->
-    <div class="shrink-0 px-4 pt-3 pb-3 space-y-2 bg-white border-b border-border">
+    <div class="shrink-0 px-4 pt-3 pb-3 space-y-2 bg-card border-b border-border">
       <div class="flex items-center gap-2">
         <Select v-model="activeBoardId" @update:model-value="loadBoard" class="flex-1">
           <SelectTrigger>
@@ -32,7 +32,7 @@
     </div>
 
     <!-- Column navigation header -->
-    <div v-if="board" class="shrink-0 flex items-center justify-between px-1 h-11 bg-white border-b border-border">
+    <div v-if="board" class="shrink-0 flex items-center justify-between px-1 h-11 bg-card border-b border-border">
       <Button variant="ghost" size="icon" :disabled="activeIndex === 0" @click="goLeft">
         <ChevronLeft class="w-5 h-5" />
       </Button>
@@ -83,7 +83,7 @@
     </div>
 
     <!-- Dot indicators -->
-    <div v-if="board" class="shrink-0 flex items-center justify-center gap-2 py-2.5 bg-white border-t border-border">
+    <div v-if="board" class="shrink-0 flex items-center justify-center gap-2 py-2.5 bg-card border-t border-border">
       <button
         v-for="(col, i) in board.columns"
         :key="col.id"

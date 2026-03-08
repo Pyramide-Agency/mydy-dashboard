@@ -39,13 +39,13 @@
     </div>
 
     <!-- Period selector + stats -->
-    <div class="bg-white rounded-xl shadow-sm border border-border p-4 space-y-4">
+    <div class="bg-card rounded-xl shadow-sm border border-border p-4 space-y-4">
       <div class="flex gap-1 bg-muted rounded-lg p-1">
         <button
           v-for="p in periods"
           :key="p.value"
           class="flex-1 py-1.5 rounded-md text-sm font-medium transition-all duration-150"
-          :class="period === p.value ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground'"
+          :class="period === p.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'"
           @click="period = p.value; loadSummary()"
         >
           {{ p.label }}
@@ -91,7 +91,7 @@
     </div>
 
     <!-- Charts -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border">
         <h2 class="text-sm font-semibold text-foreground">{{ $t('tma.summaryByCategory') }}</h2>
       </div>
@@ -102,7 +102,7 @@
     </div>
 
     <!-- Quick add -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center gap-2">
         <Plus class="w-4 h-4 text-muted-foreground" />
         <h2 class="text-sm font-semibold text-foreground">{{ $t('tma.addEntry') }}</h2>
@@ -113,7 +113,7 @@
     </div>
 
     <!-- Entries list -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center justify-between">
         <div class="flex items-center gap-2">
           <List class="w-4 h-4 text-muted-foreground" />

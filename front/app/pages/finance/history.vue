@@ -2,7 +2,7 @@
   <div class="space-y-5 animate-fade-in">
 
     <!-- Header + period tabs -->
-    <div class="bg-white rounded-xl shadow-sm border border-border p-5 space-y-4">
+    <div class="bg-card rounded-xl shadow-sm border border-border p-5 space-y-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
           <History class="w-4 h-4 text-muted-foreground" />
@@ -30,7 +30,7 @@
           :key="p.value"
           class="px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150"
           :class="period === p.value
-            ? 'bg-white text-foreground shadow-sm'
+            ? 'bg-card text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'"
           @click="switchPeriod(p.value)"
         >
@@ -40,7 +40,7 @@
     </div>
 
     <!-- Entries list -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
 
       <!-- Loading skeleton -->
       <div v-if="loading && entries.length === 0" class="divide-y divide-border">
@@ -153,7 +153,7 @@
           <button
             type="button"
             class="flex-1 py-1.5 rounded-md text-sm font-medium transition-all duration-150 flex items-center justify-center gap-1.5"
-            :class="editForm.type === 'expense' ? 'bg-white text-red-600 shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+            :class="editForm.type === 'expense' ? 'bg-card text-red-600 shadow-sm' : 'text-muted-foreground hover:text-foreground'"
             @click="editForm.type = 'expense'"
           >
             <TrendingDown class="w-3.5 h-3.5" />
@@ -162,7 +162,7 @@
           <button
             type="button"
             class="flex-1 py-1.5 rounded-md text-sm font-medium transition-all duration-150 flex items-center justify-center gap-1.5"
-            :class="editForm.type === 'income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+            :class="editForm.type === 'income' ? 'bg-card text-emerald-600 shadow-sm' : 'text-muted-foreground hover:text-foreground'"
             @click="editForm.type = 'income'"
           >
             <TrendingUp class="w-3.5 h-3.5" />

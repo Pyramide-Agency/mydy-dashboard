@@ -32,7 +32,7 @@
     <!-- Messages -->
     <div
       ref="messagesRef"
-      class="flex-1 overflow-y-auto bg-white rounded-xl border border-border shadow-sm p-3 space-y-3 min-h-0"
+      class="flex-1 overflow-y-auto bg-card rounded-xl border border-border shadow-sm p-3 space-y-3 min-h-0"
     >
       <div v-if="messages.length === 0" class="flex flex-col items-center justify-center h-full text-center py-10">
         <Bot class="w-10 h-10 text-muted-foreground/30 mb-2" />

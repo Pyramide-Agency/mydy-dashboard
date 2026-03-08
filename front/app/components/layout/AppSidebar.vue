@@ -4,6 +4,7 @@
     <!-- Brand -->
     <div class="px-4 py-4 border-b" style="border-color: hsl(var(--sidebar-border));">
       <NuxtLink to="/" class="flex items-center gap-2.5">
+        <img src="~/assets/logo/vektron-mark.svg" alt="Vektron" class="w-7 h-7 shrink-0" />
         <span class="font-heading text-xl font-bold tracking-tight text-white">Vektron</span>
       </NuxtLink>
     </div>

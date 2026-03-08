@@ -2,7 +2,7 @@
   <div class="p-4 space-y-4">
 
     <!-- Language -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border">
         <h2 class="text-sm font-semibold text-foreground">{{ $t('settings.language') }}</h2>
         <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.selectLanguage') }}</p>
@@ -21,7 +21,7 @@
     </div>
 
     <!-- Currency -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border">
         <h2 class="text-sm font-semibold text-foreground">{{ $t('settings.currency') }}</h2>
       </div>
@@ -37,7 +37,7 @@
     </div>
 
     <!-- AI Provider -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center gap-2">
         <Bot class="w-4 h-4 text-muted-foreground" />
         <div>
@@ -92,7 +92,7 @@
     </div>
 
     <!-- Telegram bot -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center gap-2">
         <Send class="w-4 h-4 text-muted-foreground" />
         <div>
@@ -131,7 +131,7 @@
     </div>
 
     <!-- Notifications -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center gap-2">
         <Bell class="w-4 h-4 text-muted-foreground" />
         <div>
@@ -185,7 +185,7 @@
     </div>
 
     <!-- Categories -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center justify-between">
         <div>
           <h2 class="text-sm font-semibold text-foreground">{{ $t('settings.expenseCategories') }}</h2>
@@ -220,7 +220,7 @@
     </div>
 
     <!-- Password -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border">
         <h2 class="text-sm font-semibold text-foreground">{{ $t('settings.changePassword') }}</h2>
       </div>

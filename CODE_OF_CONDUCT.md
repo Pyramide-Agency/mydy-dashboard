@@ -52,7 +52,7 @@ If you see this project being used without proper attribution, or if someone is 
 
 ## License
 
-This project is released under the **MYDY Dashboard Source Available License (MDSAL) v1.0**.
+This project is released under the **Vektron Source Available License v1.0**.
 See [LICENSE](./LICENSE) for full terms.
 
 - Personal/non-commercial use: free, attribution required
