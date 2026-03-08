@@ -118,6 +118,10 @@ Full English and Russian interface. Language is selected in Settings and saved t
 
 ## Deploy to Dokploy
 
+[Watch the video guide](https://www.youtube.com/watch?v=EaMZUBrVKag)
+
+[![Watch video guide](https://img.youtube.com/vi/EaMZUBrVKag/maxresdefault.jpg)](https://www.youtube.com/watch?v=EaMZUBrVKag)
+
 ### Step 1 — Create PostgreSQL
 
 Dokploy → **New Service → Database → PostgreSQL**
