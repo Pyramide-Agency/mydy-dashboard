@@ -38,6 +38,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       title: 'Vektron',
+      htmlAttrs: { 'data-theme': 'violet', class: 'dark' },
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },

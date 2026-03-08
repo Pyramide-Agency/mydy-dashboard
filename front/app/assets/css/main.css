@@ -1,13 +1,13 @@
+/* ── Google Fonts — MUST be before @tailwind ── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ── Google Fonts ── */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
-@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&display=swap');
-
 @layer base {
-  /* ── Violet theme — shared vars (accent, sidebar, fonts, radius) ── */
+  /* ── Violet theme — shared (accent, fonts, sidebar, radius) ── */
   :root {
     --font-heading: 'Syne', system-ui, sans-serif;
     --font-body:    'DM Sans', system-ui, sans-serif;
@@ -25,7 +25,7 @@
   }
 
   /* ── Violet dark (default) ── */
-  :root, .dark {
+  :root {
     --background:           263 35% 6%;
     --foreground:           262 20% 94%;
     --card:                 263 30% 9%;
@@ -43,7 +43,24 @@
   }
 
   /* ── Violet light ── */
-  .light {
+  .dark:not([data-theme="emerald"]) {
+    --background:           263 35% 6%;
+    --foreground:           262 20% 94%;
+    --card:                 263 30% 9%;
+    --card-foreground:      262 20% 94%;
+    --popover:              263 30% 9%;
+    --popover-foreground:   262 20% 94%;
+    --secondary:            263 25% 14%;
+    --secondary-foreground: 262 20% 94%;
+    --muted:                263 25% 13%;
+    --muted-foreground:     263 15% 52%;
+    --accent:               263 25% 16%;
+    --accent-foreground:    262 20% 94%;
+    --border:               263 25% 16%;
+    --input:                263 25% 16%;
+  }
+
+  .light:not([data-theme="emerald"]) {
     --background:           250 20% 98%;
     --foreground:           263 40% 8%;
     --card:                 0 0% 100%;
@@ -60,7 +77,7 @@
     --input:                262 20% 88%;
   }
 
-  /* ── Emerald theme — shared vars ── */
+  /* ── Emerald theme — shared ── */
   [data-theme="emerald"] {
     --font-heading: 'Cabinet Grotesk', system-ui, sans-serif;
     --font-body:    'Instrument Sans', system-ui, sans-serif;
@@ -75,7 +92,7 @@
     --sidebar-sub-fg:     162 18% 40%;
   }
 
-  /* ── Emerald dark (default) ── */
+  /* ── Emerald dark ── */
   [data-theme="emerald"],
   [data-theme="emerald"].dark {
     --background:           162 35% 5%;
@@ -129,7 +146,6 @@
     font-family: var(--font-heading);
   }
 
-  /* Smooth scrollbar */
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
@@ -167,7 +183,6 @@
   100% { background-position:  200% 0; }
 }
 
-/* ─── Utility classes ─── */
 @layer utilities {
   .font-heading { font-family: var(--font-heading); }
   .font-body    { font-family: var(--font-body); }
@@ -178,14 +193,12 @@
   .animate-slide-in-left { animation: slideInLeft 0.3s ease-out both; }
   .animate-scale-in      { animation: scaleIn 0.2s ease-out both; }
 
-  /* Staggered delays */
   .delay-75  { animation-delay: 75ms; }
   .delay-150 { animation-delay: 150ms; }
   .delay-225 { animation-delay: 225ms; }
   .delay-300 { animation-delay: 300ms; }
   .delay-375 { animation-delay: 375ms; }
 
-  /* Skeleton shimmer */
   .skeleton {
     background: linear-gradient(
       90deg,
@@ -198,7 +211,6 @@
     border-radius: var(--radius);
   }
 
-  /* Card lift on hover */
   .card-lift {
     transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
@@ -207,7 +219,6 @@
     transform: translateY(-1px);
   }
 
-  /* Page transition */
   .page-enter-active,
   .page-leave-active {
     transition: opacity 0.18s ease, transform 0.18s ease;
