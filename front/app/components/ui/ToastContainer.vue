@@ -4,7 +4,7 @@
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="pointer-events-auto rounded-lg border bg-white px-4 py-3 text-sm shadow-lg"
+        class="pointer-events-auto rounded-lg border bg-card px-4 py-3 text-sm shadow-lg"
         :class="toast.type === 'success'
           ? 'border-emerald-200 text-emerald-900'
           : 'border-rose-200 text-rose-900'"

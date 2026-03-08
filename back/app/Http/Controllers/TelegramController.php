@@ -557,7 +557,7 @@ class TelegramController extends Controller
 
         $this->sendMessage(
             $chatId,
-            "🚀 Добро пожаловать в MYDY!\n\n"
+            "🚀 Добро пожаловать в Vektron!\n\n"
             . "Команды:\n"
             . "/add [сумма] [описание] — добавить расход\n"
             . "/today — записи за сегодня\n"

@@ -44,7 +44,7 @@
     </div>
 
     <!-- Period selector + stats -->
-    <div class="bg-white rounded-xl shadow-sm border border-border p-5 space-y-4">
+    <div class="bg-card rounded-xl shadow-sm border border-border p-5 space-y-4">
       <!-- Period tabs -->
       <div class="flex gap-1 bg-muted rounded-lg p-1 w-fit">
         <button
@@ -52,7 +52,7 @@
           :key="p.value"
           class="px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-150"
           :class="period === p.value
-            ? 'bg-white text-foreground shadow-sm'
+            ? 'bg-card text-foreground shadow-sm'
             : 'text-muted-foreground hover:text-foreground'"
           @click="period = p.value; loadSummary()"
         >
@@ -131,7 +131,7 @@
     <!-- Charts + AI -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
       <!-- Charts -->
-      <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div class="lg:col-span-2 bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border">
           <h2 class="text-sm font-semibold text-foreground">{{ $t('finance.summaryByCategory') }}</h2>
         </div>
@@ -144,7 +144,7 @@
       </div>
 
       <!-- AI panel -->
-      <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex items-center gap-2">
           <div class="w-6 h-6 rounded-md bg-indigo-100 flex items-center justify-center">
             <Bot class="w-3.5 h-3.5 text-indigo-600" />
@@ -160,7 +160,7 @@
     <!-- Add + List -->
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
       <!-- Add form -->
-      <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div class="lg:col-span-2 bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex items-center gap-2">
           <Plus class="w-4 h-4 text-muted-foreground" />
           <h2 class="text-sm font-semibold text-foreground">{{ $t('finance.addEntry') }}</h2>
@@ -171,7 +171,7 @@
       </div>
 
       <!-- Entries list -->
-      <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div class="lg:col-span-3 bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
           <div class="flex items-center gap-2">
             <List class="w-4 h-4 text-muted-foreground" />

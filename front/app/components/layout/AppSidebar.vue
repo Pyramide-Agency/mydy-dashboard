@@ -1,16 +1,11 @@
 <template>
-  <aside class="w-56 bg-slate-900 flex flex-col shrink-0 border-r border-slate-800">
+  <aside class="w-56 flex flex-col shrink-0 border-r" style="background-color: hsl(var(--sidebar-bg)); border-color: hsl(var(--sidebar-border));">
 
     <!-- Brand -->
-    <div class="px-4 py-4 border-b border-slate-800">
-      <NuxtLink to="/" class="flex items-center gap-2.5 group">
-        <img
-          src="/mydy-logo-dark.svg"
-          alt="Logo"
-          width="80"
-          height="80"
-          class="transition-transform duration-150"
-        />
+    <div class="px-4 py-4 border-b" style="border-color: hsl(var(--sidebar-border));">
+      <NuxtLink to="/" class="flex items-center gap-2.5">
+        <img src="~/assets/logo/vektron-mark.svg" alt="Vektron" class="w-7 h-7 shrink-0" />
+        <span class="font-heading text-xl font-bold tracking-tight text-white">Vektron</span>
       </NuxtLink>
     </div>
 

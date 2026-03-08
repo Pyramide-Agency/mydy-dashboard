@@ -1,37 +1,157 @@
+/* ── Google Fonts — MUST be before @tailwind ── */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+/* Cabinet Grotesk — self-hosted (avoids Fontshare cross-site cookie issue) */
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-400.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-500.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-700.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cabinet Grotesk';
+  src: url('../fonts/cabinet-grotesk-800.woff2') format('woff2');
+  font-weight: 800;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  /* ── Violet theme — shared (accent, fonts, sidebar, radius) ── */
   :root {
-    /* Content area */
-    --background: 220 20% 97%;
-    --foreground: 224 71% 4%;
-    --card: 0 0% 100%;
-    --card-foreground: 224 71% 4%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 224 71% 4%;
-
-    /* Primary: indigo */
-    --primary: 243 75% 59%;
+    --font-heading: 'Syne', system-ui, sans-serif;
+    --font-body:    'DM Sans', system-ui, sans-serif;
+    --primary:            262 83% 58%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 14% 95%;
-    --secondary-foreground: 224 71% 4%;
-
-    --muted: 220 14% 94%;
-    --muted-foreground: 220 9% 46%;
-
-    --accent: 220 14% 92%;
-    --accent-foreground: 224 71% 4%;
-
-    --destructive: 0 84% 60%;
+    --ring:               262 83% 58%;
+    --destructive:        0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    --radius:             0.625rem;
+    --sidebar-bg:         263 35% 10%;
+    --sidebar-border:     263 30% 14%;
+    --sidebar-nav-hover:  263 30% 15%;
+    --sidebar-nav-fg:     263 20% 48%;
+    --sidebar-sub-fg:     263 20% 42%;
+  }
 
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-    --ring: 243 75% 59%;
-    --radius: 0.625rem;
+  /* ── Violet dark (default) ── */
+  :root {
+    --background:           263 35% 6%;
+    --foreground:           262 20% 94%;
+    --card:                 263 30% 9%;
+    --card-foreground:      262 20% 94%;
+    --popover:              263 30% 9%;
+    --popover-foreground:   262 20% 94%;
+    --secondary:            263 25% 14%;
+    --secondary-foreground: 262 20% 94%;
+    --muted:                263 25% 13%;
+    --muted-foreground:     263 15% 52%;
+    --accent:               263 25% 16%;
+    --accent-foreground:    262 20% 94%;
+    --border:               263 25% 16%;
+    --input:                263 25% 16%;
+  }
+
+  /* ── Violet light ── */
+  .dark:not([data-theme="emerald"]) {
+    --background:           263 35% 6%;
+    --foreground:           262 20% 94%;
+    --card:                 263 30% 9%;
+    --card-foreground:      262 20% 94%;
+    --popover:              263 30% 9%;
+    --popover-foreground:   262 20% 94%;
+    --secondary:            263 25% 14%;
+    --secondary-foreground: 262 20% 94%;
+    --muted:                263 25% 13%;
+    --muted-foreground:     263 15% 52%;
+    --accent:               263 25% 16%;
+    --accent-foreground:    262 20% 94%;
+    --border:               263 25% 16%;
+    --input:                263 25% 16%;
+  }
+
+  .light:not([data-theme="emerald"]) {
+    --background:           250 20% 98%;
+    --foreground:           263 40% 8%;
+    --card:                 0 0% 100%;
+    --card-foreground:      263 40% 8%;
+    --popover:              0 0% 100%;
+    --popover-foreground:   263 40% 8%;
+    --secondary:            262 30% 95%;
+    --secondary-foreground: 263 40% 8%;
+    --muted:                262 20% 94%;
+    --muted-foreground:     263 15% 48%;
+    --accent:               262 40% 92%;
+    --accent-foreground:    263 40% 8%;
+    --border:               262 20% 88%;
+    --input:                262 20% 88%;
+  }
+
+  /* ── Emerald theme — shared ── */
+  [data-theme="emerald"] {
+    --font-heading: 'Cabinet Grotesk', system-ui, sans-serif;
+    --font-body:    'Instrument Sans', system-ui, sans-serif;
+    --primary:            160 84% 39%;
+    --primary-foreground: 0 0% 100%;
+    --ring:               160 84% 39%;
+    --radius:             0.5rem;
+    --sidebar-bg:         162 35% 8%;
+    --sidebar-border:     162 28% 12%;
+    --sidebar-nav-hover:  162 28% 13%;
+    --sidebar-nav-fg:     162 18% 46%;
+    --sidebar-sub-fg:     162 18% 40%;
+  }
+
+  /* ── Emerald dark ── */
+  [data-theme="emerald"],
+  [data-theme="emerald"].dark {
+    --background:           162 35% 5%;
+    --foreground:           160 20% 94%;
+    --card:                 162 30% 8%;
+    --card-foreground:      160 20% 94%;
+    --popover:              162 30% 8%;
+    --popover-foreground:   160 20% 94%;
+    --secondary:            162 25% 12%;
+    --secondary-foreground: 160 20% 94%;
+    --muted:                162 25% 11%;
+    --muted-foreground:     162 12% 52%;
+    --accent:               162 25% 14%;
+    --accent-foreground:    160 20% 94%;
+    --border:               162 25% 14%;
+    --input:                162 25% 14%;
+  }
+
+  /* ── Emerald light ── */
+  [data-theme="emerald"].light {
+    --background:           150 20% 98%;
+    --foreground:           160 40% 7%;
+    --card:                 0 0% 100%;
+    --card-foreground:      160 40% 7%;
+    --popover:              0 0% 100%;
+    --popover-foreground:   160 40% 7%;
+    --secondary:            160 25% 95%;
+    --secondary-foreground: 160 40% 7%;
+    --muted:                160 15% 94%;
+    --muted-foreground:     160 10% 48%;
+    --accent:               160 30% 91%;
+    --accent-foreground:    160 40% 7%;
+    --border:               160 15% 88%;
+    --input:                160 15% 88%;
   }
 
   * {
@@ -41,12 +161,16 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+    font-family: var(--font-body);
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Smooth scrollbar */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+  }
+
   ::-webkit-scrollbar { width: 5px; height: 5px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
@@ -84,22 +208,22 @@
   100% { background-position:  200% 0; }
 }
 
-/* ─── Utility classes ─── */
 @layer utilities {
+  .font-heading { font-family: var(--font-heading); }
+  .font-body    { font-family: var(--font-body); }
+
   .animate-fade-in       { animation: fadeIn 0.25s ease-out both; }
   .animate-slide-up      { animation: slideUp 0.3s ease-out both; }
   .animate-slide-down    { animation: slideDown 0.25s ease-out both; }
   .animate-slide-in-left { animation: slideInLeft 0.3s ease-out both; }
   .animate-scale-in      { animation: scaleIn 0.2s ease-out both; }
 
-  /* Staggered delays */
   .delay-75  { animation-delay: 75ms; }
   .delay-150 { animation-delay: 150ms; }
   .delay-225 { animation-delay: 225ms; }
   .delay-300 { animation-delay: 300ms; }
   .delay-375 { animation-delay: 375ms; }
 
-  /* Skeleton shimmer */
   .skeleton {
     background: linear-gradient(
       90deg,
@@ -112,7 +236,6 @@
     border-radius: var(--radius);
   }
 
-  /* Card lift on hover */
   .card-lift {
     transition: box-shadow 0.2s ease, transform 0.2s ease;
   }
@@ -121,7 +244,6 @@
     transform: translateY(-1px);
   }
 
-  /* Page transition */
   .page-enter-active,
   .page-leave-active {
     transition: opacity 0.18s ease, transform 0.18s ease;

@@ -40,7 +40,7 @@
           v-for="p in periods"
           :key="p.key"
           class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
-          :class="period === p.key ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+          :class="period === p.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
           @click="period = p.key"
         >
           {{ $t(`lms.${p.label}`) }}
@@ -63,7 +63,7 @@
         <div
           v-for="item in deadlines"
           :key="item.id"
-          class="group flex items-center gap-3 p-3 bg-white border border-border rounded-lg hover:shadow-sm transition-shadow"
+          class="group flex items-center gap-3 p-3 bg-card border border-border rounded-lg hover:shadow-sm transition-shadow"
         >
           <!-- Type icon -->
           <div
@@ -127,7 +127,7 @@
             v-for="course in courses"
             :key="course.id"
             :to="`/lms/course/${course.id}`"
-            class="p-3 bg-white border border-border rounded-lg hover:shadow-sm transition-shadow group"
+            class="p-3 bg-card border border-border rounded-lg hover:shadow-sm transition-shadow group"
           >
             <div class="h-1 rounded-full mb-2" :style="{ backgroundColor: course.color }" />
             <p class="text-sm font-medium text-foreground truncate group-hover:text-indigo-600 transition-colors">

@@ -2,3 +2,5 @@ plan.md
 start.sh
 .claude
 tasks/
+.DS_Store
+*.sh

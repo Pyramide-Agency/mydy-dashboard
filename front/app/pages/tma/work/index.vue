@@ -2,7 +2,7 @@
   <div class="p-4 space-y-4 pb-6">
 
     <!-- Check-in / Check-out button -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="p-5 flex flex-col items-center gap-4">
 
         <!-- Status indicator -->
@@ -43,28 +43,28 @@
 
     <!-- Stats -->
     <div v-if="!statsLoading" class="grid grid-cols-3 gap-3">
-      <div class="bg-white rounded-xl p-3 shadow-sm border border-border text-center">
+      <div class="bg-card rounded-xl p-3 shadow-sm border border-border text-center">
         <p class="text-lg font-bold text-foreground">{{ formatHours(stats.week_minutes) }}</p>
         <p class="text-[10px] text-muted-foreground mt-0.5">{{ $t('work.thisWeek') }}</p>
       </div>
-      <div class="bg-white rounded-xl p-3 shadow-sm border border-border text-center">
+      <div class="bg-card rounded-xl p-3 shadow-sm border border-border text-center">
         <p class="text-lg font-bold text-foreground">{{ formatHours(stats.month_minutes) }}</p>
         <p class="text-[10px] text-muted-foreground mt-0.5">{{ $t('work.thisMonth') }}</p>
       </div>
-      <div class="bg-white rounded-xl p-3 shadow-sm border border-border text-center">
+      <div class="bg-card rounded-xl p-3 shadow-sm border border-border text-center">
         <p class="text-lg font-bold text-foreground">{{ formatHours(stats.avg_minutes) }}</p>
         <p class="text-[10px] text-muted-foreground mt-0.5">{{ $t('work.avgShift') }}</p>
       </div>
     </div>
     <div v-else class="grid grid-cols-3 gap-3">
-      <div v-for="i in 3" :key="i" class="bg-white rounded-xl p-3 shadow-sm border border-border">
+      <div v-for="i in 3" :key="i" class="bg-card rounded-xl p-3 shadow-sm border border-border">
         <div class="skeleton h-6 w-12 mx-auto mb-1" />
         <div class="skeleton h-3 w-14 mx-auto" />
       </div>
     </div>
 
     <!-- Sessions -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div class="px-4 py-3 border-b border-border flex items-center justify-between">
         <div class="flex items-center gap-2">
           <Clock class="w-4 h-4 text-muted-foreground" />

@@ -14,7 +14,7 @@
 
     <!-- Bottom navigation -->
     <nav
-      class="fixed bottom-0 left-0 right-0 bg-white border-t border-border z-50 flex items-stretch"
+      class="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50 flex items-stretch"
       style="padding-bottom: env(safe-area-inset-bottom, 0px); height: calc(52px + env(safe-area-inset-bottom, 0px));"
     >
       <NuxtLink

@@ -35,8 +35,8 @@ const expenseFields = computed((): FormField[] => [
     label:   $t('finance.type'),
     type:    'toggle',
     options: [
-      { label: $t('finance.expense'), value: 'expense', activeClass: 'bg-white text-red-600 shadow-sm'     },
-      { label: $t('finance.income'),  value: 'income',  activeClass: 'bg-white text-emerald-600 shadow-sm' },
+      { label: $t('finance.expense'), value: 'expense', activeClass: 'bg-card text-red-500 shadow-sm'     },
+      { label: $t('finance.income'),  value: 'income',  activeClass: 'bg-card text-emerald-500 shadow-sm' },
     ],
   },
   {

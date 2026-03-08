@@ -10,5 +10,6 @@
 
 <script setup lang="ts">
 const { initAuth } = useAuth()
-onMounted(() => initAuth())
+const { initTheme } = useTheme()
+onMounted(() => { initTheme(); initAuth() })
 </script>

@@ -1,0 +1,65 @@
+/* ═══════════════════════════════════════════════════════════════
+   Vektron — Violet Theme Config
+   Accent: Violet/Indigo
+   Font:   Syne (headings) + DM Sans (body)
+   ═══════════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap');
+
+/* ── Shared (accent, fonts, sidebar, radius) ── */
+:root[data-theme="violet"] {
+  --font-heading: 'Syne', system-ui, sans-serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+
+  --primary:            262 83% 58%;
+  --primary-foreground: 0 0% 100%;
+  --ring:               262 83% 58%;
+  --destructive:        0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --radius:             0.625rem;
+
+  --sidebar-bg:              263 35% 10%;
+  --sidebar-border:          263 30% 14%;
+  --sidebar-nav-hover:       263 30% 15%;
+  --sidebar-nav-active-bg:   262 83% 58% / 0.14;
+  --sidebar-nav-active-fg:   262 80% 78%;
+  --sidebar-nav-fg:          263 20% 48%;
+  --sidebar-sub-fg:          263 20% 42%;
+}
+
+/* ── Dark mode (default) ── */
+:root[data-theme="violet"],
+:root[data-theme="violet"].dark {
+  --background:           263 35% 6%;
+  --foreground:           262 20% 94%;
+  --card:                 263 30% 9%;
+  --card-foreground:      262 20% 94%;
+  --popover:              263 30% 9%;
+  --popover-foreground:   262 20% 94%;
+  --secondary:            263 25% 14%;
+  --secondary-foreground: 262 20% 94%;
+  --muted:                263 25% 13%;
+  --muted-foreground:     263 15% 52%;
+  --accent:               263 25% 16%;
+  --accent-foreground:    262 20% 94%;
+  --border:               263 25% 16%;
+  --input:                263 25% 16%;
+}
+
+/* ── Light mode ── */
+:root[data-theme="violet"].light {
+  --background:           250 20% 98%;
+  --foreground:           263 40% 8%;
+  --card:                 0 0% 100%;
+  --card-foreground:      263 40% 8%;
+  --popover:              0 0% 100%;
+  --popover-foreground:   263 40% 8%;
+  --secondary:            262 30% 95%;
+  --secondary-foreground: 263 40% 8%;
+  --muted:                262 20% 94%;
+  --muted-foreground:     263 15% 48%;
+  --accent:               262 40% 92%;
+  --accent-foreground:    263 40% 8%;
+  --border:               262 20% 88%;
+  --input:                262 20% 88%;
+}

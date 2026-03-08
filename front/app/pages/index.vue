@@ -3,7 +3,7 @@
 
     <!-- Stat cards skeleton -->
     <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div v-for="i in 3" :key="i" class="bg-white rounded-xl p-5 shadow-sm border border-border">
+      <div v-for="i in 3" :key="i" class="bg-card rounded-xl p-5 shadow-sm border border-border">
         <div class="skeleton h-3 w-28 mb-4" />
         <div class="skeleton h-8 w-20 mb-2" />
         <div class="skeleton h-3 w-36" />
@@ -14,7 +14,7 @@
     <div v-else class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <!-- Tasks -->
       <div
-        class="bg-white rounded-xl p-5 shadow-sm border border-border border-l-4 animate-slide-up card-lift"
+        class="bg-card rounded-xl p-5 shadow-sm border border-border border-l-4 animate-slide-up card-lift"
         style="border-left-color: #6366f1;"
       >
         <div class="flex items-center justify-between mb-3">
@@ -29,7 +29,7 @@
 
       <!-- Today spending -->
       <div
-        class="bg-white rounded-xl p-5 shadow-sm border border-border border-l-4 animate-slide-up delay-75 card-lift"
+        class="bg-card rounded-xl p-5 shadow-sm border border-border border-l-4 animate-slide-up delay-75 card-lift"
         style="border-left-color: #10b981;"
       >
         <div class="flex items-center justify-between mb-3">
@@ -44,7 +44,7 @@
 
       <!-- Month spending -->
       <div
-        class="bg-white rounded-xl p-5 shadow-sm border border-border border-l-4 animate-slide-up delay-150 card-lift"
+        class="bg-card rounded-xl p-5 shadow-sm border border-border border-l-4 animate-slide-up delay-150 card-lift"
         style="border-left-color: #f59e0b;"
       >
         <div class="flex items-center justify-between mb-3">
@@ -59,7 +59,7 @@
     </div>
 
     <!-- LMS widget (only if configured) -->
-    <div v-if="lmsConfigured" class="bg-white rounded-xl shadow-sm border border-border overflow-hidden animate-slide-up delay-200">
+    <div v-if="lmsConfigured" class="bg-card rounded-xl shadow-sm border border-border overflow-hidden animate-slide-up delay-200">
       <div class="px-5 py-4 border-b border-border flex items-center justify-between">
         <div class="flex items-center gap-2">
           <GraduationCap class="w-4 h-4 text-indigo-500" />
@@ -97,7 +97,7 @@
     <!-- Quick add + Recent -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 animate-slide-up delay-225">
       <!-- Quick add expense -->
-      <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex items-center gap-2">
           <Plus class="w-4 h-4 text-muted-foreground" />
           <h2 class="text-sm font-semibold text-foreground">{{ $t('dashboard.quickAdd') }}</h2>
@@ -108,7 +108,7 @@
       </div>
 
       <!-- Recent entries -->
-      <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
         <div class="px-5 py-4 border-b border-border flex items-center justify-between">
           <div class="flex items-center gap-2">
             <Clock class="w-4 h-4 text-muted-foreground" />

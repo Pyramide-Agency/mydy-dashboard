@@ -12,6 +12,52 @@
 
     <template v-else>
 
+    <!-- Theme settings -->
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base flex items-center gap-2">
+          <Palette class="w-4 h-4" />
+          {{ $t('settings.theme') }}
+        </CardTitle>
+        <CardDescription>{{ $t('settings.themeDesc') }}</CardDescription>
+      </CardHeader>
+      <CardContent class="space-y-4">
+        <div>
+          <label class="text-sm font-medium mb-2 block">{{ $t('settings.themeMode') }}</label>
+          <div class="flex gap-2">
+            <button
+              v-for="m in ['dark', 'light']"
+              :key="m"
+              class="flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors"
+              :class="themeMode === m ? 'border-primary bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:border-primary/40'"
+              @click="setMode(m as any)"
+            >
+              {{ m === 'dark' ? '🌙 Dark' : '☀️ Light' }}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="text-sm font-medium mb-2 block">{{ $t('settings.themeAccent') }}</label>
+          <div class="flex gap-2">
+            <button
+              class="flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2"
+              :class="themeAccent === 'violet' ? 'border-violet-500 bg-violet-500/10 text-violet-400' : 'border-border text-muted-foreground hover:border-violet-500/40'"
+              @click="setAccent('violet')"
+            >
+              <span class="w-3 h-3 rounded-full bg-violet-500 shrink-0" /> Violet
+            </button>
+            <button
+              class="flex-1 py-2 px-3 rounded-lg border text-sm font-medium transition-colors flex items-center justify-center gap-2"
+              :class="themeAccent === 'emerald' ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400' : 'border-border text-muted-foreground hover:border-emerald-500/40'"
+              @click="setAccent('emerald')"
+            >
+              <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0" /> Emerald
+            </button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
     <!-- Language settings -->
     <Card>
       <CardHeader>
@@ -536,7 +582,7 @@
 </template>
 
 <script setup lang="ts">
-import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw, Bell, GraduationCap } from 'lucide-vue-next'
+import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw, Bell, GraduationCap, Palette } from 'lucide-vue-next'
 import { Switch } from '@/components/ui/switch'
 import QRCode from 'qrcode'
 import type { FormField } from '~/components/DynamicForm.vue'
@@ -547,6 +593,7 @@ const api        = useApi()
 const toast      = useToast()
 const { logout } = useAuth()
 const { $t, locale, setLocale } = useLocale()
+const { accent: themeAccent, mode: themeMode, setAccent, setMode } = useTheme()
 
 const initializing = ref(true) // hides all content until settings are loaded
 

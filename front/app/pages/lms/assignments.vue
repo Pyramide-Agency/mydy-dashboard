@@ -8,7 +8,7 @@
           v-for="f in filters"
           :key="f.key"
           class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors"
-          :class="filter === f.key ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
+          :class="filter === f.key ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'"
           @click="filter = f.key"
         >
           {{ $t(`lms.${f.label}`) }}
@@ -49,7 +49,7 @@
             <div
               v-for="item in group.items"
               :key="item.id"
-              class="group flex items-center gap-3 p-3 bg-white border border-border rounded-lg hover:shadow-sm transition-shadow"
+              class="group flex items-center gap-3 p-3 bg-card border border-border rounded-lg hover:shadow-sm transition-shadow"
             >
               <!-- Type icon -->
               <div

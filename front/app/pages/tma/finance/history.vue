@@ -21,7 +21,7 @@
         v-for="p in periods"
         :key="p.value"
         class="flex-1 py-1.5 rounded-md text-xs font-medium transition-all duration-150"
-        :class="period === p.value ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground'"
+        :class="period === p.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'"
         @click="switchPeriod(p.value)"
       >
         {{ p.label }}
@@ -29,7 +29,7 @@
     </div>
 
     <!-- Entries list -->
-    <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+    <div class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
       <div v-if="loading && entries.length === 0" class="divide-y divide-border">
         <div v-for="i in 6" :key="i" class="flex items-center justify-between px-4 py-3.5">
           <div class="flex items-center gap-3">
@@ -112,7 +112,7 @@
           <button
             type="button"
             class="flex-1 py-1.5 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-1.5"
-            :class="editForm.type === 'expense' ? 'bg-white text-red-600 shadow-sm' : 'text-muted-foreground'"
+            :class="editForm.type === 'expense' ? 'bg-card text-red-600 shadow-sm' : 'text-muted-foreground'"
             @click="editForm.type = 'expense'"
           >
             <TrendingDown class="w-3.5 h-3.5" /> {{ $t('finance.expense') }}
@@ -120,7 +120,7 @@
           <button
             type="button"
             class="flex-1 py-1.5 rounded-md text-sm font-medium transition-all flex items-center justify-center gap-1.5"
-            :class="editForm.type === 'income' ? 'bg-white text-emerald-600 shadow-sm' : 'text-muted-foreground'"
+            :class="editForm.type === 'income' ? 'bg-card text-emerald-600 shadow-sm' : 'text-muted-foreground'"
             @click="editForm.type = 'income'"
           >
             <TrendingUp class="w-3.5 h-3.5" /> {{ $t('finance.income') }}
