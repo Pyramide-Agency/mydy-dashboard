@@ -209,8 +209,19 @@
 
     </nav>
 
-    <!-- Logout -->
-    <div class="px-2.5 py-3 border-t border-slate-800">
+    <!-- Bottom actions -->
+    <div class="px-2.5 py-3 border-t border-slate-800 space-y-0.5">
+      <!-- Upgrade button — visible only when a new GitHub release exists -->
+      <button
+        v-if="hasUpdate"
+        class="nav-item w-full"
+        style="background: rgb(99 102 241 / 0.12); color: rgb(129 140 248);"
+        @click="openUpgrade"
+      >
+        <ArrowUpCircle class="w-4 h-4 shrink-0" />
+        <span>New update available</span>
+      </button>
+
       <button
         class="nav-item w-full text-slate-500 hover:bg-red-500/10 hover:text-red-400 group"
         @click="handleLogout"
@@ -219,6 +230,8 @@
         <span>{{ $t('sidebar.logout') }}</span>
       </button>
     </div>
+
+    <UpgradeDialog />
 
   </aside>
 </template>
@@ -243,11 +256,15 @@ import {
   Calendar,
   Clock,
   Briefcase,
+  ArrowUpCircle,
 } from 'lucide-vue-next'
 
 const route      = useRoute()
 const { logout } = useAuth()
 const { $t }    = useLocale()
+const { hasUpdate, fetchRelease, open: openUpgrade } = useRelease()
+
+onMounted(() => fetchRelease())
 
 // Which submenu is open
 const open = reactive({ tasks: false, finance: false, lms: false, work: false })
