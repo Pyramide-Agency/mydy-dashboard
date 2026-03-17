@@ -1,6 +1,41 @@
 <template>
   <div class="space-y-5">
 
+    <!-- Freelance active timer widget -->
+    <div
+      v-if="freelanceActive"
+      class="rounded-xl border overflow-hidden animate-slide-up"
+      style="background: rgb(99 102 241 / 0.08); border-color: rgb(99 102 241 / 0.3);"
+    >
+      <div class="px-5 py-3 flex items-center gap-4 flex-wrap">
+        <Timer class="w-4 h-4 text-indigo-400 shrink-0 animate-pulse" />
+        <div class="flex items-center gap-2 flex-1 min-w-0">
+          <span
+            class="w-2.5 h-2.5 rounded-full shrink-0"
+            :style="{ backgroundColor: freelanceActive.project_color }"
+          />
+          <span class="text-sm font-semibold text-foreground truncate">{{ freelanceActive.project_name }}</span>
+          <span class="text-xs text-muted-foreground">{{ $t('freelance.timerRunning') }}</span>
+        </div>
+        <span class="font-mono text-lg font-bold text-foreground tracking-wider">{{ formatElapsed(freelanceElapsed) }}</span>
+        <button
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
+          style="background: rgb(239 68 68 / 0.12); color: #ef4444;"
+          @click="stopFreelanceTimer"
+        >
+          <Square class="w-3.5 h-3.5" />
+          {{ $t('freelance.stop') }}
+        </button>
+        <NuxtLink
+          to="/freelance"
+          class="text-xs font-medium text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-1"
+        >
+          {{ $t('common.all') }}
+          <ArrowRight class="w-3 h-3" />
+        </NuxtLink>
+      </div>
+    </div>
+
     <!-- Stat cards skeleton -->
     <div v-if="loading" class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div v-for="i in 3" :key="i" class="bg-card rounded-xl p-5 shadow-sm border border-border">
@@ -165,13 +200,14 @@
 </template>
 
 <script setup lang="ts">
-import { Wallet, TrendingUp, LayoutList, Plus, Clock, ArrowRight, Receipt, GraduationCap } from 'lucide-vue-next'
+import { Wallet, TrendingUp, LayoutList, Plus, Clock, ArrowRight, Receipt, GraduationCap, Timer, Square } from 'lucide-vue-next'
 import { formatDistanceToNow, parseISO } from 'date-fns'
 import { ru, enUS } from 'date-fns/locale'
 
 definePageMeta({ middleware: 'auth' })
 
 const api      = useApi()
+const freelance = useFreelance()
 const { $t, plural, locale } = useLocale()
 const loading = ref(true)
 
@@ -191,6 +227,11 @@ const lmsDeadlines   = ref<any[]>([])
 const lmsLoading     = ref(false)
 const dfns           = computed(() => locale.value === 'ru' ? ru : enUS)
 
+// Freelance timer widget
+const freelanceActive  = ref<any>(null)
+const freelanceElapsed = ref(0)
+let freelanceInterval: ReturnType<typeof setInterval> | null = null
+
 const formatMoney = (value: any) => {
   if (value === null || value === undefined || value === '') return '0.00'
   const num = typeof value === 'number'
@@ -203,7 +244,24 @@ const formatMoney = (value: any) => {
   }).format(num)
 }
 
+onUnmounted(() => {
+  if (freelanceInterval) clearInterval(freelanceInterval)
+})
+
 onMounted(async () => {
+  // Load freelance active session in background
+  freelance.getActiveSession().then((data: any) => {
+    if (data) {
+      freelanceActive.value  = data
+      freelanceElapsed.value = data.elapsed_seconds || 0
+      freelanceInterval = setInterval(() => {
+        if (freelanceActive.value && !freelanceActive.value.is_paused) {
+          freelanceElapsed.value++
+        }
+      }, 1000)
+    }
+  }).catch(() => {})
+
   try {
     const [boards, todaySummary, monthSummary, entries, settings] = await Promise.all([
       api.getBoards(),
@@ -256,6 +314,22 @@ const formatDue = (dueAt: string) => {
   if (!dueAt) return ''
   try { return formatDistanceToNow(parseISO(dueAt), { addSuffix: true, locale: dfns.value }) }
   catch { return '' }
+}
+
+const stopFreelanceTimer = async () => {
+  try {
+    await freelance.stopTimer()
+    if (freelanceInterval) clearInterval(freelanceInterval)
+    freelanceActive.value  = null
+    freelanceElapsed.value = 0
+  } catch {}
+}
+
+const formatElapsed = (secs: number) => {
+  const h = Math.floor(secs / 3600)
+  const m = Math.floor((secs % 3600) / 60)
+  const s = secs % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
 const onExpenseAdded = async () => {
