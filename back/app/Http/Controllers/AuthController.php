@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Services\AnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -30,6 +31,8 @@ class AuthController extends Controller
                 Setting::set('api_token', $token);
             }
 
+            AnalyticsService::track('user.login');
+
             return $this->success(['token' => $token], 'Вход выполнен');
         } catch (\Throwable $e) {
             Log::error('[auth.login] Exception: ' . $e->getMessage(), [
@@ -44,6 +47,7 @@ class AuthController extends Controller
     public function logout(): JsonResponse
     {
         Setting::set('api_token', null);
+        AnalyticsService::track('user.logout');
         return $this->success(message: 'Выход выполнен');
     }
 

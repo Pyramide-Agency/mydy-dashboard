@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AiConversation;
 use App\Models\AiMemory;
 use App\Services\AiService;
+use App\Services\AnalyticsService;
 use App\Services\FinanceContextBuilder;
 use App\Services\MemoryService;
 use Illuminate\Http\JsonResponse;
@@ -127,6 +128,7 @@ class AiController extends Controller
 
         $messages   = $conversation->messages;
         $messages[] = ['role' => 'user', 'content' => $request->message];
+        AnalyticsService::track('ai.message.sent');
 
         if (count($messages) > 100) {
             $messages = array_slice($messages, -100);

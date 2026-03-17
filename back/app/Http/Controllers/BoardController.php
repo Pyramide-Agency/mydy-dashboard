@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Board;
 use App\Models\Column;
+use App\Services\AnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -31,6 +32,7 @@ class BoardController extends Controller
             ['board_id' => $board->id, 'name' => 'Готово',   'status_key' => 'done',          'position' => 2, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
+        AnalyticsService::track('board.created');
         return $this->success($board->load('columns')->toArray(), 'Доска создана', 201);
     }
 

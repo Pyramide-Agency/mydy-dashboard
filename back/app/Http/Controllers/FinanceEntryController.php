@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FinanceEntry;
+use App\Services\AnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -39,6 +40,7 @@ class FinanceEntryController extends Controller
         ]);
 
         $entry = FinanceEntry::create($data);
+        AnalyticsService::track('finance.entry.created', ['type' => $data['type'] ?? 'expense', 'source' => $data['source'] ?? 'web']);
         return $this->success($entry->load('category')->toArray(), 'Запись добавлена', 201);
     }
 

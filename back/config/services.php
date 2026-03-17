@@ -39,4 +39,9 @@ return [
         'key' => env('ANTHROPIC_API_KEY'),
     ],
 
+    'analytics' => [
+        'url'    => env('ANALYTICS_URL'),
+        'secret' => env('ANALYTICS_INGEST_SECRET'),
+    ],
+
 ];
