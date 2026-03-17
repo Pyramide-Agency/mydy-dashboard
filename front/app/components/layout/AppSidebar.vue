@@ -148,15 +148,44 @@
         </div>
       </div>
 
-      <!-- Работа (flat link) -->
-      <NuxtLink
-        to="/work"
-        class="nav-item"
-        :class="route.path.startsWith('/work') ? 'nav-item--active' : 'nav-item--default'"
-      >
-        <BriefcaseBusiness class="nav-icon" />
-        <span>{{ $t('sidebar.work') }}</span>
-      </NuxtLink>
+      <!-- Работа (with submenu) -->
+      <div>
+        <button
+          class="nav-item w-full"
+          :class="isSection('/work') || isSection('/freelance') ? 'nav-item--active' : 'nav-item--default'"
+          @click="toggle('work')"
+        >
+          <BriefcaseBusiness class="nav-icon" />
+          <span class="flex-1 text-left">{{ $t('sidebar.work') }}</span>
+          <ChevronRight
+            class="w-3.5 h-3.5 transition-transform duration-200 shrink-0"
+            :class="open.work ? 'rotate-90' : ''"
+          />
+        </button>
+
+        <div class="submenu-wrap" :class="{ 'submenu-wrap--open': open.work }">
+          <div class="submenu-inner">
+            <div class="ml-3 mt-0.5 pl-3 border-l border-slate-700/60 space-y-0.5 pb-1">
+              <NuxtLink
+                to="/work"
+                class="sub-item"
+                :class="route.path === '/work' ? 'sub-item--active' : 'sub-item--default'"
+              >
+                <Clock class="w-3.5 h-3.5 shrink-0" />
+                {{ $t('sidebar.workCheckin') }}
+              </NuxtLink>
+              <NuxtLink
+                to="/freelance"
+                class="sub-item"
+                :class="route.path.startsWith('/freelance') ? 'sub-item--active' : 'sub-item--default'"
+              >
+                <Briefcase class="w-3.5 h-3.5 shrink-0" />
+                {{ $t('sidebar.freelance') }}
+              </NuxtLink>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- AI чат (flat link) -->
       <NuxtLink
@@ -212,6 +241,8 @@ import {
   AlarmClock,
   ClipboardList,
   Calendar,
+  Clock,
+  Briefcase,
 } from 'lucide-vue-next'
 
 const route      = useRoute()
@@ -219,20 +250,21 @@ const { logout } = useAuth()
 const { $t }    = useLocale()
 
 // Which submenu is open
-const open = reactive({ tasks: false, finance: false, lms: false })
+const open = reactive({ tasks: false, finance: false, lms: false, work: false })
 
 // Auto-open section based on current route
 watch(
   () => route.path,
   (path) => {
-    if (path.startsWith('/kanban'))  open.tasks   = true
-    if (path.startsWith('/finance')) open.finance = true
-    if (path.startsWith('/lms'))     open.lms     = true
+    if (path.startsWith('/kanban'))    open.tasks   = true
+    if (path.startsWith('/finance'))   open.finance = true
+    if (path.startsWith('/lms'))       open.lms     = true
+    if (path.startsWith('/work') || path.startsWith('/freelance')) open.work = true
   },
   { immediate: true },
 )
 
-const toggle = (key: 'tasks' | 'finance' | 'lms') => {
+const toggle = (key: 'tasks' | 'finance' | 'lms' | 'work') => {
   open[key] = !open[key]
 }
 

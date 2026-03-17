@@ -11,6 +11,7 @@ use App\Http\Controllers\LmsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TelegramController;
+use App\Http\Controllers\FreelanceController;
 use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
 
@@ -116,4 +117,23 @@ Route::middleware('auth.api')->group(function () {
     Route::get('/work/webhook-info',            [WorkController::class, 'webhookInfo']);
     Route::post('/work/webhook-key/regenerate', [WorkController::class, 'regenerateKey']);
     Route::delete('/work/webhook',              [WorkController::class, 'revokeWebhook']);
+
+    // Freelance time tracker — static routes BEFORE wildcard
+    Route::get('/freelance/sessions/active',        [FreelanceController::class, 'activeSession']);
+    Route::post('/freelance/sessions/start',        [FreelanceController::class, 'startTimer']);
+    Route::post('/freelance/sessions/stop',         [FreelanceController::class, 'stopTimer']);
+    Route::post('/freelance/sessions/pause',        [FreelanceController::class, 'pauseTimer']);
+    Route::post('/freelance/sessions/resume',       [FreelanceController::class, 'resumeTimer']);
+    Route::get('/freelance/sessions',               [FreelanceController::class, 'sessions']);
+    Route::post('/freelance/sessions',              [FreelanceController::class, 'createSessionManual']);
+    Route::patch('/freelance/sessions/{session}',   [FreelanceController::class, 'updateSession']);
+    Route::delete('/freelance/sessions/{session}',  [FreelanceController::class, 'deleteSession']);
+
+    Route::get('/freelance/projects',               [FreelanceController::class, 'projects']);
+    Route::post('/freelance/projects',              [FreelanceController::class, 'createProject']);
+    Route::put('/freelance/projects/{project}',     [FreelanceController::class, 'updateProject']);
+    Route::delete('/freelance/projects/{project}',  [FreelanceController::class, 'deleteProject']);
+
+    Route::get('/freelance/stats',                  [FreelanceController::class, 'stats']);
+    Route::get('/freelance/export',                 [FreelanceController::class, 'export']);
 });

@@ -6,7 +6,7 @@
 
 <p align="center">
   Personal dashboard for people who take their life seriously.<br/>
-  Kanban · Finance · AI Advisor · Canvas LMS · Telegram Mini App · Work Tracker
+  Kanban · Finance · AI Advisor · Canvas LMS · Telegram Mini App · Work Tracker · Freelance Tracker
 </p>
 
 <p align="center">
@@ -87,6 +87,25 @@ A full mobile-optimized interface embedded directly inside Telegram. Sections ac
 | **Settings** | Language, currency, AI provider, categories, bot connection |
 
 Includes haptic feedback, Telegram safe area support, and a dedicated `tma-auth` middleware.
+
+### Freelance Tracker
+Time tracking built for freelancers who bill by the hour. Create client projects, run a server-side stopwatch (survives browser closes), and export clean reports.
+
+**Projects** — each with a name, color label, and optional deadline. Projects display weekly and monthly hour totals at a glance.
+
+**Timer** — start, pause, resume, and stop. The timer runs on the server, so closing the tab or reloading the page doesn't lose time. Only one active session at a time.
+
+**Manual entry** — log past sessions retroactively with start/end times and an optional note.
+
+**History** — session table filterable by period (week / month / all) and by project. Edit or delete any session inline.
+
+**Stats** — weekly and monthly breakdowns with a color-coded bar chart per project.
+
+**CSV export** — download a report (Date, Project, Start, End, Duration, Note) filtered by project and date range — ready to paste into Excel or Google Sheets.
+
+**Dashboard widget** — if a timer is running, a live counter appears on the main dashboard with a one-click Stop button.
+
+Web only — not available in the Telegram Mini App.
 
 ### Work Time Tracker
 Track work hours with one-tap check-in / check-out. Live timer for active shifts. History view grouped by week or month with per-session duration and totals.

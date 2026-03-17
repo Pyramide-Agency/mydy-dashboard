@@ -169,6 +169,26 @@ export const useApi = () => {
     getLmsAnnouncements:       (params?: any) => get('/lms/announcements', params),
     markAnnouncementRead:      (id: number) => request(`/lms/announcements/${id}/read`, { method: 'PATCH' }, { error: true }),
 
+    // Freelance time tracker
+    getFreelanceProjects:      () => get('/freelance/projects'),
+    createFreelanceProject:    (data: any) => post('/freelance/projects', data),
+    updateFreelanceProject:    (id: number, data: any) => put(`/freelance/projects/${id}`, data),
+    deleteFreelanceProject:    (id: number) => del(`/freelance/projects/${id}`),
+    getActiveFreelanceSession: () => get('/freelance/sessions/active'),
+    startFreelanceTimer:       (projectId: number) => post('/freelance/sessions/start', { project_id: projectId }),
+    stopFreelanceTimer:        (note?: string) => post('/freelance/sessions/stop', { note: note ?? null }),
+    pauseFreelanceTimer:       () => post('/freelance/sessions/pause'),
+    resumeFreelanceTimer:      () => post('/freelance/sessions/resume'),
+    getFreelanceSessions:      (params?: any) => get('/freelance/sessions', params),
+    createFreelanceSession:    (data: any) => post('/freelance/sessions', data),
+    updateFreelanceSession:    (id: number, data: any) => request(`/freelance/sessions/${id}`, { method: 'PATCH', body: data }, { success: true, error: true }),
+    deleteFreelanceSession:    (id: number) => del(`/freelance/sessions/${id}`),
+    getFreelanceStats:         (filter: string) => get('/freelance/stats', { filter }),
+    getFreelanceExportUrl:     (params?: any) => {
+      const q = new URLSearchParams(params || {}).toString()
+      return `${base}/freelance/export${q ? '?' + q : ''}`
+    },
+
     // Raw base URL for streaming
     baseUrl: base,
     getHeaders: headers,
