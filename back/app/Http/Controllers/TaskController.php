@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Models\Column;
+use App\Services\AnalyticsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -60,6 +61,7 @@ class TaskController extends Controller
 
         $task = Task::create([...$data, 'position' => $position]);
 
+        AnalyticsService::track('task.created');
         return $this->success($task->load('column')->toArray(), 'Задача создана', 201);
     }
 

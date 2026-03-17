@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\FreelanceProject;
 use App\Models\FreelanceSession;
+use App\Services\AnalyticsService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -117,6 +118,7 @@ class FreelanceController extends Controller
 
         $session->load('project');
 
+        AnalyticsService::track('freelance.session.started');
         return $this->success($this->formatActiveSession($session), 'Timer started', 201);
     }
 
@@ -152,6 +154,7 @@ class FreelanceController extends Controller
 
         $session->load('project');
 
+        AnalyticsService::track('freelance.session.stopped');
         return $this->success($this->formatSession($session), 'Timer stopped');
     }
 

@@ -40,4 +40,15 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\HttpException $e) use ($fmt) {
             return response()->json($fmt($e->getStatusCode(), $e->getMessage() ?: 'Ошибка'), $e->getStatusCode());
         });
+
+        $exceptions->report(function (\Throwable $e) {
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return false; // не трекаем валидационные ошибки
+            }
+            \App\Services\AnalyticsService::track('app.error', [
+                'message' => $e->getMessage(),
+                'class'   => get_class($e),
+                'file'    => $e->getFile() . ':' . $e->getLine(),
+            ]);
+        });
     })->create();
