@@ -48,6 +48,9 @@ services:
 
       FRONTEND_URL:      ${APP_URL:-http://localhost}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+
+      ANALYTICS_URL:            ${ANALYTICS_URL:-https://analytics-vektron.pyramide.uz}
+      ANALYTICS_INGEST_SECRET:  ${ANALYTICS_INGEST_SECRET:-}
     ports:
       - "${APP_PORT:-80}:80"
 
