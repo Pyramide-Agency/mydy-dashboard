@@ -12,6 +12,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TelegramController;
 use App\Http\Controllers\FreelanceController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\WorkController;
 use Illuminate\Support\Facades\Route;
 
@@ -136,4 +137,13 @@ Route::middleware('auth.api')->group(function () {
 
     Route::get('/freelance/stats',                  [FreelanceController::class, 'stats']);
     Route::get('/freelance/export',                 [FreelanceController::class, 'export']);
+
+    // Data export
+    Route::get('/export/all',       [ExportController::class, 'all']);
+    Route::get('/export/finance',   [ExportController::class, 'finance']);
+    Route::get('/export/tasks',     [ExportController::class, 'tasks']);
+    Route::get('/export/work',      [ExportController::class, 'work']);
+    Route::get('/export/freelance', [ExportController::class, 'freelance']);
+    Route::get('/export/lms',       [ExportController::class, 'lms']);
+    Route::get('/export/memories',  [ExportController::class, 'memories']);
 });

@@ -189,6 +189,37 @@ export const useApi = () => {
       return `${base}/freelance/export${q ? '?' + q : ''}`
     },
 
+    downloadExport: async (module: string, format: 'csv' | 'json' = 'csv') => {
+      const res = await fetch(`${base}/export/${module}?format=${format}`, {
+        headers: headers(),
+      })
+      if (!res.ok) throw new Error(await res.text())
+      const blob = await res.blob()
+      const ext  = format === 'json' ? 'json' : 'csv'
+      const filename = res.headers.get('Content-Disposition')?.match(/filename="?([^"]+)"?/)?.[1]
+        ?? `${module}-export.${ext}`
+      const url = URL.createObjectURL(blob)
+      const a   = document.createElement('a')
+      a.href     = url
+      a.download = filename
+      a.click()
+      URL.revokeObjectURL(url)
+    },
+
+    downloadAllExport: async () => {
+      const res = await fetch(`${base}/export/all`, { headers: headers() })
+      if (!res.ok) throw new Error(await res.text())
+      const blob     = await res.blob()
+      const filename = res.headers.get('Content-Disposition')?.match(/filename="?([^"]+)"?/)?.[1]
+        ?? `vektron-export.zip`
+      const url = URL.createObjectURL(blob)
+      const a   = document.createElement('a')
+      a.href     = url
+      a.download = filename
+      a.click()
+      URL.revokeObjectURL(url)
+    },
+
     // Raw base URL for streaming
     baseUrl: base,
     getHeaders: headers,

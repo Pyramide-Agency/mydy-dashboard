@@ -524,6 +524,59 @@
       </CardContent>
     </Card>
 
+    <!-- Data Export -->
+    <Card>
+      <CardHeader>
+        <CardTitle class="text-base flex items-center gap-2">
+          <Download class="w-4 h-4" />
+          {{ $t('settings.dataExport') }}
+        </CardTitle>
+        <CardDescription>{{ $t('settings.dataExportDesc') }}</CardDescription>
+      </CardHeader>
+      <CardContent class="space-y-4">
+        <!-- Export all -->
+        <div class="flex items-center justify-between py-3 px-4 rounded-lg bg-primary/5 border border-primary/20">
+          <div>
+            <p class="text-sm font-medium">{{ $t('settings.exportAll') }}</p>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ $t('settings.exportAllDesc') }}</p>
+          </div>
+          <Button
+            size="sm"
+            :disabled="exportingAll"
+            @click="exportAllData"
+          >
+            <Loader2 v-if="exportingAll" class="w-4 h-4 animate-spin mr-1.5" />
+            <Download v-else class="w-4 h-4 mr-1.5" />
+            {{ exportingAll ? $t('settings.exportingAll') : $t('settings.exportAll') }}
+          </Button>
+        </div>
+
+        <div class="border-t border-border" />
+
+        <div
+          v-for="item in exportModules"
+          :key="item.module"
+          class="flex items-center justify-between py-2 px-3 rounded-lg border border-border/50 hover:bg-muted/30"
+        >
+          <span class="text-sm font-medium">{{ $t(`settings.${item.labelKey}`) }}</span>
+          <div class="flex gap-1.5">
+            <Button
+              v-for="fmt in item.formats"
+              :key="fmt"
+              size="sm"
+              variant="outline"
+              class="h-7 px-2 text-xs"
+              :disabled="item.module === exportingModule"
+              @click="exportData(item.module, fmt as 'csv' | 'json')"
+            >
+              <Loader2 v-if="exportingModule === item.module && exportFormat === fmt" class="w-3 h-3 animate-spin mr-1" />
+              {{ fmt === 'csv' ? $t('settings.exportCsv') : $t('settings.exportJson') }}
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
     <!-- Categories -->
     <Card>
       <CardHeader class="flex flex-row items-center justify-between pb-3">
@@ -582,7 +635,7 @@
 </template>
 
 <script setup lang="ts">
-import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw, Bell, GraduationCap, Palette } from 'lucide-vue-next'
+import { Send, Loader2, Plus, Trash2, Check, Bot, Brain, BriefcaseBusiness, Copy, RefreshCw, Bell, GraduationCap, Palette, Download } from 'lucide-vue-next'
 import { Switch } from '@/components/ui/switch'
 import QRCode from 'qrcode'
 import type { FormField } from '~/components/DynamicForm.vue'
@@ -844,6 +897,43 @@ const confirmClearMemories = async () => {
   if (!confirm($t('settings.iosClearMemory'))) return
   await api.clearMemories()
   memories.value = []
+}
+
+// ── Data Export ───────────────────────────────────────────────────────────────
+const exportingModule = ref<string | null>(null)
+const exportFormat    = ref<'csv' | 'json'>('csv')
+const exportingAll    = ref(false)
+
+const exportAllData = async () => {
+  exportingAll.value = true
+  try {
+    await api.downloadAllExport()
+  } catch {
+    toast.error($t('settings.exportError'))
+  } finally {
+    exportingAll.value = false
+  }
+}
+
+const exportModules = [
+  { module: 'finance',   labelKey: 'exportFinance',   formats: ['csv', 'json'] },
+  { module: 'tasks',     labelKey: 'exportTasks',     formats: ['csv', 'json'] },
+  { module: 'work',      labelKey: 'exportWork',      formats: ['csv', 'json'] },
+  { module: 'freelance', labelKey: 'exportFreelance', formats: ['csv', 'json'] },
+  { module: 'lms',       labelKey: 'exportLms',       formats: ['csv', 'json'] },
+  { module: 'memories',  labelKey: 'exportMemories',  formats: ['json']        },
+]
+
+const exportData = async (module: string, format: 'csv' | 'json') => {
+  exportingModule.value = module
+  exportFormat.value    = format
+  try {
+    await api.downloadExport(module, format)
+  } catch {
+    toast.error($t('settings.exportError'))
+  } finally {
+    exportingModule.value = null
+  }
 }
 
 onMounted(async () => {
